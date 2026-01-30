@@ -87,7 +87,7 @@ AI przeanalizuje styl i dostosuje go do Twojej branży.
 
 ## 🛠️ Wdrożenie
 Stronę możesz opublikować m.in. na:
-- Netlify / Vercel
+- Hostilo.app / Netlify / Vercel
 - GitHub Pages
 - Własnym hostingu (FTP)
 
@@ -190,7 +190,7 @@ The AI analyzes the style and adapts it to your niche.
 
 ## 🛠️ Deployment
 Deploy anywhere:
-- Netlify / Vercel
+- Hostilo.app / Netlify / Vercel
 - GitHub Pages
 - Any hosting via FTP
 
