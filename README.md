@@ -1,231 +1,109 @@
-# 🚀 Website Builder 2026
+# Website Builder 2026
 
-> **Zbuduj profesjonalną, szybką i dostępną stronę WWW w kilka minut — bez frameworków, bez Figma i bez bólu głowy.**
+> AI system prompt & skill that generates **production-ready static websites** — WCAG 2.2 AA, Core Web Vitals green, SEO + AI-Search optimized, zero "AI-slop", and deployable on [hostilo.app](https://hostilo.app) in 30 seconds.
 
-Website Builder 2026 to AI‑driven generator stron internetowych, który prowadzi użytkownika od pomysłu do **production‑ready kodu HTML/CSS/JS**. Narzędzie zostało zaprojektowane zarówno dla osób nietechnicznych, jak i zaawansowanych developerów.
-
----
-
-## 🇵🇱 Opis (Polski)
-
-### ✨ Co to jest?
-Website Builder 2026 to inteligentny kreator stron, który:
-- zadaje właściwe pytania we właściwej kolejności,
-- dobiera styl, kolory i typografię,
-- generuje **czysty, semantyczny kod** gotowy do wdrożenia.
-
-Nie tworzysz "AI template" — tworzysz **unikalną stronę dopasowaną do Twojego celu biznesowego**.
+Available in two interchangeable forms — a **Claude Skill** and a **ChatGPT Custom GPT** — both driven by the same v2.0 engineering spec. Ask for a website in plain language and get a single self-contained `index.html` you can paste straight into a static host.
 
 ---
 
-## 🧭 Jak zacząć?
+## What it does
 
-### Opcja 1: Prowadzenie krok po kroku (rekomendowane)
-Napisz:
-```
-Chcę stworzyć stronę internetową
-```
+Turns a short brief (or a guided 10-question interview) into a complete, self-contained website that is:
 
-AI zada Ci **10 pytań**, m.in.:
-- typ strony (landing, blog, sklep),
-- branżę i grupę docelową,
-- cel strony (sprzedaż, zapisy, kontakt),
-- styl wizualny, kolory i fonty.
-
-Po każdym kroku otrzymasz podsumowanie i możesz wprowadzić zmiany.
+- **Accessible** — WCAG 2.2 AA: keyboard nav, visible focus, ARIA-correct mobile menu, 44×44px targets, contrast-checked per theme, `prefers-reduced-motion` respected.
+- **Fast** — Core Web Vitals green: LCP < 2.5s, CLS < 0.1, INP < 200ms. AVIF→WebP→JPG pipeline, hero preload + `fetchpriority`, deferred JS, self-hosted variable fonts.
+- **Findable** — classic SEO **and** AI Search (GEO/AEO): canonical, robots directives, full Open Graph/Twitter, and a JSON-LD schema pack (`Organization` + `WebSite` + `WebPage`, conditional `FAQPage` / `BreadcrumbList` / `BlogPosting` / `LocalBusiness`).
+- **Distinctive** — an anti-AI-slop ruleset plus a mandatory **industry → aesthetic mapping**, so a fintech site never looks like a bakery, and one "signature element" carries each design.
+- **Modern** — CSS `@layer` architecture, design tokens, container queries, View Transitions API, `color-scheme`-aware light/dark, `text-wrap: balance`.
+- **Deployable** — one `index.html`, no build step, static-safe forms (Hostilo Forms endpoint + honeypot + AJAX with native-POST fallback), EU AI Act Art. 50 disclosure.
 
 ---
 
-### Opcja 2: Szybka ścieżka (dla zaawansowanych)
-Podaj wszystkie informacje od razu:
-```
-Landing page dla mojego produktu
-Branża: SaaS
-Target: Web developerzy
-Cel: Free trial
-Styl: Dark, nowoczesny
-Kolory: dobierz
-```
+## Repository structure
 
-AI zweryfikuje szczegóły i zacznie generować stronę.
+```
+Website-Builder/
+├── master-website-builder-prompt-2026-v2.md   # The full spec (§1–§17) — source of truth
+├── website-builder-2026.skill                 # Packaged Claude Skill (installable)
+├── skill/                                      # Unpacked skill source
+│   └── website-builder-2026/
+│       ├── SKILL.md                            # Orchestrator + hard invariants
+│       └── references/
+│           ├── workflow.md                     # Interactive 10-step brief
+│           ├── design-directions.md            # Anti-slop rules + industry map
+│           ├── foundation-html-seo.md          # <head>, CSP, meta pack, JSON-LD
+│           ├── css-system.md                   # Tokens, @layer, components, CQ, motion, images
+│           ├── javascript.md                   # Theme, nav, scroll, forms
+│           ├── hostilo-deployment.md           # Static-host packaging & forms
+│           └── qa-checklist.md                 # 60+ point pre-launch checklist
+├── chatgpt/
+│   └── custom-gpt-website-builder.md           # ChatGPT Custom GPT config + Instructions block
+└── README.md
+```
 
 ---
 
-### Opcja 3: Inspiracja
-Możesz wskazać istniejącą stronę:
-```
-Chcę coś jak vercel.com, ale dla aplikacji fitness
+## Install
+
+### Claude
+
+**Claude.ai** — open the `website-builder-2026.skill` card and click **Save skill** (if your plan/organization allows skill creation).
+
+**Claude Code** — the `.skill` file is a plain ZIP; unpack it into your skills directory:
+
+```bash
+unzip website-builder-2026.skill -d ~/.claude/skills/      # global
+# or into .claude/skills/ inside a project repo
 ```
 
-AI przeanalizuje styl i dostosuje go do Twojej branży.
+Once installed it auto-triggers on any website request ("make me a landing page…", "zrób mi stronę…", or anything mentioning hostilo.app).
+
+### ChatGPT
+
+Follow [`chatgpt/custom-gpt-website-builder.md`](chatgpt/custom-gpt-website-builder.md):
+
+1. **Create a GPT → Configure**, paste the Instructions block (≈7.6k chars, fits the 8k limit).
+2. Upload `master-website-builder-prompt-2026-v2.md` as **Knowledge**.
+3. Enable **Canvas**; save.
+
+The same block also works as **ChatGPT Project** instructions.
 
 ---
 
-## 🎁 Co otrzymasz?
+## Usage
 
-### ✅ Production‑ready kod
-- HTML5 (semantyczny)
-- CSS (Grid, Flexbox, zmienne)
-- Vanilla JavaScript
-- Jeden plik HTML – działa offline
-
-### ✅ Best Practices 2026
-- WCAG 2.2 AA (accessibility)
-- SEO + Schema.org
-- Core Web Vitals (Lighthouse ≥95)
-- Mobile‑first
-- Security headers (CSP)
-- EU AI Act (Article 50)
-
-### ✅ Unikalny design
-- Brak generycznych fontów
-- Spójna typografia i kolory
-- Opcjonalny dark mode
-- Subtelne animacje
-
----
-
-## 🛠️ Wdrożenie
-Stronę możesz opublikować m.in. na:
-- Hostilo.app / Netlify / Vercel
-- GitHub Pages
-- Własnym hostingu (FTP)
-
-Wystarczy skopiować plik HTML i opublikować.
-
----
-
-## ❓ FAQ (PL)
-
-**Czy muszę znać HTML/CSS?**  
-Nie. Kod jest gotowy do użycia.
-
-**Czy mogę używać komercyjnie?**  
-Tak. Wygenerowany kod jest Twój.
-
-**Czy mogę wprowadzać zmiany?**  
-Tak — w dowolnym momencie.
-
----
-
-# 🇬🇧 Description (English)
-
-## ✨ What is it?
-Website Builder 2026 is an AI‑powered website generator that guides you from idea to **production‑ready HTML/CSS/JS code**.
-
-It’s designed for:
-- non‑technical users who want results fast,
-- developers who want clean, framework‑free output.
-
-No generic templates. Every site is **tailored to your product and goals**.
-
----
-
-## 🧭 Getting Started
-
-### Option 1: Step‑by‑step guidance (recommended)
-Type:
+**Guided:**
 ```
-I want to create a website
+Make me a landing page for my SaaS — walk me through it step by step
+```
+The assistant runs a 10-question brief (type, industry, audience, goal, CTA, sections, aesthetic, colors, fonts, content), auto-selects a design direction from the industry map, then builds after you confirm.
+
+**Fast track:**
+```
+Landing page for a hosting startup · goal: trial signups · CTA: "Start Free"
+· dark mode · single-file for hostilo.app
 ```
 
-The AI will ask you **10 questions**, including:
-- website type,
-- industry and audience,
-- business goal,
-- visual style, colors, and fonts.
-
-You can revise any answer at any time.
+**Audit an existing page:**
+```
+Audit this HTML against the 2026 checklist and fix what fails
+```
 
 ---
 
-### Option 2: Fast track (advanced users)
-Provide everything at once:
-```
-Landing page for my product
-Industry: SaaS
-Target: Web developers
-Goal: Free trial
-Style: Dark, modern
-Colors: auto
-```
+## Highlights of the v2.0 spec
 
-The AI validates details and starts building immediately.
+The `-v2` spec implements a full technical audit over v1.0:
+
+- Removed the unsupported `aspect-ratio: attr()` CLS hack → explicit `width`/`height` attributes.
+- Replaced the over-restrictive `default-src 'self'` CSP with a practical allow-list that works with GA4/GTM/Stripe/YouTube/Calendly out of the box.
+- Added the AI-Search meta pack, the full JSON-LD schema pack (incl. `FAQPage`), AVIF, container queries, View Transitions, CSS `@layer`, `color-scheme`, self-hosted fonts, form `autocomplete`, canonical/OG/theme-color, and Hostilo-specific static forms & deploy metadata.
+- Added the **mandatory industry → aesthetic mapping** so generated sites stop looking alike.
+
+Full changelog: §17 of the spec.
 
 ---
 
-### Option 3: Inspiration‑based
-Reference an existing site:
-```
-Something like vercel.com but for a fitness app
-```
+## License
 
-The AI analyzes the style and adapts it to your niche.
-
----
-
-## 🎁 What You Get
-
-### ✅ Production‑ready code
-- Semantic HTML5
-- Modern CSS (Grid, Flexbox, variables)
-- Vanilla JavaScript
-- Single HTML file (works offline)
-
-### ✅ 2026 Best Practices
-- WCAG 2.2 AA accessibility
-- SEO + Schema.org
-- Core Web Vitals (Lighthouse ≥95)
-- Mobile‑first design
-- Security headers (CSP)
-- EU AI Act compliance (Article 50)
-
-### ✅ Unique visual identity
-- No generic fonts (Inter, Roboto, Arial)
-- Carefully matched typography & colors
-- Optional dark mode
-- Tasteful animations
-
----
-
-## 🛠️ Deployment
-Deploy anywhere:
-- Hostilo.app / Netlify / Vercel
-- GitHub Pages
-- Any hosting via FTP
-
-Just copy & publish the HTML file.
-
----
-
-## ❓ FAQ (EN)
-
-**Do I need to know HTML/CSS/JS?**  
-No. The output is ready to use.
-
-**Can I use it commercially?**  
-Yes. The generated code is yours.
-
-**Can I edit the result later?**  
-Absolutely. Everything is editable.
-
----
-
-## 🚀 Ready to start?
-
-Just type:
-```
-I want to create a website
-```
-
-or
-```
-Landing page for my product
-```
-
-and let the AI guide you.
-
----
-
-💬 Questions? Ideas? Contributions welcome!
-
+MIT — see [`LICENSE`](LICENSE). Built for the [Hostilo](https://hostilo.app) ecosystem by [IMJinteractive](https://imjinteractive.pl).
