@@ -51,7 +51,7 @@
 
 **HOSTILO.APP:**
 - [ ] Single-file: zero external CSS/JS files, fonts via Strategy B
-- [ ] Multi-file: all paths relative with no leading `/` (`css/…`, `js/…`, `fonts/…`, `img/…`); `url()` only in external CSS (`../fonts/…`); fonts via Strategy A
+- [ ] Multi-file: all paths relative with no leading `/` (`css/…`, `js/…`, `fonts/…`, `img/…`); external-CSS `url()` relative to the CSS file (`../fonts/…`); `imagesrcset` carries an explicit `assets/` prefix; fonts via Strategy A
 - [ ] Limits respected: ≤ 300 files, ≤ 10 MB per file, ≤ 20 MB total, single `html` ≤ 5 MB; only allowed file types; no video files
 - [ ] `dry_run` passed (MCP deploy) and site name confirmed with the user
 - [ ] Live URL opened: no 404 on `assets/…` (fonts, CSS, JS, images, `og:image`)

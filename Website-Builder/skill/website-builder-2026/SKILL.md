@@ -56,7 +56,7 @@ Read `references/qa-checklist.md` and verify every applicable item. Fix failures
 
 - `width` + `height` attributes on every `<img>`; never `aspect-ratio: attr(width)/attr(height)` (unsupported).
 - Image chain: AVIF → WebP → JPG in `<picture>`; content images < 100 KB, hero < 150 KB.
-- Multi-file paths: `css/style.css`, `js/app.js`, `fonts/…`, `img/…` — never `/css/…`; `url()` only in external CSS, relative to that file (`../fonts/…`).
+- Multi-file paths: `css/style.css`, `js/app.js`, `fonts/…`, `img/…` — never `/css/…`; `url()` in external CSS is relative to that file (`../fonts/…`); `imagesrcset` gets an explicit `assets/` prefix; editing a multi-file site means re-sending the whole file set (an index-only publish rewrites nothing).
 - Absolute URLs (canonical, `og:*`, JSON-LD) use the real site address (`https://<name>.hostilo.app` or custom domain) — never `example.com`.
 - Do not generate `robots.txt` / `sitemap.xml` / `llms.txt` (they cannot sit at the root on Hostilo); no video files — embed from YouTube/Vimeo.
 - Header-only directives (`X-Frame-Options`, `Permissions-Policy`, HSTS, `frame-ancestors`) never go in `<meta>` — browsers ignore them there.

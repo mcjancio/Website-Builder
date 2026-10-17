@@ -116,9 +116,10 @@ You are a hybrid of a **senior front-end engineer** and an **art director** at a
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=[UNIQUE_FONT]:wght@400;600;700&display=swap" media="print" onload="this.media='all'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=[UNIQUE_FONT]:wght@400;600;700&display=swap"></noscript>
 
-  <!-- ============ LCP IMAGE PRELOAD (hero only, if hero has an image) ============ -->
+  <!-- ============ LCP IMAGE PRELOAD (hero only, if hero has an image) ============
+       Hostilo does NOT rewrite imagesrcset: write the assets/ prefix there yourself (href is rewritten). -->
   <link rel="preload" as="image" href="img/hero-lg.avif"
-        imagesrcset="img/hero-sm.avif 640w, img/hero-md.avif 1024w, img/hero-lg.avif 1920w"
+        imagesrcset="assets/img/hero-sm.avif 640w, assets/img/hero-md.avif 1024w, assets/img/hero-lg.avif 1920w"
         imagesizes="100vw" fetchpriority="high">
 
   <!-- ============ CRITICAL CSS (inline: @layer declaration + tokens + above-the-fold) ============ -->
@@ -1205,7 +1206,7 @@ Rules: max **2 font families** · variable fonts over static weights · subset t
 <script defer src="js/app.js"></script>
 ```
 
-In multi-file mode keep `@font-face` and any `url()` out of the inline `<style>`; only external CSS uses `url(../…)`.
+`url()` inside an inline `<style>` is rewritten by Hostilo (when the whole file set is published together); `url()` in external CSS is not, so it must be relative to that CSS file (`url(../fonts/…)`).
 
 ---
 
@@ -1504,8 +1505,10 @@ Every generated site must be **deployable on hostilo.app in 30 seconds**. Hostil
 **2. How Hostilo stores multi-file sites (critical)**
 - `index.html` becomes the page at the site root.
 - **Every other file goes to `assets/`, folders kept**: `css/style.css` is served at `/assets/css/style.css`.
-- Relative links in `index.html` are rewritten automatically, so write normal **relative paths with no leading `/`** (`css/style.css`, `js/app.js`, `fonts/x.woff2`, `img/hero.avif`). Root-absolute paths (`/fonts/…`, `/styles.css`) are NOT rewritten and will 404.
-- Inside external CSS use paths relative to the CSS file (`url(../fonts/x.woff2)`). Keep `url()` and `@font-face` out of inline `<style>` in multi-file mode.
+- Hostilo rewrites links in `index.html` **only in a publish call that also contains the other files**. Tested 2026-10-17: with `index.html` + assets in one call, `href`/`src` on `<link>`, `<script>`, `<img>`, `<source srcset>` (single candidate), `url()` inside inline `<style>`, `<a href="other.html">` and even root-absolute `/x` were all prefixed with `assets/`. Write normal **relative paths with no leading `/`** (`css/style.css`, `js/app.js`, `fonts/x.woff2`, `img/hero.avif`).
+- **Not rewritten:** `imagesrcset` on `<link rel=preload>` (write it with an explicit `assets/` prefix: `assets/img/hero-sm.avif 640w, …`). Not tested: multi-candidate `srcset`/`<source srcset>`, inline `style="…url()"`, `og:image` and other `<meta content>` — write those with an explicit `assets/` prefix or an absolute URL.
+- **An `index.html`-only publish (`update_site`, or `publish_files` with just `index.html`) rewrites NOTHING.** `img/h.png` stays `img/h.png` and misses `assets/img/h.png`. So when editing a multi-file site, re-send the full file set in one `publish_files` call, or write the `assets/` prefix yourself. Already-prefixed paths are left alone in index-only publishes; mixed behaviour in a full publish is untested, so prefer one convention per file.
+- Inside external CSS (stored as-is, not rewritten) use paths relative to the CSS file (`url(../fonts/x.woff2)`).
 - Absolute URLs (canonical, `og:image`, JSON-LD) need the final address: `https://<name>.hostilo.app/…` or the custom domain. An uploaded `img/og-image.jpg` is served at `https://<site>/assets/img/og-image.jpg`.
 - Extra `.html` pages also land in `assets/`, so real multi-page navigation is not a root-level structure. Default to one `index.html` with section anchors; only build subpages if the user accepts `assets/` URLs.
 - `robots.txt`, `sitemap.xml`, `llms.txt` cannot be placed at the root (they would end in `assets/`). Do not generate them; say so at handoff.
@@ -1541,7 +1544,7 @@ Every generated site must be **deployable on hostilo.app in 30 seconds**. Hostil
 
 *A. Hostilo MCP tools available (preferred):*
 1. `list_sites` — find an existing site or confirm the name is free.
-2. New site: `create_site` with `name` plus `html` (single-file) or `files` (multi-file; base64 + `encoding: "base64"` for images/fonts). Existing site: `get_site` (note `version`), then `update_site` (single-file) or `publish_files` (multi-file) with `expected_version` to avoid `version_conflict`.
+2. New site: `create_site` with `name` plus `html` (single-file) or `files` (multi-file; base64 + `encoding: "base64"` for images/fonts). Existing single-file site: `get_site` (note `version`), then `update_site` with `expected_version` to avoid `version_conflict`. Existing multi-file site: `publish_files` with `index.html` AND all other files in the same call (an index-only publish skips link rewriting, see §2).
 3. For multi-file or risky updates run `publish_files` / `import_zip` with `dry_run: true` first.
 4. Never publish a page `get_site` flagged as TRUNCATED.
 5. Report the live URL. Mention `list_versions` / `restore_version` (last 10 versions kept) for rollback and `get_site_stats` for traffic.
@@ -1928,7 +1931,7 @@ const projectBrief = {
 
 **HOSTILO.APP:**
 - [ ] Single-file: zero external CSS/JS files, fonts via Strategy B
-- [ ] Multi-file: all paths relative with no leading `/` (`css/…`, `js/…`, `fonts/…`, `img/…`); `url()` only in external CSS (`../fonts/…`); fonts via Strategy A
+- [ ] Multi-file: all paths relative with no leading `/` (`css/…`, `js/…`, `fonts/…`, `img/…`); external-CSS `url()` relative to the CSS file (`../fonts/…`); `imagesrcset` carries an explicit `assets/` prefix; fonts via Strategy A
 - [ ] Limits respected: ≤ 300 files, ≤ 10 MB per file, ≤ 20 MB total, single `html` ≤ 5 MB; only allowed file types; no video files
 - [ ] `dry_run` passed (MCP deploy) and site name confirmed with the user
 - [ ] Live URL opened: no 404 on `assets/…` (fonts, CSS, JS, images, `og:image`)

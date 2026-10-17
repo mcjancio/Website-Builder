@@ -11,8 +11,10 @@ Every generated site must be **deployable on hostilo.app in 30 seconds**. Hostil
 **2. How Hostilo stores multi-file sites (critical)**
 - `index.html` becomes the page at the site root.
 - **Every other file goes to `assets/`, folders kept**: `css/style.css` is served at `/assets/css/style.css`.
-- Relative links in `index.html` are rewritten automatically, so write normal **relative paths with no leading `/`** (`css/style.css`, `js/app.js`, `fonts/x.woff2`, `img/hero.avif`). Root-absolute paths (`/fonts/…`, `/styles.css`) are NOT rewritten and will 404.
-- Inside external CSS use paths relative to the CSS file (`url(../fonts/x.woff2)`). Keep `url()` and `@font-face` out of inline `<style>` in multi-file mode.
+- Hostilo rewrites links in `index.html` **only in a publish call that also contains the other files**. Tested 2026-10-17: with `index.html` + assets in one call, `href`/`src` on `<link>`, `<script>`, `<img>`, `<source srcset>` (single candidate), `url()` inside inline `<style>`, `<a href="other.html">` and even root-absolute `/x` were all prefixed with `assets/`. Write normal **relative paths with no leading `/`** (`css/style.css`, `js/app.js`, `fonts/x.woff2`, `img/hero.avif`).
+- **Not rewritten:** `imagesrcset` on `<link rel=preload>` (write it with an explicit `assets/` prefix: `assets/img/hero-sm.avif 640w, …`). Not tested: multi-candidate `srcset`/`<source srcset>`, inline `style="…url()"`, `og:image` and other `<meta content>` — write those with an explicit `assets/` prefix or an absolute URL.
+- **An `index.html`-only publish (`update_site`, or `publish_files` with just `index.html`) rewrites NOTHING.** `img/h.png` stays `img/h.png` and misses `assets/img/h.png`. So when editing a multi-file site, re-send the full file set in one `publish_files` call, or write the `assets/` prefix yourself. Already-prefixed paths are left alone in index-only publishes; mixed behaviour in a full publish is untested, so prefer one convention per file.
+- Inside external CSS (stored as-is, not rewritten) use paths relative to the CSS file (`url(../fonts/x.woff2)`).
 - Absolute URLs (canonical, `og:image`, JSON-LD) need the final address: `https://<name>.hostilo.app/…` or the custom domain. An uploaded `img/og-image.jpg` is served at `https://<site>/assets/img/og-image.jpg`.
 - Extra `.html` pages also land in `assets/`, so real multi-page navigation is not a root-level structure. Default to one `index.html` with section anchors; only build subpages if the user accepts `assets/` URLs.
 - `robots.txt`, `sitemap.xml`, `llms.txt` cannot be placed at the root (they would end in `assets/`). Do not generate them; say so at handoff.
@@ -48,7 +50,7 @@ Every generated site must be **deployable on hostilo.app in 30 seconds**. Hostil
 
 *A. Hostilo MCP tools available (preferred):*
 1. `list_sites` — find an existing site or confirm the name is free.
-2. New site: `create_site` with `name` plus `html` (single-file) or `files` (multi-file; base64 + `encoding: "base64"` for images/fonts). Existing site: `get_site` (note `version`), then `update_site` (single-file) or `publish_files` (multi-file) with `expected_version` to avoid `version_conflict`.
+2. New site: `create_site` with `name` plus `html` (single-file) or `files` (multi-file; base64 + `encoding: "base64"` for images/fonts). Existing single-file site: `get_site` (note `version`), then `update_site` with `expected_version` to avoid `version_conflict`. Existing multi-file site: `publish_files` with `index.html` AND all other files in the same call (an index-only publish skips link rewriting, see §2).
 3. For multi-file or risky updates run `publish_files` / `import_zip` with `dry_run: true` first.
 4. Never publish a page `get_site` flagged as TRUNCATED.
 5. Report the live URL. Mention `list_versions` / `restore_version` (last 10 versions kept) for rollback and `get_site_stats` for traffic.

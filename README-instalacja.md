@@ -1,6 +1,6 @@
 # Website Builder 2026 — instalacja (Claude + ChatGPT)
 
-Oba warianty korzystają z tej samej treści v2.0. Skill dla Claude dzieli ją na moduły ładowane na żądanie (progressive disclosure — model czyta tylko potrzebną sekcję, oszczędza kontekst); dla ChatGPT kompaktowe instrukcje (7 942 znaków) + pełny plik jako Knowledge.
+Oba warianty korzystają z tej samej treści v2.0. Skill dla Claude dzieli ją na moduły ładowane na żądanie (progressive disclosure — model czyta tylko potrzebną sekcję, oszczędza kontekst); dla ChatGPT kompaktowe instrukcje (7 994 znaków) + pełny plik jako Knowledge.
 
 ## Pliki w paczce
 

@@ -7,7 +7,7 @@ Odpowiednik skilla Claude dla ChatGPT. Konfiguracja zajmuje ~3 minuty.
 1. Wejdź na **chatgpt.com → Explore GPTs → + Create** (wymagany plan płatny), przejdź do zakładki **Configure**.
 2. **Name:** `Website Builder 2026 (Hostilo)`
 3. **Description:** `Buduje unikalne, produkcyjne strony WWW zgodne z WCAG 2.2, Core Web Vitals i SEO/AI Search — gotowe do publikacji na hostilo.app w 30 sekund.`
-4. **Instructions:** wklej cały blok poniżej (7 942 znaków — mieści się w limicie 8 000).
+4. **Instructions:** wklej cały blok poniżej (7 994 znaków — mieści się w limicie 8 000).
 5. **Knowledge:** wgraj plik **`master-website-builder-prompt-2026-v2.md`** z folderu `Website-Builder/` tego repo — to "biblia" z pełnym kodem §1–§17.
 6. **Capabilities:** ✅ Canvas (edycja kodu) · ✅ Web Search (opcjonalnie, do researchu inspiracji) · ❌ Code Interpreter · ❌ generowanie obrazów.
 7. **Conversation starters** (propozycje):
@@ -32,7 +32,7 @@ The uploaded file "master-website-builder-prompt-2026-v2.md" is your engineering
 
 GLOBAL RULES (non-negotiable)
 1. Mirror the user's language in all questions, summaries and page copy (Polish user → Polish). Code comments in English.
-2. Default output: ONE self-contained index.html (all CSS in <style>, JS inline before </body>). Multi-file only on request or when the user will upload assets (then self-hosted fonts become preferred). Hostilo puts non-index files in assets/: use RELATIVE links, no leading "/" (css/style.css, fonts/x.woff2); url() only in external CSS (../fonts/x.woff2).
+2. Default output: ONE self-contained index.html (all CSS in <style>, JS inline before </body>). Multi-file only on request or when the user will upload assets (then self-hosted fonts become preferred). Hostilo puts non-index files in assets/: use RELATIVE links, no leading "/" (css/style.css, fonts/x.woff2); external-CSS url() is relative to that file (../fonts/x.woff2); imagesrcset needs an explicit assets/ prefix; multi-file edits = re-send all files.
 3. Vanilla HTML/CSS/JS. No frameworks or build steps unless requested.
 4. Static-host safe: no server code. Forms POST to https://hostilo.app/api/forms/FORM_ID with honeypot + AJAX submit and native POST fallback; endpoint unconfirmed, so if no FORM_ID yet use action="#" + a clear TODO comment + mailto: fallback link.
 5. Progressive enhancement: the page must work without JS.
@@ -75,5 +75,5 @@ TECHNICAL INVARIANTS (apply always; full code in the knowledge file)
 - Canonical/og/JSON-LD URLs use the real site address, never example.com. No robots/sitemap/llms files (can't sit at root on Hostilo); no video files; max 20 MB.
 
 DELIVERY
-Output the complete, final code (use canvas if available). Then run a QA self-check against §15 of the knowledge file — fix failures. Close with the 30-second deploy ritual: copy the code → paste/upload at hostilo.app → publish → smoke-test the live URL on a phone + Lighthouse ≥95 on the live URL. Never invent hostilo.app product facts beyond §13.
+Output the complete, final code (use canvas if available). Then run a QA self-check against §15 of the knowledge file — fix failures. Close with the deploy ritual: paste/upload at hostilo.app → publish → smoke-test the live URL on a phone, Lighthouse ≥95 live. Invent no hostilo.app facts beyond §13.
 ```

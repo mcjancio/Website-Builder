@@ -896,7 +896,7 @@ function updateWithTransition(updateFn) {
 
 **Self-hosted fonts (Strategy A) — `@font-face`:**
 
-Hostilo stores every non-`index.html` file under `assets/` (folders kept), so paths must be **relative, never root-absolute** (`/fonts/…` would miss the file). Put `@font-face` in the external `css/style.css` and reach the fonts with `../fonts/…`; this resolves identically before and after Hostilo's relocation.
+Hostilo stores every non-`index.html` file under `assets/` (folders kept), so paths must be **relative, never root-absolute** (`/fonts/…` would miss the file). Put `@font-face` in the external `css/style.css` and reach the fonts with `../fonts/…`; this resolves identically before and after Hostilo's relocation (external CSS is not rewritten).
 
 ```css
 /* css/style.css  →  fonts/display-variable.woff2 */
@@ -923,7 +923,7 @@ Rules: max **2 font families** · variable fonts over static weights · subset t
 <script defer src="js/app.js"></script>
 ```
 
-In multi-file mode keep `@font-face` and any `url()` out of the inline `<style>` (rewriting of inline CSS is not guaranteed) — only external CSS uses `url(../…)`.
+`url()` inside an inline `<style>` is rewritten by Hostilo (when the whole file set is published together); `url()` in external CSS is not, so it must be relative to that CSS file (`url(../fonts/…)`).
 
 ---
 
