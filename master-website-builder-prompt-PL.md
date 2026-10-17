@@ -1,3 +1,5 @@
+> ⚠️ **LEGACY (v1) — nieaktualny / outdated.** Not updated for the new hostilo.app (`assets/` relocation, MCP deploy, platform limits). Use `Website-Builder/master-website-builder-prompt-2026-v2.md` instead.
+
 # Master Website Builder Prompt 2026
 ## System Promptu dla AI do Budowy Profesjonalnych Stron Web
 
