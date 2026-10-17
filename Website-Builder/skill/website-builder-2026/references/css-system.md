@@ -896,10 +896,13 @@ function updateWithTransition(updateFn) {
 
 **Self-hosted fonts (Strategy A) — `@font-face`:**
 
+Hostilo stores every non-`index.html` file under `assets/` (folders kept), so paths must be **relative, never root-absolute** (`/fonts/…` would miss the file). Put `@font-face` in the external `css/style.css` and reach the fonts with `../fonts/…`; this resolves identically before and after Hostilo's relocation.
+
 ```css
+/* css/style.css  →  fonts/display-variable.woff2 */
 @font-face {
   font-family: 'DisplayFont';
-  src: url('/fonts/display-variable.woff2') format('woff2-variations');
+  src: url('../fonts/display-variable.woff2') format('woff2-variations');
   font-weight: 100 900;
   font-display: swap;
   unicode-range: U+0000-00FF, U+0100-017F; /* latin + latin-ext (Polish ą ć ę ł ń ó ś ź ż) */
@@ -911,13 +914,16 @@ Rules: max **2 font families** · variable fonts over static weights · subset t
 **Script & CSS loading:**
 
 ```html
-<!-- Critical CSS: inline in <head>. Non-critical CSS (multi-file mode): -->
-<link rel="preload" href="/styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="/styles.css"></noscript>
+<!-- Critical CSS: inline in <head>. Non-critical CSS (multi-file mode).
+     RELATIVE paths, no leading "/": Hostilo moves them to assets/ and rewrites them. -->
+<link rel="preload" href="css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="css/style.css"></noscript>
 
 <!-- JS: always deferred, never parser-blocking -->
-<script defer src="/app.js"></script>
+<script defer src="js/app.js"></script>
 ```
+
+In multi-file mode keep `@font-face` and any `url()` out of the inline `<style>` (rewriting of inline CSS is not guaranteed) — only external CSS uses `url(../…)`.
 
 ---
 

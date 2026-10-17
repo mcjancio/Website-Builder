@@ -2,7 +2,7 @@
 
 > AI system prompt & skill that generates **production-ready static websites** — WCAG 2.2 AA, Core Web Vitals green, SEO + AI-Search optimized, zero "AI-slop", and deployable on [hostilo.app](https://hostilo.app) in 30 seconds.
 
-Available in two interchangeable forms — a **Claude Skill** and a **ChatGPT Custom GPT** — both driven by the same v2.0 engineering spec. Ask for a website in plain language and get a single self-contained `index.html` you can paste straight into a static host.
+Available in two interchangeable forms — a **Claude Skill** and a **ChatGPT Custom GPT** — both driven by the same v2.0 engineering spec. Ask for a website in plain language and get a single self-contained `index.html` (or a multi-file set) that is published on hostilo.app — directly through the Hostilo MCP tools when connected, or by paste/upload.
 
 ---
 
@@ -15,30 +15,33 @@ Turns a short brief (or a guided 10-question interview) into a complete, self-co
 - **Findable** — classic SEO **and** AI Search (GEO/AEO): canonical, robots directives, full Open Graph/Twitter, and a JSON-LD schema pack (`Organization` + `WebSite` + `WebPage`, conditional `FAQPage` / `BreadcrumbList` / `BlogPosting` / `LocalBusiness`).
 - **Distinctive** — an anti-AI-slop ruleset plus a mandatory **industry → aesthetic mapping**, so a fintech site never looks like a bakery, and one "signature element" carries each design.
 - **Modern** — CSS `@layer` architecture, design tokens, container queries, View Transitions API, `color-scheme`-aware light/dark, `text-wrap: balance`.
-- **Deployable** — one `index.html`, no build step, static-safe forms (Hostilo Forms endpoint + honeypot + AJAX with native-POST fallback), EU AI Act Art. 50 disclosure.
+- **Deployable** — one `index.html`, no build step, static-safe forms (honeypot + AJAX with native-POST fallback; Hostilo Forms endpoint pending verification), Hostilo-aware paths (`assets/` relocation), MCP deploy with `dry_run`, rollback via version history, EU AI Act Art. 50 disclosure.
 
 ---
 
 ## Repository structure
 
 ```
-Website-Builder/
-├── master-website-builder-prompt-2026-v2.md   # The full spec (§1–§17) — source of truth
-├── website-builder-2026.skill                 # Packaged Claude Skill (installable)
-├── skill/                                      # Unpacked skill source
-│   └── website-builder-2026/
-│       ├── SKILL.md                            # Orchestrator + hard invariants
-│       └── references/
-│           ├── workflow.md                     # Interactive 10-step brief
-│           ├── design-directions.md            # Anti-slop rules + industry map
-│           ├── foundation-html-seo.md          # <head>, CSP, meta pack, JSON-LD
-│           ├── css-system.md                   # Tokens, @layer, components, CQ, motion, images
-│           ├── javascript.md                   # Theme, nav, scroll, forms
-│           ├── hostilo-deployment.md           # Static-host packaging & forms
-│           └── qa-checklist.md                 # 60+ point pre-launch checklist
-├── chatgpt/
-│   └── custom-gpt-website-builder.md           # ChatGPT Custom GPT config + Instructions block
-└── README.md
+.
+├── README.md
+├── README-instalacja.md                        # Instalacja (PL)
+├── master-website-builder-prompt-PL.md         # Legacy v1 (not updated for the new Hostilo)
+├── master-website-builder-prompt-EN.md         # Legacy v1 (not updated for the new Hostilo)
+└── Website-Builder/                            # Canonical, maintained sources
+    ├── LICENSE
+    ├── master-website-builder-prompt-2026-v2.md   # The full spec (§1–§17) — source of truth
+    ├── website-builder-2026.skill                 # Packaged Claude Skill (installable)
+    ├── skill/website-builder-2026/                # Unpacked skill source
+    │   ├── SKILL.md                               # Orchestrator + hard invariants
+    │   └── references/
+    │       ├── workflow.md                        # Interactive 10-step brief
+    │       ├── design-directions.md               # Anti-slop rules + industry map
+    │       ├── foundation-html-seo.md             # <head>, CSP, meta pack, JSON-LD
+    │       ├── css-system.md                      # Tokens, @layer, components, CQ, motion, images
+    │       ├── javascript.md                      # Theme, nav, scroll, forms
+    │       ├── hostilo-deployment.md              # Hostilo paths, limits, MCP deploy, templates
+    │       └── qa-checklist.md                    # Pre-launch checklist
+    └── chatgpt/custom-gpt-website-builder.md      # ChatGPT Custom GPT config + Instructions
 ```
 
 ---
@@ -52,7 +55,7 @@ Website-Builder/
 **Claude Code** — the `.skill` file is a plain ZIP; unpack it into your skills directory:
 
 ```bash
-unzip website-builder-2026.skill -d ~/.claude/skills/      # global
+unzip Website-Builder/website-builder-2026.skill -d ~/.claude/skills/      # global
 # or into .claude/skills/ inside a project repo
 ```
 
@@ -60,9 +63,9 @@ Once installed it auto-triggers on any website request ("make me a landing page�
 
 ### ChatGPT
 
-Follow [`chatgpt/custom-gpt-website-builder.md`](chatgpt/custom-gpt-website-builder.md):
+Follow [`Website-Builder/chatgpt/custom-gpt-website-builder.md`](Website-Builder/chatgpt/custom-gpt-website-builder.md):
 
-1. **Create a GPT → Configure**, paste the Instructions block (≈7.6k chars, fits the 8k limit).
+1. **Create a GPT → Configure**, paste the Instructions block (≈7.9k chars, fits the 8k limit).
 2. Upload `master-website-builder-prompt-2026-v2.md` as **Knowledge**.
 3. Enable **Canvas**; save.
 
@@ -100,10 +103,12 @@ The `-v2` spec implements a full technical audit over v1.0:
 - Added the AI-Search meta pack, the full JSON-LD schema pack (incl. `FAQPage`), AVIF, container queries, View Transitions, CSS `@layer`, `color-scheme`, self-hosted fonts, form `autocomplete`, canonical/OG/theme-color, and Hostilo-specific static forms & deploy metadata.
 - Added the **mandatory industry → aesthetic mapping** so generated sites stop looking alike.
 
+**v2.1 (new Hostilo):** multi-file links are relative (Hostilo moves extra files to `assets/`), real site address in canonical/OG/JSON-LD, no root-level robots/sitemap/llms files, documented platform limits (no video, 20 MB), MCP-based deploy with `dry_run` + version rollback, template option for local businesses, built-in cookie-less stats.
+
 Full changelog: §17 of the spec.
 
 ---
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE). Built for the [Hostilo](https://hostilo.app) ecosystem by [IMJinteractive](https://imjinteractive.pl).
+MIT — see [`LICENSE`](Website-Builder/LICENSE). Built for the [Hostilo](https://hostilo.app) ecosystem by [IMJinteractive](https://imjinteractive.pl).

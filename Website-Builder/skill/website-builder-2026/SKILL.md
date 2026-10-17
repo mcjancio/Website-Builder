@@ -10,7 +10,7 @@ Act as a hybrid of a senior front-end engineer and an art director at a studio k
 ## Global rules (apply to every build)
 
 1. **Language mirroring** — run the whole conversation, summaries and page copy in the user's language (Polish user → Polish). Code comments stay in English.
-2. **Default output** — one self-contained `index.html` (all CSS in `<style>`, JS inline before `</body>`). Multi-file only when the user asks or plans to upload assets (then self-hosted fonts become possible and preferred).
+2. **Default output** — one self-contained `index.html` (all CSS in `<style>`, JS inline before `</body>`). Multi-file only when the user asks or plans to upload assets (then self-hosted fonts become possible and preferred). Hostilo stores every file except `index.html` under `assets/`, so multi-file links are always **relative with no leading `/`**.
 3. **No build step** — vanilla HTML/CSS/JS. No frameworks, bundlers or npm dependencies unless explicitly requested.
 4. **Static-host safe** — no server-side code. Forms POST to the Hostilo Forms endpoint or degrade to `mailto:`.
 5. **Progressive enhancement** — the page must remain usable with JavaScript disabled.
@@ -46,7 +46,7 @@ Read these references and follow their code foundations exactly, filling placeho
 
 ### Step 4 — Deployment packaging
 
-Read `references/hostilo-deployment.md`: single-file vs multi-file rules, the `https://hostilo.app/api/forms/FORM_ID` endpoint (or `action="#"` + TODO + `mailto:` fallback when no FORM_ID exists), deploy metadata, which security headers the platform sets (never emit header-only directives in `<meta>`), and the 30-second deploy ritual to hand the user.
+Read `references/hostilo-deployment.md`: single vs multi-file rules and the `assets/` relocation, platform limits (no video files, 20 MB total), the forms endpoint (unconfirmed; `action="#"` + TODO + `mailto:` fallback when no FORM_ID exists), headers vs `<meta>`, built-in stats, templates, and the deploy paths: publish yourself through the Hostilo MCP tools when they are available (`dry_run` first, confirm the site name before `create_site`), otherwise hand the user the paste-and-publish ritual.
 
 ### Step 5 — QA before delivery
 
@@ -56,6 +56,9 @@ Read `references/qa-checklist.md` and verify every applicable item. Fix failures
 
 - `width` + `height` attributes on every `<img>`; never `aspect-ratio: attr(width)/attr(height)` (unsupported).
 - Image chain: AVIF → WebP → JPG in `<picture>`; content images < 100 KB, hero < 150 KB.
+- Multi-file paths: `css/style.css`, `js/app.js`, `fonts/…`, `img/…` — never `/css/…`; `url()` only in external CSS, relative to that file (`../fonts/…`).
+- Absolute URLs (canonical, `og:*`, JSON-LD) use the real site address (`https://<name>.hostilo.app` or custom domain) — never `example.com`.
+- Do not generate `robots.txt` / `sitemap.xml` / `llms.txt` (they cannot sit at the root on Hostilo); no video files — embed from YouTube/Vimeo.
 - Header-only directives (`X-Frame-Options`, `Permissions-Policy`, HSTS, `frame-ancestors`) never go in `<meta>` — browsers ignore them there.
 - JSON-LD: `Organization` + `WebSite` + `WebPage` always; `FAQPage` whenever a visible FAQ exists (schema text verbatim identical to on-page text); `BreadcrumbList` on multi-page sites.
 - Forms: `<label>` + `autocomplete` (+ `inputmode`) on every relevant field, honeypot `.hp-field`, status via `role="status"`, works as plain POST without JS.
@@ -75,5 +78,5 @@ Read `references/qa-checklist.md` and verify every applicable item. Fix failures
 | `references/foundation-html-seo.md` | Building the `<head>`, meta pack, CSP, nav skeleton, JSON-LD schemas |
 | `references/css-system.md` | Writing any CSS — tokens, layers, components, container queries, motion, images, fonts |
 | `references/javascript.md` | Writing any JS — theme, menu, scroll, forms |
-| `references/hostilo-deployment.md` | Packaging output, forms endpoint, deploy handoff |
+| `references/hostilo-deployment.md` | Packaging output, `assets/` path rules, limits, MCP deploy, templates, forms, handoff |
 | `references/qa-checklist.md` | Final verification before delivering code; also for auditing an existing page |

@@ -18,7 +18,7 @@
 - [ ] **Schema pack validated** in Google Rich Results Test: Organization + WebSite + WebPage, FAQPage if FAQ exists, BreadcrumbList if multi-page
 - [ ] FAQ schema text matches visible FAQ verbatim
 - [ ] Headings phrased as user questions where natural (AEO)
-- [ ] `sitemap.xml` + `robots.txt` (+ optional `llms.txt`) for multi-page sites
+- [ ] No `sitemap.xml` / `robots.txt` / `llms.txt` files generated (Hostilo would serve them from `assets/`, not the root); canonical, `og:*` and JSON-LD URLs use the real site address
 - [ ] **EU AI Act Art. 50 disclosure** in footer · GDPR consent if analytics/cookies
 
 **ACCESSIBILITY (WCAG 2.2 AA):**
@@ -51,8 +51,10 @@
 
 **HOSTILO.APP:**
 - [ ] Single-file: zero external CSS/JS files, fonts via Strategy B
-- [ ] Multi-file: relative paths correct, fonts via Strategy A
-- [ ] `generator` + `hostilo-version` meta present
+- [ ] Multi-file: all paths relative with no leading `/` (`css/…`, `js/…`, `fonts/…`, `img/…`); `url()` only in external CSS (`../fonts/…`); fonts via Strategy A
+- [ ] Limits respected: ≤ 300 files, ≤ 10 MB per file, ≤ 20 MB total, single `html` ≤ 5 MB; only allowed file types; no video files
+- [ ] `dry_run` passed (MCP deploy) and site name confirmed with the user
+- [ ] Live URL opened: no 404 on `assets/…` (fonts, CSS, JS, images, `og:image`)
 - [ ] Post-publish smoke test of the live URL on a real phone
 - [ ] No `console.log`, no secrets/API keys in client code
 

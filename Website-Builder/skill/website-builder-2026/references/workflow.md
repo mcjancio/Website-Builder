@@ -63,6 +63,12 @@ Describe your industry:
 ```
 Understood: [SUMMARY OF INDUSTRY]
 
+(INTERNAL: if it is a small local business — café, plumber, electrician,
+hair salon, accountant — and Hostilo MCP tools are available, run
+list_templates and offer a ready-made Hostilo template as a fast option
+next to a fully custom design. If they pick a template, collect its
+fields (name, phone, address, colour) and skip to the summary.)
+
 ───────────────────────────────────────
 
 🎯 STEP 3/10: Target Audience
@@ -217,11 +223,13 @@ Last questions:
 1️⃣ Main heading (H1)? Example: "Build apps faster than ever"
 2️⃣ Subtitle (optional)? Example: "AI hosting that publishes in 30 seconds"
 3️⃣ Extras (optional): animations? dark mode toggle? contact form
-   (→ Hostilo Forms)? video? integrations (Stripe, Calendly, Mailchimp)?
+   (→ Hostilo Forms)? video (embedded from YouTube/Vimeo — Hostilo does
+   not host video files)? integrations (Stripe, Calendly, Mailchimp)?
 4️⃣ Inspirations (optional): links to sites you like
-5️⃣ Deployment: single HTML file to paste into hostilo.app, or multi-file
-   with uploaded fonts/images? (multi-file = faster loading + GDPR-clean
-   self-hosted fonts)
+5️⃣ Deployment: single HTML file, or multi-file with uploaded fonts/images?
+   (multi-file = faster loading + GDPR-clean self-hosted fonts)
+6️⃣ Address: the name for <name>.hostilo.app (3–30 chars: a–z, 0–9, "-")
+   or your own domain — needed for canonical, Open Graph and schema URLs
 ```
 
 **AFTER COLLECTING ALL ANSWERS:**
@@ -242,7 +250,7 @@ Last questions:
 ✍️ FONTS: [display + body choice]
 📝 H1: "[heading]"  ·  SUBTITLE: "[subtitle]"
 ⚙️ EXTRAS: [requirements]
-📦 DEPLOY: [single-file / multi-file] → hostilo.app
+📦 DEPLOY: [single-file / multi-file] → [name].hostilo.app
 
 ───────────────────────────────────────
 
@@ -252,7 +260,7 @@ The build will comply with:
 ✅ Mobile-first + container queries · ✅ EU AI Act Art. 50
 ✅ Practical CSP + security best practices
 
-🚀 DEPLOYMENT: paste into hostilo.app → live in 30 seconds.
+🚀 DEPLOYMENT: published to hostilo.app for you (if connected) or paste → live in 30 seconds.
 
 Want to change anything? Otherwise write "Build!" and I'll start! 🚀
 ```
@@ -272,7 +280,7 @@ Want to change anything? Otherwise write "Build!" and I'll start! 🚀
 ├─ Forms: autocomplete + honeypot + Hostilo endpoint + AJAX fallback
 └─ QA vs 2026 checklist (Lighthouse target ≥ 95)
 
-💡 When done: copy the code → paste into hostilo.app → publish (30 s).
+💡 When done: I publish it on hostilo.app (if connected), or you paste the code → publish (30 s).
 
 [THEN GENERATE THE CODE ACCORDING TO §1–§13]
 ```
@@ -303,7 +311,9 @@ const projectBrief = {
   answers: {
     type: null, industry: null, audience: null, goal: null, cta: null,
     sections: [], aesthetic: null, colors: {}, fonts: {},
-    content: {}, extras: {}, deployMode: 'single-file'
+    content: {}, extras: {}, deployMode: 'single-file',
+    siteName: null,        // <name>.hostilo.app or custom domain
+    useTemplate: null      // Hostilo template slug, if chosen
   },
   designPlan: { direction: null, palette: [], type: {}, signature: null },
   completed: false
