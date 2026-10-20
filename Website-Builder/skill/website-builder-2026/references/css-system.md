@@ -629,7 +629,7 @@
 }
 ```
 
-**Form HTML — with `autocomplete` map (v2.0) + Hostilo static endpoint:**
+**Form HTML — with `autocomplete` map (v2.0). `action` per `hostilo-deployment.md` §5 (template form / Hostilo `FORM_ID` / `action="#"` + TODO + `mailto:` fallback; endpoint pattern not re-verified 2026-10-19):**
 
 ```html
 <form id="contact-form" class="form"
@@ -897,9 +897,11 @@ function updateWithTransition(updateFn) {
 **Self-hosted fonts (Strategy A) — `@font-face`:**
 
 ```css
+/* In the EXTERNAL css/site.css (Hostilo stores it as assets/css/site.css): sibling folders via ../ —
+   correct whether or not the platform rewrites links. Inline <style> must not rely on url() rewriting. */
 @font-face {
   font-family: 'DisplayFont';
-  src: url('/fonts/display-variable.woff2') format('woff2-variations');
+  src: url('../fonts/display-variable.woff2') format('woff2-variations');
   font-weight: 100 900;
   font-display: swap;
   unicode-range: U+0000-00FF, U+0100-017F; /* latin + latin-ext (Polish ą ć ę ł ń ó ś ź ż) */
@@ -912,11 +914,12 @@ Rules: max **2 font families** · variable fonts over static weights · subset t
 
 ```html
 <!-- Critical CSS: inline in <head>. Non-critical CSS (multi-file mode): -->
-<link rel="preload" href="/styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="/styles.css"></noscript>
+<!-- Relative paths, NO leading slash (Hostilo rewrites relative links in index.html to assets/) -->
+<link rel="preload" href="css/site.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="css/site.css"></noscript>
 
 <!-- JS: always deferred, never parser-blocking -->
-<script defer src="/app.js"></script>
+<script defer src="js/app.js"></script>
 ```
 
 ---

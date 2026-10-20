@@ -19,8 +19,8 @@
        Vimeo, Stripe, Calendly, HubSpot, Tidio. Tighten `https:` to an
        explicit domain allow-list once the project's third parties are known.
        NOTE: X-Frame-Options, frame-ancestors and HSTS work ONLY as HTTP
-       headers (browsers IGNORE them in <meta>) — Hostilo.app sets them at
-       the platform level. Never put them in HTML. -->
+       headers (browsers IGNORE them in <meta>) — Hostilo is documented to set
+       them at the platform level (not re-verified). Never put them in HTML. -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https:; frame-src https:; object-src 'none'; base-uri 'self'; form-action 'self' https:; upgrade-insecure-requests">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -28,7 +28,7 @@
   <!-- ============ SEO CORE ============ -->
   <title>[50–60 chars, primary keyword first]</title>
   <meta name="description" content="[150–160 chars, benefit + CTA]">
-  <link rel="canonical" href="https://example.com/">
+  <link rel="canonical" href="{{SITE_URL}}/">
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 
   <!-- ============ AI SEARCH / E-E-A-T SIGNALS (GEO/AEO) ============ -->
@@ -44,10 +44,10 @@
   <meta property="og:site_name" content="[Site Name]">
   <meta property="og:locale" content="en_US"> <!-- pl_PL for Polish sites -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://example.com/">
+  <meta property="og:url" content="{{SITE_URL}}/">
   <meta property="og:title" content="[Title for social media]">
   <meta property="og:description" content="[Description for social media]">
-  <meta property="og:image" content="https://example.com/og-image.jpg">
+  <meta property="og:image" content="{{SITE_URL}}/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="[What the image shows]">
@@ -56,26 +56,31 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="[Title]">
   <meta name="twitter:description" content="[Description]">
-  <meta name="twitter:image" content="https://example.com/og-image.jpg">
+  <meta name="twitter:image" content="{{SITE_URL}}/og-image.jpg">
 
-  <!-- ============ HOSTILO.APP DEPLOY METADATA ============ -->
+  <!-- ============ HOSTILO DEPLOY METADATA (OPTIONAL) ============
+       {{SITE_URL}} = the live URL returned by Hostilo (currently
+       https://<name>.hostilo.page) or the custom domain. Replace after the
+       first publish and republish. Generator tags are harmless, not required. -->
   <meta name="generator" content="Hostilo.app AI Builder">
   <meta name="hostilo-version" content="1.0">
 
   <!-- ============ FAVICON ============ -->
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 
   <!-- ============ FONTS — STRATEGY A (PREFERRED): SELF-HOSTED ============
-       Use when deploying multi-file to Hostilo (upload /fonts/*.woff2
-       alongside index.html). Fastest FCP, no third-party dependency,
+       Use when deploying multi-file to Hostilo (fonts/*.woff2 alongside
+       index.html; Hostilo stores them under assets/ and rewrites RELATIVE
+       links in index.html — never use a leading slash. @font-face lives in
+       the external css/site.css with url(../fonts/…)). Fastest FCP, no third-party dependency,
        GDPR-clean (no Google Fonts IP transfer). -->
-  <link rel="preload" href="/fonts/display-variable.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="/fonts/body-variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/display-variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/body-variable.woff2" as="font" type="font/woff2" crossorigin>
   <!-- + matching @font-face rules with font-display: swap in critical CSS (§10) -->
 
   <!-- ============ FONTS — STRATEGY B: GOOGLE FONTS ============
-       Use ONLY in single-file paste-and-go mode (no asset uploads). -->
+       Use ONLY in single-file mode (no asset uploads). -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=[UNIQUE_FONT]:wght@400;600;700&display=swap">
@@ -83,8 +88,8 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=[UNIQUE_FONT]:wght@400;600;700&display=swap"></noscript>
 
   <!-- ============ LCP IMAGE PRELOAD (hero only, if hero has an image) ============ -->
-  <link rel="preload" as="image" href="/img/hero-lg.avif"
-        imagesrcset="/img/hero-sm.avif 640w, /img/hero-md.avif 1024w, /img/hero-lg.avif 1920w"
+  <link rel="preload" as="image" href="img/hero-lg.avif"
+        imagesrcset="img/hero-sm.avif 640w, img/hero-md.avif 1024w, img/hero-lg.avif 1920w"
         imagesizes="100vw" fetchpriority="high">
 
   <!-- ============ CRITICAL CSS (inline: @layer declaration + tokens + above-the-fold) ============ -->
@@ -133,7 +138,7 @@
   <script type="application/ld+json">{ "...": "see §2" }</script>
 
   <!-- Deferred JS: external file in multi-file mode… -->
-  <script defer src="/app.js"></script>
+  <script defer src="js/app.js"></script>
   <!-- …or a plain inline <script> right here in single-file mode (already after the DOM). -->
 </body>
 </html>
@@ -169,10 +174,10 @@
   "@graph": [
     {
       "@type": "Organization",
-      "@id": "https://example.com/#organization",
+      "@id": "{{SITE_URL}}/#organization",
       "name": "[Company Name]",
-      "url": "https://example.com/",
-      "logo": { "@type": "ImageObject", "url": "https://example.com/logo.png" },
+      "url": "{{SITE_URL}}/",
+      "logo": { "@type": "ImageObject", "url": "{{SITE_URL}}/logo.png" },
       "sameAs": [
         "https://www.linkedin.com/company/example",
         "https://x.com/example"
@@ -186,18 +191,18 @@
     },
     {
       "@type": "WebSite",
-      "@id": "https://example.com/#website",
-      "url": "https://example.com/",
+      "@id": "{{SITE_URL}}/#website",
+      "url": "{{SITE_URL}}/",
       "name": "[Site Name]",
-      "publisher": { "@id": "https://example.com/#organization" },
+      "publisher": { "@id": "{{SITE_URL}}/#organization" },
       "inLanguage": "en"
     },
     {
       "@type": "WebPage",
-      "@id": "https://example.com/#webpage",
-      "url": "https://example.com/",
+      "@id": "{{SITE_URL}}/#webpage",
+      "url": "{{SITE_URL}}/",
       "name": "[Page Title]",
-      "isPartOf": { "@id": "https://example.com/#website" },
+      "isPartOf": { "@id": "{{SITE_URL}}/#website" },
       "datePublished": "2026-01-15",
       "dateModified": "2026-02-01"
     }
@@ -239,8 +244,8 @@
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://example.com/" },
-    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://example.com/blog/" },
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "{{SITE_URL}}/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "{{SITE_URL}}/blog/" },
     { "@type": "ListItem", "position": 3, "name": "[Current page]" }
   ]
 }
