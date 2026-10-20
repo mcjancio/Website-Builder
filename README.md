@@ -1,6 +1,6 @@
 # Website Builder 2026
 
-> AI system prompt & skill that generates **production-ready static websites** — WCAG 2.2 AA, Core Web Vitals green, SEO + AI-Search optimized, zero "AI-slop", and deployable on [hostilo.app](https://hostilo.app) in 30 seconds.
+> AI system prompt & skill that generates **production-ready static websites** — WCAG 2.2 AA, Core Web Vitals green, SEO + AI-Search optimized, zero "AI-slop", and ready to publish on [hostilo.app](https://hostilo.app) (directly via the Hostilo MCP connector, or as files/ZIP).
 
 Available in two interchangeable forms — a **Claude Skill** and a **ChatGPT Custom GPT** — both driven by the same v2.0 engineering spec. Ask for a website in plain language and get a single self-contained `index.html` you can paste straight into a static host.
 
@@ -15,7 +15,7 @@ Turns a short brief (or a guided 10-question interview) into a complete, self-co
 - **Findable** — classic SEO **and** AI Search (GEO/AEO): canonical, robots directives, full Open Graph/Twitter, and a JSON-LD schema pack (`Organization` + `WebSite` + `WebPage`, conditional `FAQPage` / `BreadcrumbList` / `BlogPosting` / `LocalBusiness`).
 - **Distinctive** — an anti-AI-slop ruleset plus a mandatory **industry → aesthetic mapping**, so a fintech site never looks like a bakery, and one "signature element" carries each design.
 - **Modern** — CSS `@layer` architecture, design tokens, container queries, View Transitions API, `color-scheme`-aware light/dark, `text-wrap: balance`.
-- **Deployable** — one `index.html`, no build step, static-safe forms (Hostilo Forms endpoint + honeypot + AJAX with native-POST fallback), EU AI Act Art. 50 disclosure.
+- **Deployable** — one `index.html`, no build step, static-safe forms (template form / Hostilo `FORM_ID` / `mailto:` fallback + honeypot + AJAX with native-POST fallback), EU AI Act Art. 50 disclosure. **v2.1 (2026-10-19):** aligned with current Hostilo — MCP connector publishing, 19 ready-made templates, `*.hostilo.page` URLs with `{{SITE_URL}}` placeholders, `assets/`-safe relative paths, Free/PRO limits, phishing-scanner rules (see `references/hostilo-deployment.md`).
 
 ---
 
@@ -34,11 +34,12 @@ Website-Builder/
 │           ├── foundation-html-seo.md          # <head>, CSP, meta pack, JSON-LD
 │           ├── css-system.md                   # Tokens, @layer, components, CQ, motion, images
 │           ├── javascript.md                   # Theme, nav, scroll, forms
-│           ├── hostilo-deployment.md           # Static-host packaging & forms
+│           ├── hostilo-deployment.md           # Hostilo v2.1: templates, MCP publishing, paths, URLs, forms, limits
 │           └── qa-checklist.md                 # 60+ point pre-launch checklist
 ├── chatgpt/
 │   └── custom-gpt-website-builder.md           # ChatGPT Custom GPT config + Instructions block
-└── README.md
+├── README.md
+└── LICENSE
 ```
 
 ---
@@ -62,7 +63,7 @@ Once installed it auto-triggers on any website request ("make me a landing page�
 
 Follow [`chatgpt/custom-gpt-website-builder.md`](chatgpt/custom-gpt-website-builder.md):
 
-1. **Create a GPT → Configure**, paste the Instructions block (≈7.6k chars, fits the 8k limit).
+1. **Create a GPT → Configure**, paste the Instructions block (≈8.0k chars — just under the 8k limit).
 2. Upload `master-website-builder-prompt-2026-v2.md` as **Knowledge**.
 3. Enable **Canvas**; save.
 
@@ -81,7 +82,7 @@ The assistant runs a 10-question brief (type, industry, audience, goal, CTA, sec
 **Fast track:**
 ```
 Landing page for a hosting startup · goal: trial signups · CTA: "Start Free"
-· dark mode · single-file for hostilo.app
+· dark mode · single-file, publish on hostilo.app
 ```
 
 **Audit an existing page:**
