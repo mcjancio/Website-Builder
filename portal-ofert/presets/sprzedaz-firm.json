@@ -1,0 +1,41 @@
+{
+  "$schema_version": 1,
+  "preset": "sprzedaz-firm",
+  "description": "Przykład uniwersalności: ten sam silnik jako giełda firm na sprzedaż / sukcesji. Format identyczny jak inwestycje-deweloperskie.json.",
+
+  "portal": {
+    "name": "Firmy na Sprzedaż",
+    "domain": "firmy.example.pl",
+    "tagline": "Sprawdzone firmy szukające nowego właściciela lub inwestora",
+    "locale": "pl_PL",
+    "currencies": ["PLN", "EUR"],
+    "default_currency": "PLN",
+    "theme": { "mode": "light", "accent": "#0B5FFF", "accent_contrast": "#FFFFFF" },
+    "locked_content_notice": "Szczegóły oferty widzą zweryfikowani kupujący. {login} lub {register}."
+  },
+
+  "registration": { "require_nip": false, "allow_private_person": true, "require_sms": true, "require_email_double_optin": true },
+
+  "limits": { "short_desc_max": 300, "attachments_max": 15, "attachment_default_level": 3 },
+
+  "categories": [
+    { "slug": "sprzedaz-100", "name": "Sprzedaż 100% udziałów" },
+    { "slug": "sprzedaz-czesci", "name": "Sprzedaż części udziałów / inwestor" },
+    { "slug": "sukcesja", "name": "Sukcesja" }
+  ],
+
+  "fields": [
+    { "key": "industry", "label": "Branża", "type": "select", "group": "Ogólne", "required": true, "access_level": 1, "filterable": true, "filter_ui": "select", "show_in_card": true,
+      "options": [["production", "Produkcja"], ["services", "Usługi"], ["ecommerce", "E-commerce"], ["it", "IT / SaaS"], ["horeca", "HoReCa"], ["construction", "Budownictwo"], ["other", "Inna"]] },
+    { "key": "region", "label": "Województwo", "type": "region", "group": "Ogólne", "required": true, "access_level": 1, "filterable": true, "filter_ui": "select", "show_in_card": true },
+    { "key": "asking_price", "label": "Cena wywoławcza", "type": "money", "group": "Finanse", "required": true, "access_level": 1, "filterable": true, "filter_ui": "range", "show_in_card": true },
+    { "key": "revenue_last_year", "label": "Przychód (ostatni rok)", "type": "money", "group": "Finanse", "access_level": 2, "filterable": true, "filter_ui": "range" },
+    { "key": "ebitda", "label": "EBITDA", "type": "money", "group": "Finanse", "access_level": 2 },
+    { "key": "employees", "label": "Liczba pracowników", "type": "int", "group": "Firma", "access_level": 1, "filterable": true, "filter_ui": "range" },
+    { "key": "founded_year", "label": "Rok założenia", "type": "int", "group": "Firma", "access_level": 1 },
+    { "key": "legal_form", "label": "Forma prawna", "type": "select", "group": "Firma", "access_level": 2,
+      "options": [["jdg", "JDG"], ["sc", "Spółka cywilna"], ["spzoo", "Sp. z o.o."], ["sa", "S.A."], ["other", "Inna"]] },
+    { "key": "real_estate_included", "label": "Nieruchomość w transakcji", "type": "bool", "group": "Firma", "access_level": 1, "filterable": true, "filter_ui": "toggle" },
+    { "key": "company_name", "label": "Nazwa firmy", "type": "text", "group": "Poufne", "access_level": 3 }
+  ]
+}

@@ -1,0 +1,174 @@
+{
+  "$schema_version": 1,
+  "preset": "inwestycje-deweloperskie",
+  "description": "Portal ofert inwestycji i projektów deweloperskich (B2B: deweloperzy, inwestorzy, fundusze). Kryteria zebrane z korespondencji projektowej i dokumentu Portal_poprawki (2024–2026).",
+
+  "portal": {
+    "name": "Inwestycje Finanse Dewelopera",
+    "domain": "inwestycje.finansedewelopera.pl",
+    "tagline": "Projekty deweloperskie szukające kapitału i inwestorów",
+    "locale": "pl_PL",
+    "timezone": "Europe/Warsaw",
+    "currencies": ["PLN", "EUR", "USD", "GBP"],
+    "default_currency": "PLN",
+    "theme": { "mode": "dark", "accent": "#C8102E", "accent_contrast": "#FFFFFF" },
+    "emails": { "from": "inwestycje@finansedewelopera.pl", "moderation_to": ["admin"] },
+    "cta": { "consultation_url": "https://www.finansedewelopera.pl/umow-spotkanie/", "consultation_label": "Bezpłatna konsultacja" },
+    "menu_public": ["oferty", "zasady-wspolpracy", "kontakt", "logowanie", "button:rejestracja"],
+    "menu_member": ["oferty", "button:dodaj-oferte", "konto", "wyloguj"],
+    "locked_content_notice": "Pełna treść oferty jest dostępna po zalogowaniu. {login} lub {register}."
+  },
+
+  "registration": {
+    "require_nip": true,
+    "allow_private_person": false,
+    "nip_autofill": "mf_vat_whitelist",
+    "require_sms": true,
+    "sms_provider": "smsapi",
+    "sms_sender": "FinDewelop",
+    "require_email_double_optin": true,
+    "email_grace_hours": 24,
+    "getresponse_list": "inwestycje.finansedewelopera.pl"
+  },
+
+  "limits": {
+    "short_desc_max": 287,
+    "title_max": 120,
+    "images_max": 20,
+    "image_max_mb": 10,
+    "attachments_max": 25,
+    "attachment_max_mb": 25,
+    "attachment_mime": ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+    "attachment_default_level": 3
+  },
+
+  "access_levels": {
+    "1": { "name": "Publiczny", "description": "Podstawowe informacje o ofercie — dla wszystkich odwiedzających." },
+    "2": { "name": "Zarejestrowany", "description": "Szerszy opis oferty i możliwość dodawania własnych ofert — po rejestracji i weryfikacji konta." },
+    "3": { "name": "Dopuszczony", "description": "Kompletne informacje i dokumentacja — po zawarciu umowy NDA i/lub umowy współpracy." }
+  },
+
+  "categories": [
+    { "slug": "pozyskanie-kapitalu", "name": "Projekt szuka kapitału" },
+    { "slug": "sprzedaz-projektu", "name": "Sprzedaż projektu / gruntu z PnB" },
+    { "slug": "joint-venture", "name": "Partner do joint venture" },
+    { "slug": "sprzedaz-pakietowa", "name": "Sprzedaż pakietowa lokali" },
+    { "slug": "inwestor-szuka", "name": "Inwestor szuka projektu" }
+  ],
+
+  "fields": [
+    {
+      "key": "investment_type", "label": "Typ inwestycji", "type": "select", "group": "Ogólne",
+      "required": true, "access_level": 1, "filterable": true, "filter_ui": "checkboxes", "show_in_card": true,
+      "options": [
+        ["residential_multi", "Mieszkaniowa wielorodzinna"],
+        ["residential_single", "Domy jednorodzinne / szeregowe"],
+        ["prs", "Mieszkania na wynajem (PRS)"],
+        ["office", "Biurowa"],
+        ["retail", "Handlowo-usługowa"],
+        ["hotel", "Hotelowa / apartamenty wakacyjne"],
+        ["warehouse", "Magazynowa / logistyczna"],
+        ["mixed_use", "Mixed-use"],
+        ["land", "Grunt pod zabudowę"],
+        ["other", "Inna"]
+      ]
+    },
+    { "key": "region", "label": "Województwo", "type": "region", "group": "Lokalizacja", "required": true, "access_level": 1, "filterable": true, "filter_ui": "select", "show_in_card": true },
+    { "key": "city", "label": "Miejscowość", "type": "text", "group": "Lokalizacja", "required": true, "access_level": 1, "filterable": false, "show_in_card": true },
+    { "key": "address_exact", "label": "Dokładny adres / nr działki", "type": "text", "group": "Lokalizacja", "access_level": 3 },
+    {
+      "key": "project_stage", "label": "Etap projektu", "type": "select", "group": "Ogólne",
+      "required": true, "access_level": 1, "filterable": true, "filter_ui": "checkboxes", "show_in_card": true,
+      "options": [
+        ["idea", "Koncepcja / pomysł"],
+        ["land_acquisition", "W trakcie zakupu gruntu"],
+        ["land_owned", "Grunt zakupiony"],
+        ["zoning", "WZ / MPZP"],
+        ["design", "Projekt budowlany w przygotowaniu"],
+        ["permit", "Pozwolenie na budowę (PnB)"],
+        ["construction", "W budowie"],
+        ["completed", "Zrealizowany / gotowy"]
+      ]
+    },
+    {
+      "key": "permits_status", "label": "Status pozwoleń", "type": "multiselect", "group": "Dokumentacja i legalność", "access_level": 2,
+      "options": [["wz", "Decyzja WZ"], ["mpzp", "Zgodność z MPZP"], ["pnb", "Prawomocne PnB"], ["env", "Decyzja środowiskowa"], ["conservator", "Uzgodnienia konserwatorskie"], ["media", "Warunki przyłączenia mediów"]]
+    },
+    {
+      "key": "ownership_structure", "label": "Struktura własności", "type": "select", "group": "Szczegóły projektu", "access_level": 2,
+      "options": [["full", "Pełna własność"], ["co_ownership", "Współwłasność"], ["perpetual_usufruct", "Użytkowanie wieczyste"], ["preliminary", "Umowa przedwstępna / warunkowa"]]
+    },
+    { "key": "usable_area", "label": "PUM (m²)", "type": "decimal", "group": "Szczegóły projektu", "access_level": 1, "filterable": true, "filter_ui": "range", "show_in_card": true },
+    { "key": "units_count", "label": "Liczba lokali", "type": "int", "group": "Szczegóły projektu", "access_level": 1, "filterable": true, "filter_ui": "range" },
+    { "key": "plot_area", "label": "Powierzchnia działki (m²)", "type": "decimal", "group": "Szczegóły projektu", "access_level": 2 },
+
+    { "key": "project_cost", "label": "Szacunkowy koszt projektu", "type": "money", "group": "Parametry finansowe", "required": true, "access_level": 1, "filterable": true, "filter_ui": "range" },
+    { "key": "capital_needed", "label": "Potrzebny kapitał", "type": "money", "group": "Parametry finansowe", "required": true, "access_level": 1, "filterable": true, "filter_ui": "range", "show_in_card": true },
+    { "key": "min_ticket", "label": "Minimalne zaangażowanie inwestora", "type": "money", "group": "Parametry finansowe", "access_level": 2, "filterable": true, "filter_ui": "range" },
+    { "key": "expected_roi", "label": "Oczekiwany zwrot (ROI)", "type": "percent", "group": "Parametry finansowe", "access_level": 1, "filterable": true, "filter_ui": "range", "show_in_card": true, "help": "Procent zwrotu z kapitału w okresie inwestycji." },
+    { "key": "gdv", "label": "Przychód ze sprzedaży (GDV)", "type": "money", "group": "Parametry finansowe", "access_level": 2 },
+    {
+      "key": "investment_period", "label": "Okres inwestycji", "type": "select", "group": "Parametry finansowe",
+      "required": true, "access_level": 1, "filterable": true, "filter_ui": "checkboxes",
+      "options": [["short", "Krótkoterminowa (do 2 lat)"], ["medium", "Średnioterminowa (2–5 lat)"], ["long", "Długoterminowa (powyżej 5 lat)"]]
+    },
+    { "key": "start_date", "label": "Planowany / faktyczny termin rozpoczęcia", "type": "date", "group": "Harmonogram", "access_level": 2, "validation": { "allow_past_years": 5 } },
+    { "key": "in_progress", "label": "Projekt już trwa", "type": "bool", "group": "Harmonogram", "access_level": 1, "filterable": true, "filter_ui": "toggle" },
+    { "key": "end_date", "label": "Planowany termin zakończenia", "type": "date", "group": "Harmonogram", "access_level": 2 },
+
+    {
+      "key": "investment_form", "label": "Forma inwestycji", "type": "multiselect", "group": "Oferta dla inwestorów",
+      "required": true, "access_level": 1, "filterable": true, "filter_ui": "checkboxes",
+      "options": [["equity", "Udziały / akcje w SPV"], ["bonds", "Obligacje"], ["loan", "Pożyczka"], ["jv", "Joint venture"], ["purchase", "Zakup"], ["sale", "Sprzedaż"], ["other", "Inne instrumenty"]]
+    },
+    {
+      "key": "financial_terms", "label": "Warunki finansowe", "type": "multiselect", "group": "Oferta dla inwestorów", "access_level": 2, "filterable": true, "filter_ui": "checkboxes",
+      "options": [["interest", "Oprocentowanie"], ["dividend", "Dywidenda"], ["profit_share", "Udział w zyskach"], ["interest_profit", "Oprocentowanie i udział w zyskach"]]
+    },
+    {
+      "key": "capital_security", "label": "Formy zabezpieczenia kapitału", "type": "multiselect", "group": "Oferta dla inwestorów", "access_level": 2, "filterable": true, "filter_ui": "checkboxes",
+      "options": [
+        ["mortgage", "Hipoteka na nieruchomości"],
+        ["kpc777", "Oświadczenie o poddaniu się egzekucji (art. 777 kpc)"],
+        ["loan_transfer", "Umowa pożyczki z przewłaszczeniem na zabezpieczenie"],
+        ["preliminary_datio", "Umowa przedwstępna sprzedaży oraz datio in solutum"],
+        ["share_pledge", "Zastaw rejestrowy na udziałach spółki"],
+        ["pledge", "Zastaw i zastaw rejestrowy"],
+        ["blank_note", "Weksel własny in blanco"],
+        ["aval", "Poręczenie wekslowe (awal)"],
+        ["personal_guarantee", "Poręczenie osoby fizycznej"],
+        ["assignment", "Cesja wierzytelności"]
+      ]
+    },
+    {
+      "key": "exit_strategy", "label": "Strategia wyjścia", "type": "multiselect", "group": "Oferta dla inwestorów", "access_level": 2,
+      "options": [["sale", "Sprzedaż lokali / projektu"], ["refinance", "Refinansowanie"], ["hold", "Utrzymanie — dochód z najmu"]]
+    },
+
+    { "key": "developer_years", "label": "Lata działalności dewelopera", "type": "int", "group": "Deweloper", "access_level": 2 },
+    { "key": "developer_projects", "label": "Zrealizowane projekty (liczba)", "type": "int", "group": "Deweloper", "access_level": 2 },
+    { "key": "developer_name", "label": "Nazwa dewelopera / SPV", "type": "text", "group": "Deweloper", "access_level": 3 },
+    { "key": "references", "label": "Referencje", "type": "textarea", "group": "Deweloper", "access_level": 3 },
+
+    { "key": "risks", "label": "Główne ryzyka i sposób ich ograniczenia", "type": "textarea", "group": "Analiza", "access_level": 2 },
+    { "key": "market_analysis", "label": "Analiza rynku", "type": "textarea", "group": "Analiza", "access_level": 3 },
+    { "key": "esg", "label": "Inwestycja ekologiczna / ESG", "type": "bool", "group": "Dodatkowe", "access_level": 1, "filterable": true, "filter_ui": "toggle" },
+    { "key": "video_urls", "label": "Filmy (YouTube / Vimeo)", "type": "url_list", "group": "Media", "access_level": 2 }
+  ],
+
+  "pages": [
+    { "slug": "zasady-wspolpracy", "title": "Zasady współpracy", "in_menu": true, "body_md": "## Trzy poziomy dostępu do informacji\n\n1. **Poziom 1** — przeglądanie podstawowych informacji o ofercie/projekcie (użytkownicy niezalogowani).\n2. **Poziom 2** — szerszy opis oferty/projektu oraz dodawanie własnych ofert po rejestracji i weryfikacji konta (użytkownicy zalogowani).\n3. **Poziom 3** — kompletne informacje i dokumentacja projektu po zawarciu umowy NDA i/lub umowy współpracy (zdalnie).\n\n_Treść do uzupełnienia przez właściciela portalu._" },
+    { "slug": "regulamin", "title": "Regulamin", "in_menu": false, "body_md": "_Do przygotowania (prawnik)._" },
+    { "slug": "polityka-prywatnosci", "title": "Polityka prywatności", "in_menu": false, "body_md": "_Do przygotowania (prawnik)._" },
+    { "slug": "kontakt", "title": "Kontakt", "in_menu": true, "body_md": "Masz pytania? **Skontaktuj się!**" }
+  ],
+
+  "ai": {
+    "enabled": false,
+    "extract_from_pdf": true,
+    "rewrite_description": true,
+    "moderation_hints": true,
+    "anonymize_level1": ["developer_name", "address_exact"],
+    "monthly_budget_usd": 30
+  }
+}
