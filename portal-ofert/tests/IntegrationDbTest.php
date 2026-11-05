@@ -38,7 +38,7 @@ return [
         $m = new Migrator(APP_ROOT . '/migrations');
         T::same([], $m->pending());
         T::same([], $m->migrate(), 'drugi raz nic nie robi');
-        T::same(29, (int) DB::value('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE()'));
+        T::same(30, (int) DB::value('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE()'));
         T::same('+00:00', DB::value('SELECT @@session.time_zone'));
     },
 
@@ -256,6 +256,42 @@ return [
             test_reset_db();
             $r = (new Importer())->import(Importer::readFile($file));
             T::assert(($r['fields.created'] ?? 0) > 0, basename($file));
+        }
+    },
+    'GetResponse: kontakt z telefonem i tagiem typu konta; 409 = już na liście; 5xx ponawiane, 4xx tylko w logu' => function (): void {
+        $prop = new \ReflectionProperty(\App\Core\Config::class, 'items');
+        $orig = $prop->getValue();
+        $status = 202;
+        \App\Core\Http::$sent = [];
+        \App\Core\Http::fake(static function () use (&$status): array {
+            return ['status' => $status, 'body' => '{}'];
+        });
+        try {
+            \App\Integrations\GetResponse::upsertContact('a@example.pl', 'Anna Nowak', '+48600100200', ['investor']);
+            T::same([], \App\Core\Http::$sent, 'bez konfiguracji nic nie wysyła');
+
+            \App\Core\Config::set(array_replace_recursive($orig, ['getresponse' => [
+                'api_key' => 'KLUCZ', 'list_token' => 'LISTA', 'phone_field_id' => 'POLE', 'tags' => ['investor' => 'TAG1'],
+            ]]));
+            \App\Integrations\GetResponse::upsertContact('a@example.pl', 'Anna Nowak', '+48600100200', ['investor', 'nieznany']);
+            $req = \App\Core\Http::$sent[0];
+            T::same('https://api.getresponse.com/v3/contacts', $req['url']);
+            T::same('api-key KLUCZ', $req['headers']['X-Auth-Token'] ?? null);
+            T::same([
+                'email' => 'a@example.pl', 'name' => 'Anna Nowak', 'campaign' => ['campaignId' => 'LISTA'],
+                'customFieldValues' => [['customFieldId' => 'POLE', 'value' => ['+48600100200']]],
+                'tags' => [['tagId' => 'TAG1']],
+            ], json_decode((string) $req['body'], true), 'telefon trafia do pola własnego (lekcja #12)');
+
+            $status = 409;
+            \App\Integrations\GetResponse::upsertContact('a@example.pl', 'Anna Nowak', null);
+            $status = 503;
+            T::throws(fn() => \App\Integrations\GetResponse::upsertContact('a@example.pl', 'A', null), \RuntimeException::class, 'zadanie wróci do kolejki');
+            $status = 400;
+            \App\Integrations\GetResponse::upsertContact('a@example.pl', 'A', null);
+        } finally {
+            \App\Core\Config::set($orig);
+            \App\Core\Http::fake(null);
         }
     },
 ];

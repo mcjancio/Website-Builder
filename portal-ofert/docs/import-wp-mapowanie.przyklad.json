@@ -1,0 +1,103 @@
+{
+  "post_type": "product",
+  "statuses": {
+    "publish": "published",
+    "draft": "draft",
+    "pending": "pending",
+    "private": "paused"
+  },
+  "category": {
+    "taxonomy": "product_cat",
+    "map": {
+      "pozyskanie-kapitalu": "pozyskanie-kapitalu",
+      "sprzedaz-projektu": "sprzedaz-projektu"
+    },
+    "default": "pozyskanie-kapitalu"
+  },
+  "core": {
+    "title": "post_title",
+    "short_desc": "post_excerpt",
+    "full_desc_md": "post_content",
+    "confidential_md": "meta:dane_poufne"
+  },
+  "fields": {
+    "investment_type": {
+      "from": "meta:typ_inwestycji"
+    },
+    "region": "meta:wojewodztwo",
+    "city": "meta:miasto",
+    "capital_needed": {
+      "from": "meta:potrzebny_kapital",
+      "currency": "PLN"
+    },
+    "project_cost": {
+      "from": "meta:koszt_projektu",
+      "currency_from": "meta:waluta"
+    },
+    "project_stage": {
+      "from": "meta:etap",
+      "values": {
+        "PnB": "permit",
+        "Pozwolenie na budowę": "permit"
+      }
+    },
+    "expected_roi": "meta:roi",
+    "start_date": "meta:data_rozpoczecia",
+    "esg": "meta:esg",
+    "investment_form": {
+      "from": "taxonomy:pa_forma-inwestycji",
+      "values": {
+        "Obligacje": "bonds"
+      }
+    }
+  },
+  "images": {
+    "featured": true,
+    "gallery_meta": "_product_image_gallery",
+    "from_content": true
+  },
+  "attachments": [
+    {
+      "from": "meta:teaser",
+      "label": "Teaser",
+      "access_level": 2
+    },
+    {
+      "from": "meta:dokumenty",
+      "label": "",
+      "access_level": 3
+    }
+  ],
+  "users": {
+    "roles": [
+      "customer",
+      "subscriber"
+    ],
+    "skip_admins": true,
+    "meta": {
+      "first_name": "first_name",
+      "last_name": "last_name",
+      "phone": "billing_phone",
+      "company_name": "billing_company",
+      "nip": "billing_nip"
+    },
+    "account_type": {
+      "from": "meta:typ_konta",
+      "values": {
+        "Deweloper": "developer",
+        "Inwestor": "investor"
+      },
+      "default": "investor"
+    }
+  },
+  "redirects": {
+    "paths": [
+      "/inwestycje/{slug}/",
+      "/produkt/{slug}/"
+    ],
+    "query": [
+      "p",
+      "product"
+    ]
+  }
+}

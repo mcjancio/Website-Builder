@@ -116,6 +116,10 @@ final class DB
     public static function transaction(callable $fn): mixed
     {
         $pdo = self::pdo();
+        if ($pdo->inTransaction()) {
+            // Zagnieżdżenie (np. import w trybie próbnym): całość i tak zatwierdza/wycofuje zewnętrzna transakcja.
+            return $fn();
+        }
         $pdo->beginTransaction();
         try {
             $result = $fn();

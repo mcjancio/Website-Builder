@@ -95,6 +95,19 @@ if (!is_file($stamp) || filemtime($stamp) < time() - 3600) {
     }
 }
 
+// Raport problemów dla administratorów raz na dobę, po 7:00 czasu portalu (tylko gdy są problemy).
+$reportStamp = APP_ROOT . '/storage/cache/worker-daily-report';
+$localNow = new \DateTimeImmutable('now', new \DateTimeZone((string) config('app.timezone', 'Europe/Warsaw')));
+if ((int) $localNow->format('G') >= 7 && @file_get_contents($reportStamp) !== $localNow->format('Y-m-d')) {
+    file_put_contents($reportStamp, $localNow->format('Y-m-d'));
+    try {
+        $sent = \App\Core\ErrorReport::send(time() - 86400);
+        $verbose && out("Raport problemów: {$sent} adresatów");
+    } catch (\Throwable $e) {
+        Logger::error('Worker: raport problemów nieudany', ['error' => $e->getMessage()]);
+    }
+}
+
 $verbose && out(sprintf('Gotowe: %d zadań, w tym %d nieudanych, %.1f s.', $processed, $failed, microtime(true) - $started));
 flock($lock, LOCK_UN);
 

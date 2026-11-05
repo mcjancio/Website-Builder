@@ -25,7 +25,7 @@ deployment:
     - /bin/mkdir -p $APP $WEB
     # Kod aplikacji (bez config.php i danych w storage/)
     - /bin/rsync -a --delete --exclude=/config.php --exclude=/storage/ --exclude=/public/ --exclude=/.git/ $SRC/ $APP/
-    - /bin/mkdir -p $APP/storage/logs $APP/storage/cache $APP/storage/uploads $APP/storage/sessions $APP/storage/backups
+    - /bin/mkdir -p $APP/storage/logs $APP/storage/cache $APP/storage/import $APP/storage/uploads $APP/storage/sessions $APP/storage/backups
     - /bin/cp -n $SRC/storage/.htaccess $APP/storage/.htaccess
     - /bin/chmod 750 $APP/storage
     # Pliki publiczne (index.php, .htaccess, assets/) + wskazanie katalogu aplikacji

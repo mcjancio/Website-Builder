@@ -55,6 +55,27 @@ return [
         T::same([], array_values(array_unique($missing)));
     },
 
+    'Odbiór: zero tekstów po angielsku — widoki bez tekstu poza __(), teksty bez angielskich słów' => function (): void {
+        $allowed = ['NIP', 'Website' /* pole-pułapka na boty, ukryte */];
+        $hits = [];
+        foreach (glob(APP_ROOT . '/views/{,*/,*/*/}*.php', GLOB_BRACE) ?: [] as $file) {
+            $s = (string) file_get_contents($file);
+            $s = (string) preg_replace(['/<\?(php|=).*?\?>/s', '/<(script|style)\b.*?<\/\1>/s', '/<!--.*?-->/s', '/<[^>]*>/s'], ' ', $s);
+            preg_match_all('/\p{L}{3,}/u', html_entity_decode($s), $m);
+            foreach (array_diff(array_unique($m[0]), $allowed) as $word) {
+                $hits[] = basename(dirname($file)) . '/' . basename($file) . ': ' . $word;
+            }
+        }
+        $english = '/\b(the|your|please|submit|password|error|dashboard|account|settings|click|save|cancel|delete|search|next|previous|loading|required|invalid|welcome|sign in|sign up|log ?out|upload|download)\b/i';
+        foreach (require APP_ROOT . '/lang/pl.php' as $key => $text) {
+            $plain = (string) preg_replace(['/\{[a-z_]+\}/', '/bin\/[a-z\-]+\.php/'], '', (string) $text);
+            if (preg_match($english, $plain, $m)) {
+                $hits[] = "{$key}: {$m[0]}";
+            }
+        }
+        T::same([], $hits);
+    },
+
     'Presety: oba pliki przechodzą walidację' => function (): void {
         foreach (glob(APP_ROOT . '/presets/*.json') ?: [] as $file) {
             $errors = \App\Presets\Importer::validate(\App\Presets\Importer::readFile($file));

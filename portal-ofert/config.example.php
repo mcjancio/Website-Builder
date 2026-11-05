@@ -60,6 +60,35 @@ return [
         'token' => '',
     ],
 
+    'backup' => [
+        // bin/backup.php (cron raz dziennie): baza + pliki ofert do storage/backups.
+        'keep_days' => 14,           // ile dni trzymać kopie na serwerze
+        'include_files' => true,     // także zdjęcia i dokumenty (storage/uploads)
+        // Kopia POZA serwerem (zalecane): magazyn zgodny z S3 — Backblaze B2, Wasabi, Cloudflare R2, AWS…
+        // Klucz z uprawnieniem TYLKO do zapisu w tym jednym buckecie. Pusty endpoint = bez wysyłki.
+        's3' => [
+            'endpoint' => '',        // np. https://s3.eu-central-003.backblazeb2.com
+            'region' => '',          // np. eu-central-003
+            'bucket' => '',
+            'key' => '',
+            'secret' => '',
+            'prefix' => 'portal',    // katalog w buckecie
+        ],
+    ],
+
+    // Import z dotychczasowego WordPressa (etap 6, jednorazowo): bin/import-wp.php, opis w docs/IMPORT-WP.md
+    'import_wp' => [
+        'host' => 'localhost',
+        'port' => 3306,
+        'socket' => '',
+        'name' => '',                // baza WordPressa (cPanel → Bazy danych MySQL), wystarczy użytkownik tylko do odczytu
+        'user' => '',
+        'pass' => '',
+        'prefix' => 'wp_',
+        'uploads' => '',             // katalog wp-content/uploads starej strony, np. /home/KONTO/public_html/wp-content/uploads
+        'old_url' => '',             // adres starej strony, np. https://inwestycje.example.pl
+    ],
+
     // ---- Konta i weryfikacja (etap 2) ----
 
     'mail' => [

@@ -16,7 +16,15 @@ final class UploadedFile
         public readonly string $clientName,
         public readonly int $size,
         public readonly int $error,
+        private readonly bool $local = false,
     ) {
+    }
+
+    /** Plik z dysku serwera (import ze starej strony, CLI) — przechodzi te same kontrole typu i rozmiaru. */
+    public static function local(string $path, ?string $name = null): self
+    {
+        $ok = is_file($path);
+        return new self($path, $name ?? basename($path), $ok ? (int) filesize($path) : 0, $ok ? UPLOAD_ERR_OK : UPLOAD_ERR_NO_FILE, true);
     }
 
     /**
@@ -77,7 +85,7 @@ final class UploadedFile
         }
         if (is_uploaded_file($this->tmpPath)) {
             $ok = move_uploaded_file($this->tmpPath, $dest);
-        } elseif (PHP_SAPI === 'cli' && Config::get('app.env') === 'testing') {
+        } elseif ($this->local || (PHP_SAPI === 'cli' && Config::get('app.env') === 'testing')) {
             $ok = copy($this->tmpPath, $dest);
         } else {
             $ok = false;

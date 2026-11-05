@@ -156,7 +156,7 @@ przełącznik "tryb kampanii".
 E-mail do moderatorów < 1 min od wysłania oferty do akceptacji.
 ```
 
-## Etap 6 — Utrzymanie, migracja z WordPressa, odbiór
+## Etap 6 — Utrzymanie, migracja z WordPressa, odbiór ✅ (zrealizowany — docs/IMPORT-WP.md, docs/ODBIOR.md)
 
 ```text
 ETAP 6: produkcja.

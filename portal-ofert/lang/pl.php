@@ -788,4 +788,19 @@ return [
 
     // Porównanie wersji
     'diff.basics' => 'Podstawowe informacje',
+
+    // E-maile (etap 6): raport problemów, przeniesione konta
+    'email.error_report.subject' => 'Portal: {count} sprawy do sprawdzenia',
+    'email.error_report.intro' => 'Dzienny przegląd portalu {portal} — wysyłamy go tylko wtedy, gdy coś wymaga uwagi.',
+    'email.error_report.backup_none' => 'Brak kopii zapasowej bazy. Sprawdź zadanie cron z bin/backup.php.',
+    'email.error_report.backup_old' => 'Ostatnia kopia zapasowa ma {hours} h. Sprawdź zadanie cron z bin/backup.php.',
+    'email.error_report.failed_jobs' => 'Zadania w tle zakończone błędem: {count} (np. e-maile, SMS). Szczegóły w storage/logs.',
+    'email.error_report.errors' => 'Błędy aplikacji z ostatniej doby:',
+    'email.error_report.times' => '{count}×',
+    'email.error_report.last' => 'ostatnio {time}',
+    'email.error_report.footer' => 'Podgląd na serwerze: php bin/error-report.php',
+    'email.migrated.subject' => '{portal} ma nową wersję — ustaw hasło',
+    'email.migrated.text' => 'Przenieśliśmy Twoje konto do nowej, szybszej wersji portalu {portal}. Ze względów bezpieczeństwa stare hasło nie zostało przeniesione — ustaw nowe jednym kliknięciem.',
+    'email.migrated.button' => 'Ustaw hasło',
+    'email.migrated.validity' => 'Link jest ważny {days} dni. Później użyj opcji „Nie pamiętasz hasła?” na stronie logowania.',
 ];

@@ -59,6 +59,18 @@ Instalator sprawdzi wymagania i połączenie z bazą, wykona migracje, zaimportu
   * * * * * /usr/local/bin/php /home/KONTO/portal/bin/worker.php >/dev/null 2>&1
   ```
   Sprawdzenie: `php bin/worker.php --ping --verbose`, a po minucie `/health` musi pokazywać `"queue":"ok"`.
+- **Kopia zapasowa**, raz dziennie (np. 3:17):
+  ```
+  17 3 * * * /usr/local/bin/php /home/KONTO/portal/bin/backup.php >/dev/null 2>&1
+  ```
+  Zapisuje bazę (`baza-….sql.gz`) i pliki ofert (`pliki-….tar.gz`) w `storage/backups`, kopie starsze niż 14 dni usuwa. Działa bez `mysqldump` i `exec`.
+  **Kopia poza serwerem** (zalecane): załóż bucket w magazynie zgodnym z S3, np. Backblaze B2 (kilka zł/mies.), Wasabi albo Cloudflare R2. Utwórz klucz z prawem zapisu tylko do tego bucketu i wpisz dane w `config.php → backup.s3`. W magazynie ustaw regułę cyklu życia (np. usuwanie po 30 dniach).
+- **Odtworzenie** (test raz na kwartał na stagingu, opisany w `docs/ODBIOR.md`):
+  ```
+  php bin/restore.php --list
+  php bin/restore.php storage/backups/baza-….sql.gz storage/backups/pliki-….tar.gz
+  ```
+- **Raport problemów** wysyła worker raz na dobę po 7:00 do administratorów — tylko gdy są błędy w logach, nieudane zadania albo kopia jest starsza niż 36 h. Podgląd: `php bin/error-report.php`.
 - **Monitoring** (UptimeRobot / Better Stack): `https://oferty.twojadomena.pl/health` — 200 = ok, 503 = problem (baza, zapis plików, niewykonane migracje, stojąca kolejka). Z `health.token` w configu: `/health?token=…` pokazuje też liczniki kolejki.
 
 ## 6. Pliki i limity PHP
@@ -91,6 +103,10 @@ Kopie zapasowe muszą obejmować bazę **i** katalog `storage/uploads` (etap 6: 
 | `php bin/access.php` | Prośby o dostęp do treści poufnych (zapas — na co dzień panel `/admin/dostepy`) |
 | `php bin/access.php --grant=7 --days=90` | Nadanie dostępu (opcjonalnie z datą wygaśnięcia) — użytkownik dostaje e-mail |
 | `php bin/access.php --deny=7` / `--revoke=7` | Odmowa / odebranie dostępu |
+| `php bin/backup.php` | Kopia zapasowa teraz (np. przed większą zmianą) |
+| `php bin/restore.php <baza.sql.gz> [pliki.tar.gz]` | Odtworzenie kopii (nadpisuje bazę!) |
+| `php bin/error-report.php [--send]` | Problemy z ostatniej doby |
+| `php bin/import-wp.php --discover` | Import ze starej strony WordPress — opis w `docs/IMPORT-WP.md` |
 
 ### Panel administracyjny
 

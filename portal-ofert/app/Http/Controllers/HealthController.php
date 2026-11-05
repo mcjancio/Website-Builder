@@ -67,6 +67,10 @@ final class HealthController
             }
         }
 
+        // Informacyjnie (nie wpływa na status — alarm idzie w dziennym raporcie e-mail): wiek kopii zapasowej.
+        $latest = \App\Core\Backup::latest();
+        $checks['backup'] = $latest === null ? 'none' : (time() - $latest > \App\Core\ErrorReport::BACKUP_MAX_AGE_HOURS * 3600 ? 'stale' : 'ok');
+
         // Informacyjnie (nie wpływa na status): trwa tryb kampanii — wdrożenia wstrzymane.
         if (\App\Core\CampaignMode::until() !== null) {
             $checks['campaign'] = 'on';
