@@ -108,6 +108,13 @@ return [
         'test' => false,             // true = SMSAPI przyjmuje żądanie, ale nie wysyła SMS-a
     ],
 
+    'webhook' => [
+        // Opcjonalnie: zapytania o oferty wysyłane też do CRM / Make / Zapier (POST JSON).
+        // Nagłówek X-Portal-Signature: sha256=HMAC(treść, secret) — sprawdź go po stronie odbiorcy.
+        'url' => '',
+        'secret' => '',
+    ],
+
     'getresponse' => [
         // Kontakt trafia do listy TYLKO przy zgodzie marketingowej z formularza rejestracji.
         'api_key' => '',

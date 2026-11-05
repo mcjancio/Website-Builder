@@ -231,7 +231,7 @@ return [
         require APP_ROOT . '/app/routes.php';
 
         $neutral = $router->dispatch(new App\Core\Request('GET', '/'))->body;
-        T::assert(str_contains($neutral, '<h2 id="kategorie">Kategorie</h2>'), 'bez presetu: neutralnie');
+        T::assert(str_contains($neutral, '>Dodaj ofertę</a>') && str_contains($neutral, '>Oferty</a>'), 'bez presetu: neutralnie');
 
         (new Importer())->import(preset_file('inwestycje-deweloperskie'));
         $inv = $router->dispatch(new App\Core\Request('GET', '/'))->body;

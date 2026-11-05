@@ -29,6 +29,8 @@ return [
              'email.approved.subject_new', 'email.approved.subject_revision', 'email.approved.text_new', 'email.approved.text_revision',
              'email.rejected.text_new', 'email.rejected.text_revision', 'upload.too_large_server', 'upload.partial', 'upload.failed'],
             array_map(fn($s) => 'status.' . $s, ['draft', 'pending', 'published', 'paused', 'sold', 'archived', 'rejected']),
+            ['listings.sort_najnowsze', 'listings.sort_najstarsze', 'listings.sort_asc', 'listings.sort_desc', 'access.request_requested', 'access.request_already', 'access.request_granted',
+             'access.docs_locked_guest', 'access.docs_locked_member'],
         );
         foreach ($dynamic as $key) {
             if (!Lang::has($key)) {

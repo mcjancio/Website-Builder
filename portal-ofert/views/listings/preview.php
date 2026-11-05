@@ -13,26 +13,12 @@
  * @var bool $isStaff
  */
 use App\Core\Str;
-use App\Listings\Fields;
 
 $levels = (array) setting('access_levels', []);
 $levelName = static fn(int $l) => $levels[$l]['name'] ?? __('access.level_' . $l);
 $badge = static fn(int $l) => '<span class="level-badge level-badge--' . $l . '">' . e($levelName($l)) . '</span>';
 
-$format = static function (array $f, mixed $v): string {
-    return match ($f['type']) {
-        'money' => Str::number((float) $v['amount'], fmod((float) $v['amount'], 1.0) == 0.0 ? 0 : 2) . ' ' . $v['currency'],
-        'decimal' => Str::number((float) $v, str_contains((string) $v, '.') ? 2 : 0),
-        'percent' => Str::number((float) $v, str_contains((string) $v, '.') ? 1 : 0) . ' %',
-        'int' => Str::number((int) $v),
-        'bool' => __('common.yes'),
-        'date' => (string) $v,
-        'select', 'region' => $f['options'][$v]['label'] ?? (string) $v,
-        'multiselect' => implode(', ', array_map(static fn($k) => $f['options'][$k]['label'] ?? $k, (array) $v)),
-        'url_list' => implode("\n", (array) $v),
-        default => (string) $v,
-    };
-};
+$format = static fn(array $f, mixed $v): string => \App\Listings\Display::value($f, $v);
 ?>
 <article class="container section listing-preview">
     <p class="wizard__back"><a href="<?= e(url($isStaff && !\App\Access\Gate::isOwner(auth_user(), $listing) ? '/konto' : '/moje-oferty/' . $listing['id'] . '/edycja/4')) ?>">← <?= e(__('preview.back')) ?></a></p>

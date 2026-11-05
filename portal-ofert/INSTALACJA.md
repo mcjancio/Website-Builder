@@ -67,7 +67,13 @@ Zdjęcia i dokumenty ofert leżą w `~/portal/storage/uploads` (poza `public_htm
 
 Kopie zapasowe muszą obejmować bazę **i** katalog `storage/uploads` (etap 6: `bin/backup.php`).
 
-## 7. Polecenia na co dzień
+## 7. SEO i integracje
+
+- `https://<adres>/sitemap.xml` i `/robots.txt` generują się same (tylko treści publiczne) — zgłoś sitemapę w Google Search Console.
+- Linki do przefiltrowanej listy działają w kampaniach, np. `/oferty?region=wielkopolskie&capital_needed_od=1000000`. Kombinacje filtrów mają `noindex`, żeby nie mnożyć duplikatów w Google.
+- Zapytania o oferty mogą trafiać też do CRM / Make / Zapier: ustaw `webhook.url` i `webhook.secret` w `config.php` (POST JSON z podpisem `X-Portal-Signature`).
+
+## 8. Polecenia na co dzień
 
 | Polecenie | Do czego |
 |---|---|
@@ -82,8 +88,11 @@ Kopie zapasowe muszą obejmować bazę **i** katalog `storage/uploads` (etap 6: 
 | `php bin/moderate.php` | Oferty i zmiany czekające na akceptację (do czasu panelu w etapie 5) |
 | `php bin/moderate.php --approve=12` | Akceptacja oferty #12 albo jej zmian — autor dostaje e-mail |
 | `php bin/moderate.php --reject=12 --reason="…"` | Odrzucenie z uzasadnieniem widocznym dla autora |
+| `php bin/access.php` | Prośby o dostęp do treści poufnych (poziom 3) |
+| `php bin/access.php --grant=7 --days=90` | Nadanie dostępu (opcjonalnie z datą wygaśnięcia) — użytkownik dostaje e-mail |
+| `php bin/access.php --deny=7` / `--revoke=7` | Odmowa / odebranie dostępu |
 
-## 8. Lokalnie (dla programisty)
+## 9. Lokalnie (dla programisty)
 
 ```bash
 cp config.example.php config.php           # debug => true, hsts => false, dane lokalnej bazy

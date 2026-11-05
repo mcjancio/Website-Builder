@@ -80,11 +80,24 @@ final class ValueStore
         }
     }
 
-    /**
-     * @return array<string,mixed> key => wartość znormalizowana (jak FieldInput)
-     */
+    /** @return array<string,mixed> key => wartość znormalizowana (jak FieldInput) */
     public static function load(int $listingId): array
     {
+        return self::loadMany([$listingId])[$listingId] ?? [];
+    }
+
+    /**
+     * Wartości wielu ofert naraz (lista ofert: 2 zapytania zamiast 2 na każdą ofertę).
+     * @param int[] $listingIds
+     * @return array<int,array<string,mixed>>
+     */
+    public static function loadMany(array $listingIds): array
+    {
+        $listingIds = array_values(array_unique(array_map('intval', $listingIds)));
+        if ($listingIds === []) {
+            return [];
+        }
+        $in = implode(',', array_fill(0, count($listingIds), '?'));
         $fieldsById = [];
         foreach (Fields::all() as $key => $f) {
             $fieldsById[$f['id']] = $f;
@@ -94,13 +107,13 @@ final class ValueStore
             $optionKeys[(int) $o['id']] = $o['key'];
         }
 
-        $out = [];
-        foreach (DB::fetchAll('SELECT * FROM listing_values WHERE listing_id = ?', [$listingId]) as $r) {
+        $out = array_fill_keys($listingIds, []);
+        foreach (DB::fetchAll("SELECT * FROM listing_values WHERE listing_id IN ({$in})", $listingIds) as $r) {
             $f = $fieldsById[(int) $r['field_id']] ?? null;
             if ($f === null) {
                 continue; // pole ukryte w presecie — wartość zostaje w bazie, ale nie jest pokazywana
             }
-            $out[$f['key']] = match ($f['type']) {
+            $out[(int) $r['listing_id']][$f['key']] = match ($f['type']) {
                 'int' => (int) $r['v_int'],
                 'bool' => (bool) $r['v_int'],
                 'decimal', 'percent' => rtrim(rtrim((string) $r['v_dec'], '0'), '.'),
@@ -111,12 +124,12 @@ final class ValueStore
                 default => (string) $r['v_text'],
             };
         }
-        foreach (DB::fetchAll('SELECT field_id, option_id FROM listing_value_options WHERE listing_id = ? ORDER BY option_id', [$listingId]) as $r) {
+        foreach (DB::fetchAll("SELECT listing_id, field_id, option_id FROM listing_value_options WHERE listing_id IN ({$in}) ORDER BY option_id", $listingIds) as $r) {
             $f = $fieldsById[(int) $r['field_id']] ?? null;
             if ($f !== null && isset($optionKeys[(int) $r['option_id']])) {
-                $out[$f['key']][] = $optionKeys[(int) $r['option_id']];
+                $out[(int) $r['listing_id']][$f['key']][] = $optionKeys[(int) $r['option_id']];
             }
         }
-        return array_filter($out, static fn($v) => $v !== null);
+        return array_map(static fn($vals) => array_filter($vals, static fn($v) => $v !== null), $out);
     }
 }

@@ -21,6 +21,15 @@ try {
     <title><?= e($pageTitle) ?></title>
     <meta name="description" content="<?= e($metaDescription) ?>">
     <?php if (!empty($noindex)): ?><meta name="robots" content="noindex"><?php endif; ?>
+    <?php $absBase = rtrim((string) config('app.url'), '/'); ?>
+    <?php if (!empty($canonical)): ?><link rel="canonical" href="<?= e($absBase . $canonical) ?>"><?php endif; ?>
+    <meta property="og:site_name" content="<?= e($portalName) ?>">
+    <meta property="og:title" content="<?= e($title ?? $portalName) ?>">
+    <meta property="og:description" content="<?= e($metaDescription) ?>">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pl_PL">
+    <?php if (!empty($canonical)): ?><meta property="og:url" content="<?= e($absBase . $canonical) ?>"><?php endif; ?>
+    <?php if (!empty($ogImage)): ?><meta property="og:image" content="<?= e($ogImage) ?>"><meta name="twitter:card" content="summary_large_image"><?php endif; ?>
     <link rel="stylesheet" href="<?= e(asset('css/app.css')) ?>">
     <link rel="stylesheet" href="<?= e(url('theme.css')) ?>">
     <script src="<?= e(asset('js/app.js')) ?>" defer></script>
@@ -35,6 +44,7 @@ try {
         <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu-glowne"><?= e(__('app.menu')) ?></button>
         <nav id="menu-glowne" class="site-nav" aria-label="<?= e(__('app.main_nav')) ?>">
             <ul>
+                <li><a href="<?= e(url('/oferty')) ?>"><?= e(__('term.listings')) ?></a></li>
                 <?php foreach ($menuPages as $p): ?>
                     <li><a href="<?= e(url($p['slug'])) ?>"><?= e($p['title']) ?></a></li>
                 <?php endforeach; ?>

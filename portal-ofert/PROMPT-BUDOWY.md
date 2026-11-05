@@ -118,7 +118,7 @@ Test: oferta z 3 PDF i 5 zdjęciami < 10 min; kwota w EUR; data startu 3 lata
 wstecz + "projekt już trwa".
 ```
 
-## Etap 4 — Lista, filtry, szczegóły, poziomy dostępu, zapytania
+## Etap 4 — Lista, filtry, szczegóły, poziomy dostępu, zapytania ✅ (zrealizowany — dostęp L3 tymczasowo z CLI: bin/access.php)
 
 ```text
 ETAP 4: front publiczny wg KONCEPCJA.md §3, §5.4, §5.5.

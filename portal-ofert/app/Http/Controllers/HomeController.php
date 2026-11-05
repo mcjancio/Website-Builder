@@ -15,6 +15,13 @@ final class HomeController
         $categories = DB::fetchAll(
             'SELECT slug, name FROM categories WHERE is_active = 1 AND parent_id IS NULL ORDER BY sort_order, name'
         );
-        return Response::view('home', ['categories' => $categories]);
+        $level = \App\Listings\ListingQuery::levelFor(\App\Auth\Auth::user());
+        return Response::view('home', [
+            'categories' => $categories,
+            'latest' => \App\Listings\ListingQuery::latest(6, $level),
+            'total' => (int) DB::value("SELECT COUNT(*) FROM listings WHERE status = 'published'"),
+            'level' => $level,
+            'canonical' => url('/'),
+        ]);
     }
 }

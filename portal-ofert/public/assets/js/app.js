@@ -235,3 +235,27 @@
     f.addEventListener('submit', function (e) { if (!window.confirm(f.getAttribute('data-confirm'))) { e.preventDefault(); } });
   });
 })();
+
+/* Filtry: na szerokim ekranie zawsze rozwinięte (na telefonie zwinięte, chyba że coś zaznaczono). */
+(function () {
+  'use strict';
+  var d = document.querySelector('[data-filters-details]');
+  if (d && window.matchMedia('(min-width: 60rem)').matches) { d.open = true; }
+  // Krótki adres wyników (do wklejenia w kampanię): puste pola nie trafiają do URL.
+  var f = d && d.closest('form');
+  if (f) {
+    f.addEventListener('submit', function () {
+      Array.prototype.forEach.call(f.elements, function (el) {
+        if (el.name && (el.value === '' || el.name === 'strona')) { el.disabled = true; }
+      });
+      setTimeout(function () { Array.prototype.forEach.call(f.elements, function (el) { el.disabled = false; }); }, 0);
+    });
+  }
+})();
+
+/* Sortowanie: zmiana na liście od razu przeładowuje wyniki (bez JS — przycisk). */
+(function () {
+  'use strict';
+  var f = document.querySelector('[data-sort-form]');
+  if (f) { f.querySelector('select').addEventListener('change', function () { f.submit(); }); }
+})();
