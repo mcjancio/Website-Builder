@@ -9,6 +9,9 @@ declare(strict_types=1);
  */
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AccountSettingsController;
+use App\Http\Controllers\Admin;
+use App\Http\Controllers\MemberController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordController;
@@ -25,7 +28,9 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Middleware\LoadUser;
+use App\Http\Middleware\RequireAdmin;
 use App\Http\Middleware\RequireAuth;
+use App\Http\Middleware\RequireStaff;
 use App\Http\Middleware\RequireGuest;
 use App\Http\Middleware\RequireVerifiedEmail;
 use App\Http\Middleware\StartSession;
@@ -80,10 +85,27 @@ $router->group('', [StartSession::class, VerifyCsrf::class, LoadUser::class], st
         $g->post('/konto/2fa/wylacz', [AccountController::class, 'disableTwoFactor']);
 
         $g->post('/oferta/{id:\d+}/dostep', [ListingsController::class, 'requestAccess']);
+        $g->post('/oferta/{id:\d+}/obserwuj', [MemberController::class, 'toggleFavorite']);
+
+        // Moje konto (etap 5)
+        $g->get('/konto/profil', [AccountSettingsController::class, 'profile']);
+        $g->post('/konto/profil', [AccountSettingsController::class, 'saveProfile']);
+        $g->get('/konto/bezpieczenstwo', [AccountSettingsController::class, 'security']);
+        $g->post('/konto/haslo', [AccountSettingsController::class, 'changePassword']);
+        $g->post('/konto/urzadzenia/wyloguj', [AccountSettingsController::class, 'logoutDevices']);
+        $g->get('/konto/usun', [AccountSettingsController::class, 'deleteForm']);
+        $g->post('/konto/usun', [AccountSettingsController::class, 'delete']);
+        $g->get('/konto/obserwowane', [MemberController::class, 'favorites']);
+        $g->get('/konto/wyszukiwania', [MemberController::class, 'searches']);
+        $g->post('/konto/wyszukiwania', [MemberController::class, 'saveSearch']);
+        $g->post('/konto/wyszukiwania/{id:\d+}', [MemberController::class, 'updateSearch']);
+        $g->get('/konto/dostepy', [MemberController::class, 'access']);
 
         // Oferty autora (etap 3): kreator, pliki, wysyłka do moderacji
         $g->get('/moje-oferty', [MyListingsController::class, 'index']);
         $g->get('/moje-oferty/{id:\d+}/podglad', [MyListingsController::class, 'preview']);
+        $g->get('/moje-oferty/{id:\d+}/statystyki', [MyListingsController::class, 'stats']);
+        $g->post('/moje-oferty/{id:\d+}/status', [MyListingsController::class, 'status']);
         $g->post('/podglad-markdown', [ListingWizardController::class, 'markdownPreview']);
         $g->group('', [RequireVerifiedEmail::class], static function ($v): void {
             $v->get('/dodaj-oferte', [ListingWizardController::class, 'create']);
@@ -96,6 +118,47 @@ $router->group('', [StartSession::class, VerifyCsrf::class, LoadUser::class], st
             $v->post('/moje-oferty/{id:\d+}/{kind:zdjecia|dokumenty}/{item:\d+}', [ListingWizardController::class, 'mediaAction']);
             $v->post('/moje-oferty/{id:\d+}/wyslij', [ListingWizardController::class, 'submit']);
             $v->post('/moje-oferty/{id:\d+}/usun', [ListingWizardController::class, 'destroy']);
+        });
+
+        // Panel administracyjny (etap 5): admin + moderator; sekcje ustawień tylko admin
+        $g->group('/admin', [RequireStaff::class], static function ($a): void {
+            $a->get('/', [Admin\DashboardController::class, 'index']);
+            $a->get('/moderacja', [Admin\ModerationController::class, 'index']);
+            $a->get('/moderacja/{id:\d+}', [Admin\ModerationController::class, 'show']);
+            $a->post('/moderacja/{id:\d+}', [Admin\ModerationController::class, 'decide']);
+            $a->get('/oferty', [Admin\ListingsAdminController::class, 'index']);
+            $a->post('/oferty/{id:\d+}', [Admin\ListingsAdminController::class, 'action']);
+            $a->get('/zapytania', [Admin\InquiriesController::class, 'index']);
+            $a->get('/zapytania.csv', [Admin\InquiriesController::class, 'export']);
+            $a->get('/zapytania/{id:\d+}', [Admin\InquiriesController::class, 'show']);
+            $a->post('/zapytania/{id:\d+}', [Admin\InquiriesController::class, 'update']);
+            $a->get('/dostepy', [Admin\AccessController::class, 'index']);
+            $a->post('/dostepy/{id:\d+}', [Admin\AccessController::class, 'decide']);
+
+            $a->group('', [RequireAdmin::class], static function ($s): void {
+                $s->get('/uzytkownicy', [Admin\UsersController::class, 'index']);
+                $s->get('/uzytkownicy.csv', [Admin\UsersController::class, 'export']);
+                $s->get('/uzytkownicy/{id:\d+}', [Admin\UsersController::class, 'show']);
+                $s->post('/uzytkownicy/{id:\d+}', [Admin\UsersController::class, 'action']);
+                $s->get('/kryteria', [Admin\FieldsController::class, 'index']);
+                $s->get('/kryteria/eksport.json', [Admin\FieldsController::class, 'export']);
+                $s->get('/kryteria/nowe', [Admin\FieldsController::class, 'edit']);
+                $s->post('/kryteria/nowe', [Admin\FieldsController::class, 'save']);
+                $s->get('/kryteria/{id:\d+}', [Admin\FieldsController::class, 'edit']);
+                $s->post('/kryteria/{id:\d+}', [Admin\FieldsController::class, 'save']);
+                $s->post('/kryteria/{id:\d+}/opcje', [Admin\FieldsController::class, 'saveOption']);
+                $s->post('/kryteria/{kind:pole|opcja|kategoria}/{id:\d+}', [Admin\FieldsController::class, 'action']);
+                $s->post('/kategorie', [Admin\FieldsController::class, 'saveCategory']);
+                $s->get('/strony', [Admin\ContentController::class, 'pages']);
+                $s->get('/strony/nowa', [Admin\ContentController::class, 'editPage']);
+                $s->post('/strony/nowa', [Admin\ContentController::class, 'savePage']);
+                $s->get('/strony/{id:\d+}', [Admin\ContentController::class, 'editPage']);
+                $s->post('/strony/{id:\d+}', [Admin\ContentController::class, 'savePage']);
+                $s->get('/ustawienia', [Admin\ContentController::class, 'settings']);
+                $s->post('/ustawienia', [Admin\ContentController::class, 'saveSettings']);
+                $s->post('/tryb-kampanii', [Admin\ContentController::class, 'campaign']);
+                $s->get('/dziennik', [Admin\ContentController::class, 'audit']);
+            });
         });
     });
 

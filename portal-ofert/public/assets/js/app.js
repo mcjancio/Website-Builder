@@ -259,3 +259,34 @@
   var f = document.querySelector('[data-sort-form]');
   if (f) { f.querySelector('select').addEventListener('change', function () { f.submit(); }); }
 })();
+
+/* Moderacja: „pokaż tylko zmienione pola” w porównaniu było/jest. */
+(function () {
+  'use strict';
+  var cb = document.querySelector('[data-diff-only]');
+  var table = document.querySelector('.diff');
+  if (cb && table) {
+    cb.addEventListener('change', function () { table.classList.toggle('diff--only-changed', cb.checked); });
+  }
+})();
+
+/* Obserwuj: przełączenie bez przeładowania strony (bez JS — zwykły formularz). */
+(function () {
+  'use strict';
+  var f = document.querySelector('[data-favorite-form]');
+  if (!f || !window.fetch) { return; }
+  var btn = f.querySelector('button');
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    btn.disabled = true;
+    fetch(f.action, { method: 'POST', body: new FormData(f), headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+      .then(function (r) { if (!r.ok) { throw new Error(String(r.status)); } return r.json(); })
+      .then(function (d) {
+        btn.setAttribute('aria-pressed', d.favorite ? 'true' : 'false');
+        btn.querySelector('.favorite-toggle__icon').textContent = d.favorite ? '★' : '☆';
+        btn.querySelector('.favorite-toggle__label').textContent = btn.getAttribute(d.favorite ? 'data-label-on' : 'data-label-off');
+      })
+      .catch(function () { f.submit(); })
+      .finally(function () { btn.disabled = false; });
+  });
+})();

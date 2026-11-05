@@ -40,6 +40,20 @@ final class Display
         return $d ? $d->format('d.m.Y') : $ymd;
     }
 
+    /** Data i godzina z bazy (UTC) w strefie portalu, np. „05.11.2026 14:30”. */
+    public static function datetime(?string $utc): string
+    {
+        if ($utc === null || $utc === '') {
+            return '—';
+        }
+        try {
+            $d = new \DateTimeImmutable($utc, new \DateTimeZone('UTC'));
+            return $d->setTimezone(new \DateTimeZone((string) config('app.timezone', 'Europe/Warsaw')))->format('d.m.Y H:i');
+        } catch (\Exception) {
+            return $utc;
+        }
+    }
+
     /**
      * Adres do osadzenia filmu: YouTube (domena bez ciasteczek) i Vimeo — tylko te są w CSP frame-src.
      * Inne adresy zostają zwykłymi linkami.

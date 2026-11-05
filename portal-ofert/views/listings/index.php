@@ -18,6 +18,7 @@ $pageUrl = static function (int $p) use ($query): string {
     }
     return url('/oferty', $q);
 };
+$hasCriteria = array_diff_key($result['applied'], ['sort' => true, 'strona' => true]) !== [];
 $currentSort = is_scalar($query['sort'] ?? null) && isset($sortOptions[$query['sort']]) ? (string) $query['sort'] : 'najnowsze';
 ?>
 <section class="container section listings">
@@ -67,6 +68,35 @@ $currentSort = is_scalar($query['sort'] ?? null) && isset($sortOptions[$query['s
                         <?= View::partial('listings/partials/card', ['item' => $item, 'level' => $level, 'headingTag' => 'h2']) ?>
                     <?php endforeach; ?>
                 </div>
+            <?php endif; ?>
+
+            <?php if ($user !== null && $hasCriteria): ?>
+                <details class="save-search">
+                    <summary><?= e(__('saved.save_this')) ?></summary>
+                    <form method="post" action="<?= e(url('/konto/wyszukiwania')) ?>" class="form save-search__form">
+                        <?= csrf_field() ?>
+                        <?php foreach ($query as $qk => $qv): if (in_array($qk, ['sort', 'strona'], true) || !is_string($qk)) { continue; } ?>
+                            <?php foreach ((array) $qv as $one): if (!is_scalar($one) || $one === '') { continue; } ?>
+                                <input type="hidden" name="<?= e('q[' . $qk . ']' . (is_array($qv) ? '[]' : '')) ?>" value="<?= e((string) $one) ?>">
+                            <?php endforeach; ?>
+                        <?php endforeach; ?>
+                        <div class="field">
+                            <label for="ss-name"><?= e(__('saved.name')) ?></label>
+                            <input id="ss-name" name="name" maxlength="150" placeholder="<?= e(__('saved.default_name')) ?>">
+                        </div>
+                        <div class="field">
+                            <label for="ss-freq"><?= e(__('saved.frequency')) ?></label>
+                            <select id="ss-freq" name="frequency">
+                                <?php foreach (['daily', 'weekly', 'off'] as $f): ?>
+                                    <option value="<?= e($f) ?>" <?= $f === 'weekly' ? 'selected' : '' ?>><?= e(__('saved.freq_' . $f)) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <button type="submit" class="button button--secondary"><?= e(__('saved.save')) ?></button>
+                    </form>
+                </details>
+            <?php elseif ($user === null && $hasCriteria): ?>
+                <p class="hint"><a href="<?= e(url('/logowanie', ['next' => '/oferty'])) ?>"><?= e(__('saved.login_hint')) ?></a></p>
             <?php endif; ?>
 
             <?php if ($result['pages'] > 1): ?>

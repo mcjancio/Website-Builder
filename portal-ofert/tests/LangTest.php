@@ -31,6 +31,21 @@ return [
             array_map(fn($s) => 'status.' . $s, ['draft', 'pending', 'published', 'paused', 'sold', 'archived', 'rejected']),
             ['listings.sort_najnowsze', 'listings.sort_najstarsze', 'listings.sort_asc', 'listings.sort_desc', 'access.request_requested', 'access.request_already', 'access.request_granted',
              'access.docs_locked_guest', 'access.docs_locked_member'],
+            // Etap 5: klucze składane w kodzie
+            array_map(fn($s) => 'inquiry_status.' . $s, \App\Http\Controllers\Admin\InquiriesController::STATUSES),
+            array_map(fn($s) => 'grant_status.' . $s, ['requested', 'granted', 'denied', 'revoked']),
+            array_map(fn($s) => 'role.' . $s, ['member', 'moderator', 'admin']),
+            array_map(fn($s) => 'user_status.' . $s, ['active', 'blocked', 'deleted']),
+            array_map(fn($s) => 'field_type.' . $s, \App\Presets\Importer::FIELD_TYPES),
+            array_map(fn($s) => 'filter_ui.' . $s, \App\Presets\Importer::FILTER_UI),
+            array_map(fn($s) => 'saved.freq_' . $s, ['daily', 'weekly', 'off']),
+            array_map(fn($s) => 'mine.action_' . $s, ['pause', 'resume', 'sold', 'archive']),
+            array_map(fn($s) => 'mine.status_' . $s, ['pause', 'resume', 'sold', 'archive']),
+            array_map(fn($s) => 'admin.action_' . $s, ['pause', 'resume', 'sold', 'archive', 'restore']),
+            ['mine.confirm_sold', 'mine.confirm_archive', 'admin.confirm_sold', 'admin.confirm_archive', 'admin.kind_new', 'admin.kind_revision',
+             'admin.approved_new', 'admin.approved_revision', 'admin.rejected_new', 'admin.rejected_revision',
+             'admin.company_source_manual', 'admin.company_source_registry', 'fields.level_1_hint', 'fields.level_2_hint', 'fields.level_3_hint',
+             'fields.val_min', 'fields.val_max', 'fields.val_maxlength'],
         );
         foreach ($dynamic as $key) {
             if (!Lang::has($key)) {

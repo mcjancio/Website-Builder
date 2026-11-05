@@ -239,6 +239,67 @@ final class ListingService
         return $kind;
     }
 
+    /** Akcje statusu: autor (własne) i moderacja. @return bool czy zmieniono */
+    public static function changeStatus(array $listing, string $action, ?int $by, ?Request $request = null): bool
+    {
+        $map = [
+            'pause' => [['published'], 'paused'],
+            'resume' => [['paused'], 'published'],
+            'sold' => [['published', 'paused'], 'sold'],
+            'archive' => [['published', 'paused', 'sold', 'rejected', 'draft'], 'archived'],
+            'restore' => [['archived'], 'paused'],
+        ];
+        if (!isset($map[$action]) || !in_array($listing['status'], $map[$action][0], true)) {
+            return false;
+        }
+        DB::update('listings', ['status' => $map[$action][1]], ['id' => $listing['id']]);
+        Audit::log('listing.' . $action, 'listing', (int) $listing['id'], ['from' => $listing['status']], $request, $by);
+        return true;
+    }
+
+    public static function setFeatured(int $listingId, bool $featured, ?int $by): void
+    {
+        DB::update('listings', ['is_featured' => (int) $featured], ['id' => $listingId]);
+        Audit::log($featured ? 'listing.feature' : 'listing.unfeature', 'listing', $listingId, [], null, $by);
+    }
+
+    /**
+     * Porównanie „było / jest” dla moderatora: opublikowana wersja kontra rewizja.
+     * Dla nowej oferty „było” jest puste. Wartości sformatowane jak na stronie oferty.
+     * @return array<int,array{group:string,label:string,before:string,after:string,changed:bool,level:int}>
+     */
+    public static function diff(array $listing): array
+    {
+        $live = [
+            'core' => array_intersect_key($listing, array_flip(self::CORE)),
+            'values' => ValueStore::load((int) $listing['id']),
+        ];
+        $rev = self::isLive($listing) ? DB::fetch("SELECT payload FROM listing_revisions WHERE listing_id = ? AND status IN ('pending', 'draft') ORDER BY id DESC LIMIT 1", [$listing['id']]) : null;
+        $isNew = $rev === null;
+        $next = $live;
+        if (!$isNew) {
+            $p = json_decode((string) $rev['payload'], true) ?: [];
+            $next = ['core' => array_merge($live['core'], (array) ($p['core'] ?? [])), 'values' => (array) ($p['values'] ?? [])];
+        }
+        $rows = [];
+        $labels = ['title' => __('listing.title'), 'short_desc' => __('listing.short_desc'), 'full_desc_md' => __('listing.full_desc'), 'confidential_md' => __('listing.confidential')];
+        $levels = ['title' => 1, 'short_desc' => 1, 'full_desc_md' => 2, 'confidential_md' => 3];
+        foreach (self::CORE as $k) {
+            $before = $isNew ? '' : (string) ($live['core'][$k] ?? '');
+            $after = (string) ($next['core'][$k] ?? '');
+            $rows[] = ['group' => __('diff.basics'), 'label' => $labels[$k], 'before' => $before, 'after' => $after, 'changed' => $before !== $after, 'level' => $levels[$k]];
+        }
+        foreach (Fields::forCategory((int) $listing['category_id']) as $key => $f) {
+            $b = !$isNew && array_key_exists($key, $live['values']) ? Display::value($f, $live['values'][$key]) : '';
+            $a = array_key_exists($key, $next['values']) ? Display::value($f, $next['values'][$key]) : '';
+            if ($a === '' && $b === '') {
+                continue;
+            }
+            $rows[] = ['group' => $f['group_name'], 'label' => $f['label'], 'before' => $b, 'after' => $a, 'changed' => $a !== $b, 'level' => $f['access_level']];
+        }
+        return $rows;
+    }
+
     /** Kolejka moderacji: nowe oferty i rewizje, najstarsze pierwsze. */
     public static function pendingQueue(): array
     {

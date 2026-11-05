@@ -1,7 +1,15 @@
 <?php
 /** @var array $listings */
+use App\Core\View;
+
+$statusActions = [
+    'published' => ['pause', 'sold', 'archive'],
+    'paused' => ['resume', 'sold', 'archive'],
+    'sold' => ['archive'],
+];
 ?>
 <section class="container section">
+    <?= View::partial('account/partials/nav', ['active' => 'mine']) ?>
     <div class="section-head">
         <h1><?= e(__('mine.title')) ?></h1>
         <a class="button" href="<?= e(url('/dodaj-oferte')) ?>"><?= e(__('term.listing_add')) ?></a>
@@ -32,9 +40,22 @@
                         <?php if ($l['revision_status'] === 'rejected' && $l['revision_note']): ?>
                             <p class="notice notice--warning"><?= e(__('mine.revision_rejected', ['note' => $l['revision_note']])) ?></p>
                         <?php endif; ?>
+                        <?php if ($l['published_at'] !== null): ?>
+                            <p class="muted my-listing__stats"><?= e(__('mine.stats_line', ['views' => (int) $l['views30'], 'inquiries' => (int) $l['inquiries']])) ?></p>
+                        <?php endif; ?>
                         <p class="my-listing__actions">
                             <a href="<?= e(url('/moje-oferty/' . $l['id'] . '/edycja')) ?>"><?= e(__('mine.edit')) ?></a>
                             <a href="<?= e(url('/moje-oferty/' . $l['id'] . '/podglad')) ?>"><?= e(__('wizard.preview')) ?></a>
+                            <?php if ($l['published_at'] !== null): ?>
+                                <a href="<?= e(url('/moje-oferty/' . $l['id'] . '/statystyki')) ?>"><?= e(__('mine.stats')) ?></a>
+                            <?php endif; ?>
+                            <?php foreach ($statusActions[$l['status']] ?? [] as $a): ?>
+                                <form method="post" action="<?= e(url('/moje-oferty/' . $l['id'] . '/status')) ?>" class="inline-form"<?= in_array($a, ['sold', 'archive'], true) ? ' data-confirm="' . e(__('mine.confirm_' . $a)) . '"' : '' ?>>
+                                    <?= csrf_field() ?>
+                                    <input type="hidden" name="action" value="<?= e($a) ?>">
+                                    <button type="submit" class="link-button"><?= e(__('mine.action_' . $a)) ?></button>
+                                </form>
+                            <?php endforeach; ?>
                             <?php if (in_array($l['status'], ['draft', 'rejected'], true) && $l['published_at'] === null): ?>
                                 <form method="post" action="<?= e(url('/moje-oferty/' . $l['id'] . '/usun')) ?>" class="inline-form" data-confirm="<?= e(__('mine.delete_confirm')) ?>">
                                     <?= csrf_field() ?>

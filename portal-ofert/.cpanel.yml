@@ -13,11 +13,15 @@
 # Pierwsze wdrożenie: po „Deploy” utwórz $APP/config.php i uruchom przez SSH/Terminal:
 #   php $APP/bin/install.php --preset=presets/<preset-tego-portalu>.json
 # Kolejne wdrożenia wykonują migracje automatycznie.
+#
+# Tryb kampanii (panel → Pulpit): dopóki $APP/storage/campaign.lock zawiera czas w przyszłości,
+# wdrożenie jest przerywane — w szczycie ruchu po mailingu nic się nie zmienia.
 deployment:
   tasks:
     - export SRC=.
     - export APP=$HOME/portal
     - export WEB=$HOME/public_html/portal
+    - /bin/sh -c 'if [ -f "$APP/storage/campaign.lock" ] && [ "$(cat "$APP/storage/campaign.lock")" -gt "$(date +%s)" ]; then echo "Tryb kampanii aktywny - wdrozenie wstrzymane."; exit 1; fi'
     - /bin/mkdir -p $APP $WEB
     # Kod aplikacji (bez config.php i danych w storage/)
     - /bin/rsync -a --delete --exclude=/config.php --exclude=/storage/ --exclude=/public/ --exclude=/.git/ $SRC/ $APP/

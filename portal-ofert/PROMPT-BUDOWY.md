@@ -138,7 +138,7 @@ Test: ta sama oferta oglądana jako gość / zalogowany / z L3 — porównaj wid
 pola i pliki; próba pobrania pliku L3 bez uprawnień = 403 + wpis w audit_log.
 ```
 
-## Etap 5 — Panel użytkownika i panel admina
+## Etap 5 — Panel użytkownika i panel admina ✅ (zrealizowany — moderacja i dostępy w przeglądarce; bin/moderate.php i bin/access.php zostają jako zapas)
 
 ```text
 ETAP 5: /konto i /admin wg KONCEPCJA.md §5.6–5.7.

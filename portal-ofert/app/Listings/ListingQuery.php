@@ -51,10 +51,14 @@ final class ListingQuery
     /**
      * @return array{items:array[],total:int,page:int,pages:int,applied:array<string,mixed>}
      */
-    public static function search(array $params, int $maxLevel, int $perPage = self::PER_PAGE): array
+    public static function search(array $params, int $maxLevel, int $perPage = self::PER_PAGE, ?string $publishedAfter = null): array
     {
         $where = ["l.status = 'published'"];
         $args = [];
+        if ($publishedAfter !== null) {
+            $where[] = 'l.published_at > ?';
+            $args[] = $publishedAfter;
+        }
         $applied = [];
 
         // Kategoria (z podkategoriami)

@@ -17,6 +17,7 @@
  * @var ?array $user
  * @var bool $isOwner
  * @var ?string $accessStatus
+ * @var bool $isFavorite
  * @var array $errors
  * @var array $old
  */
@@ -57,6 +58,19 @@ $lockedDocs = count($attachments) - count($visibleDocs);
         <header class="listing__head">
             <h1><?= e($listing['title']) ?></h1>
             <p class="listing__meta"><?= e($category['name']) ?><?= $listing['city'] ? ' · ' . e($listing['city']) : '' ?></p>
+            <?php if ($user !== null && !$isOwner): ?>
+                <form method="post" action="<?= e(url('/oferta/' . $listing['id'] . '/obserwuj')) ?>" class="inline-form favorite-form" data-favorite-form>
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="back" value="/oferta/<?= e($listing['slug']) ?>">
+                    <button type="submit" class="button button--secondary button--small favorite-toggle" aria-pressed="<?= $isFavorite ? 'true' : 'false' ?>"
+                            data-label-on="<?= e(__('favorites.on')) ?>" data-label-off="<?= e(__('favorites.off')) ?>">
+                        <span aria-hidden="true" class="favorite-toggle__icon"><?= $isFavorite ? '★' : '☆' ?></span>
+                        <span class="favorite-toggle__label"><?= e(__($isFavorite ? 'favorites.on' : 'favorites.off')) ?></span>
+                    </button>
+                </form>
+            <?php elseif ($user === null): ?>
+                <p class="listing__fav-hint muted"><a href="<?= e($loginUrl) ?>"><?= e(__('favorites.login_hint')) ?></a></p>
+            <?php endif; ?>
         </header>
     </div>
 

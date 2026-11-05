@@ -5,8 +5,10 @@
  * @var ?int $graceLeft  godziny do wymaganego potwierdzenia e-maila (null = potwierdzony)
  * @var bool $emailOk
  */
+use App\Core\View;
 ?>
 <section class="container section">
+    <?= View::partial('account/partials/nav', ['active' => 'account']) ?>
     <h1><?= e(__('account.hello', ['name' => $user['first_name']])) ?></h1>
 
     <?php if ($user['email_verified_at'] === null): ?>
@@ -39,6 +41,5 @@
         <a class="button" href="<?= e(url('/dodaj-oferte')) ?>"><?= e(__('term.listing_add')) ?></a>
         <a class="button button--secondary" href="<?= e(url('/moje-oferty')) ?>"><?= e(__('mine.title')) ?></a>
     </p>
-    <p class="muted"><?= e(__('account.coming_soon')) ?></p>
-    <p><a href="<?= e(url('/reset-hasla')) ?>"><?= e(__('account.change_password')) ?></a></p>
+    <p><a href="<?= e(url('/konto/profil')) ?>"><?= e(__('profile.edit_link')) ?></a> · <a href="<?= e(url('/konto/bezpieczenstwo')) ?>"><?= e(__('account.change_password')) ?></a></p>
 </section>

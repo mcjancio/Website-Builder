@@ -37,7 +37,8 @@ final class Gate
     /** Czy użytkownik może w ogóle otworzyć ofertę (status). */
     public static function canView(?array $user, array $listing): bool
     {
-        if ($listing['status'] === 'published' || in_array($listing['status'], ['sold', 'paused'], true)) {
+        // Publiczne: opublikowana i zakończona (z oznaczeniem). Wstrzymana, szkic, archiwum — tylko autor i moderacja.
+        if (in_array($listing['status'], ['published', 'sold'], true)) {
             return true;
         }
         return self::isOwner($user, $listing) || self::isStaff($user);

@@ -22,6 +22,7 @@ use App\Core\DB;
 use App\Core\Logger;
 use App\Core\Queue;
 use App\Core\RateLimiter;
+use App\Listings\SavedSearches;
 
 [$opts] = cli_args($argv);
 $verbose = isset($opts['verbose']);
@@ -83,6 +84,15 @@ if (!is_file($stamp) || filemtime($stamp) < time() - 3600) {
     ];
     Logger::info('Worker: sprzątanie', $purged);
     $verbose && out('Sprzątanie: ' . json_encode($purged));
+
+    // Alerty zapisanych wyszukiwań (e-maile trafiają do kolejki i wyjdą w kolejnych uruchomieniach).
+    try {
+        $alerts = SavedSearches::sendDue();
+        $alerts > 0 && Logger::info('Worker: alerty wyszukiwań', ['queued' => $alerts]);
+        $verbose && out("Alerty wyszukiwań: {$alerts}");
+    } catch (\Throwable $e) {
+        Logger::error('Worker: alerty wyszukiwań nieudane', ['error' => $e->getMessage()]);
+    }
 }
 
 $verbose && out(sprintf('Gotowe: %d zadań, w tym %d nieudanych, %.1f s.', $processed, $failed, microtime(true) - $started));

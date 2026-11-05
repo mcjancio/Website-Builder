@@ -85,12 +85,25 @@ Kopie zapasowe muszą obejmować bazę **i** katalog `storage/uploads` (etap 6: 
 | `… --overwrite` | Nadpisanie stron treści i ustawień zmienionych w panelu |
 | `php bin/create-admin.php` | Nowy administrator albo nadanie roli istniejącemu kontu |
 | `php bin/worker.php --verbose` | Ręczne przetworzenie kolejki |
-| `php bin/moderate.php` | Oferty i zmiany czekające na akceptację (do czasu panelu w etapie 5) |
+| `php bin/moderate.php` | Oferty i zmiany czekające na akceptację (zapas — na co dzień panel `/admin/moderacja`) |
 | `php bin/moderate.php --approve=12` | Akceptacja oferty #12 albo jej zmian — autor dostaje e-mail |
 | `php bin/moderate.php --reject=12 --reason="…"` | Odrzucenie z uzasadnieniem widocznym dla autora |
-| `php bin/access.php` | Prośby o dostęp do treści poufnych (poziom 3) |
+| `php bin/access.php` | Prośby o dostęp do treści poufnych (zapas — na co dzień panel `/admin/dostepy`) |
 | `php bin/access.php --grant=7 --days=90` | Nadanie dostępu (opcjonalnie z datą wygaśnięcia) — użytkownik dostaje e-mail |
 | `php bin/access.php --deny=7` / `--revoke=7` | Odmowa / odebranie dostępu |
+
+### Panel administracyjny
+
+Na co dzień wszystko robi się w przeglądarce pod adresem `/admin` (wymaga 2FA):
+
+| Sekcja | Kto | Do czego |
+|---|---|---|
+| Pulpit | moderator, admin | Co czeka na decyzję, ruch z 30 dni, **tryb kampanii** (blokuje wdrożenia na 1–72 h — `.cpanel.yml` przerywa „Deploy”, dopóki trwa) |
+| Moderacja | moderator, admin | Kolejka nowych ofert i zmian; porównanie „było/jest”; akceptacja albo odesłanie z uzasadnieniem (autor dostaje e-mail) |
+| Oferty, Zapytania, Dostępy | moderator, admin | Statusy ofert, zapytania z opiekunem i notatką (eksport CSV), dostęp do treści poufnych z datą wygaśnięcia |
+| Użytkownicy, Kryteria, Strony, Ustawienia, Dziennik | admin | Blokada i role, edytor pól/opcji/kategorii (eksport do pliku presetu), strony treści z wersjami, nazwa/kolor/słownictwo, dziennik zdarzeń |
+
+Alerty zapisanych wyszukiwań wysyła worker z crona (raz na godzinę sprawdza, komu należy się e-mail).
 
 ## 9. Lokalnie (dla programisty)
 

@@ -12,7 +12,8 @@ Punkt wyjścia: następca portalu **inwestycje.finansedewelopera.pl** (dziś Wor
 | 2 | Konta: rejestracja z NIP (dane z MF), kod **WhatsApp → zapasowo SMS** (webhook Meta), potwierdzenie e-mail, logowanie z blokadą, „Zapamiętaj mnie”, reset hasła, 2FA (obowiązkowe dla admina) | ✅ gotowy, testy przechodzą |
 | 3 | Oferty: kreator w 4 krokach z autozapisem, pola z presetu w typowanych kolumnach (kwoty przeliczane na PLN wg NBP), zdjęcia → WebP, do 25 dokumentów z poziomem dostępu, `Gate` (L1/L2/L3), wysyłka do moderacji, edycja opublikowanych przez rewizje, moderacja z CLI (`bin/moderate.php`) | ✅ gotowy, testy przechodzą |
 | 4 | Publiczna lista ofert z filtrami generowanymi z presetu (czytelne adresy do kampanii, kwoty w PLN, sortowanie), strona oferty z ukrywaniem treści wg L1/L2/L3, osadzone filmy, zapytania (zgoda, pułapka na boty, e-mail do admina i autora, webhook do CRM), prośby o dostęp L3 (`bin/access.php`), statystyki wyświetleń, sitemap/robots/Open Graph | ✅ gotowy, testy przechodzą |
-| 5–7 | Panele (moderacja, dostępy, zapytania w przeglądarce), produkcja (kopie, migracja z WP), AI | — |
+| 5 | Panel admina (`/admin`): pulpit z wykresem 30 dni, moderacja z porównaniem „było/jest”, oferty (wstrzymaj, zakończ, wyróżnij, archiwum), zapytania jako prosty CRM + CSV, dostępy L3 z datą wygaśnięcia, użytkownicy (blokada, rola, reset 2FA, CSV), **edytor kryteriów** (pola, opcje, kategorie, eksport do presetu), strony treści z wersjami, ustawienia i słownictwo, dziennik zdarzeń, tryb kampanii. „Moje konto”: profil, hasło i urządzenia, usunięcie konta (RODO), obserwowane, zapisane wyszukiwania z alertami e-mail, moje dostępy, statystyki ofert | ✅ gotowy, testy przechodzą |
+| 6–7 | Produkcja (kopie, migracja z WP, odbiór), AI | — |
 
 ## Dokumenty
 

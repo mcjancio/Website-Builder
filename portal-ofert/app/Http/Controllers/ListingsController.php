@@ -16,6 +16,7 @@ use App\Core\Session;
 use App\Core\Validator;
 use App\Core\View;
 use App\Http\Middleware\RequireVerifiedEmail;
+use App\Listings\Favorites;
 use App\Listings\Fields;
 use App\Listings\InquiryService;
 use App\Listings\ListingQuery;
@@ -183,6 +184,7 @@ final class ListingsController
             'user' => $user,
             'isOwner' => $isOwner,
             'accessStatus' => $user !== null ? AccessService::statusFor((int) $listing['id'], (int) $user['id']) : null,
+            'isFavorite' => $user !== null && Favorites::has((int) $user['id'], (int) $listing['id']),
             'errors' => $errors,
             'old' => $old,
             'canonical' => url('/oferta/' . $listing['slug']),

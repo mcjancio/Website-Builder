@@ -67,6 +67,11 @@ final class HealthController
             }
         }
 
+        // Informacyjnie (nie wpływa na status): trwa tryb kampanii — wdrożenia wstrzymane.
+        if (\App\Core\CampaignMode::until() !== null) {
+            $checks['campaign'] = 'on';
+        }
+
         $body = ['status' => $ok ? 'ok' : 'error', 'checks' => $checks, 'time' => gmdate('c')];
         $token = (string) Config::get('health.token', '');
         if ($token !== '' && hash_equals($token, (string) $request->str('token'))) {
