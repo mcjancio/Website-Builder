@@ -34,7 +34,11 @@ chmod 600 config.php
 php -r "echo base64_encode(random_bytes(32)), PHP_EOL;"   # wynik wklej do app.key
 ```
 
-Uzupełnij w `config.php` co najmniej: `app.url`, `app.key`, sekcję `db`.
+Uzupełnij w `config.php` co najmniej: `app.url`, `app.key`, sekcję `db`, `mail` (skrzynka w domenie portalu) i kanał kodów weryfikacyjnych:
+
+- **SMS (SMSAPI)** — sekcja `sms`: token API i zatwierdzona nazwa nadawcy. Wystarczy, żeby ruszyć.
+- **WhatsApp** — sekcja `whatsapp`, gdy konto Meta będzie gotowe: [`docs/WHATSAPP-KONFIGURACJA.md`](docs/WHATSAPP-KONFIGURACJA.md). Webhook ustaw na `https://<adres-portalu>/webhook/whatsapp`.
+- Do testów bez kont: `otp.test_mode => true` — kody trafiają do `storage/logs` (na produkcji `/health` zgłosi błąd, żeby nie zostało włączone przez pomyłkę).
 
 ## 4. Instalator (Terminal w cPanelu albo SSH)
 

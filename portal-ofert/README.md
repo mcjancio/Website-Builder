@@ -9,7 +9,7 @@ Punkt wyjścia: następca portalu **inwestycje.finansedewelopera.pl** (dziś Wor
 | Etap | Zakres | Stan |
 |---|---|---|
 | 1 | Rdzeń (router, widoki, baza, sesje, CSRF, walidacja, limity, kolejka, logi), migracje, import presetów, instalator, `/health`, wdrożenie cPanel | ✅ gotowy, testy przechodzą |
-| 2 | Konta: rejestracja NIP + SMS + e-mail, logowanie, 2FA | — |
+| 2 | Konta: rejestracja z NIP (dane z MF), kod **WhatsApp → zapasowo SMS** (webhook Meta), potwierdzenie e-mail, logowanie z blokadą, „Zapamiętaj mnie”, reset hasła, 2FA (obowiązkowe dla admina) | ✅ gotowy, testy przechodzą |
 | 3–7 | Oferty, front z filtrami, panele, produkcja, AI | — |
 
 ## Dokumenty
@@ -19,6 +19,7 @@ Punkt wyjścia: następca portalu **inwestycje.finansedewelopera.pl** (dziś Wor
 | [`KONCEPCJA.md`](KONCEPCJA.md) | Wnioski z obecnego portalu, cele, 3 poziomy dostępu, role, procesy, architektura, bezpieczeństwo, integracje, AI, plan wdrożenia |
 | [`INSTALACJA.md`](INSTALACJA.md) | Instalacja i wdrożenie na cPanelu krok po kroku, polecenia CLI, uruchomienie lokalne i testy |
 | [`PROMPT-BUDOWY.md`](PROMPT-BUDOWY.md) | Prompt dla Claude do budowy kolejnych etapów |
+| [`docs/WHATSAPP-KONFIGURACJA.md`](docs/WHATSAPP-KONFIGURACJA.md) | Dla właściciela portalu: założenie konta WhatsApp Business API krok po kroku |
 | [`migrations/001_init.sql`](migrations/001_init.sql) | Schemat bazy MySQL/MariaDB — pola ofert definiowane danymi, nie kodem |
 | [`presets/README.md`](presets/README.md) | **Jak dostosować portal do dowolnych ofert** — opis wszystkich sekcji presetu |
 | [`presets/szablon-nowego-portalu.json`](presets/szablon-nowego-portalu.json) | Punkt startowy nowego portalu |
@@ -31,10 +32,17 @@ Punkt wyjścia: następca portalu **inwestycje.finansedewelopera.pl** (dziś Wor
 ```
 app/
   bootstrap.php  helpers.php  routes.php  jobs.php
-  Core/      Config, DB, Request, Response, Router, View, Session, Csrf, Validator,
-             RateLimiter, Queue, Migrator, Settings, Markdown, Lang, Logger, ErrorHandler
-  Http/      Controllers/ (Home, Page, Health, Theme), Middleware/ (StartSession, VerifyCsrf)
+  Core/      Config, DB, Request, Response, Router, View, Session, Csrf, Validator, Cookies,
+             RateLimiter, Queue, Migrator, Settings, Markdown, Lang, Logger, ErrorHandler,
+             Http (klient API z trybem testowym), Crypto (sodium), Mailer (PHPMailer)
+  Auth/      Auth (sesja + „Zapamiętaj mnie”), OtpService (WhatsApp → SMS), Totp (2FA), Tokens, Audit
+  Integrations/  Otp/ (WhatsAppChannel, SmsApiChannel, LogChannel), MfVatWhitelist, GetResponse
+  Http/      Controllers/ (Home, Page, Health, Theme, Account, Webhook, CompanyLookup,
+             Auth/Register, Auth/Login, Auth/Password, Auth/EmailVerification)
+             Middleware/ (StartSession, VerifyCsrf, LoadUser, RequireAuth, RequireGuest, RequireVerifiedEmail)
   Presets/   Importer (walidacja + idempotentny import presetu)
+lib/         PHPMailer 6.9.3 (jedyna biblioteka zewnętrzna, przypięta wersja)
+docs/        instrukcje dla właściciela portalu
 bin/         install.php, migrate.php, import-preset.php, create-admin.php, worker.php
 lang/pl.php  wszystkie teksty interfejsu
 views/       layouts/, errors/, home.php, page.php

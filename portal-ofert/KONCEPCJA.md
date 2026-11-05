@@ -17,7 +17,7 @@ Obecny portal działa na WordPressie z WooCommerce, wtyczką katalogową, Elemen
 | 1 | Strona „rozsypała się” po automatycznej aktualizacji Elementora — akurat po wysłaniu 300 SMS-ów z linkiem do oferty | Automatyczne aktualizacje wtyczek, zależność od page buildera | Zero wtyczek. Kod w Git, wdrożenie świadomym `git pull` / cPanel Git. Nic nie zmienia się samo |
 | 2 | Awarie, „muli”, błędy przy dodawaniu załączników; portal „dostał rykoszetem” od głównej strony | Wspólne zasoby i ataki na WP, ciężki stos (WP + Woo + Elementor) | Osobna, lekka aplikacja (~kilkadziesiąt plików PHP), własna baza, brak `/wp-admin` do atakowania. Docelowo czas odpowiedzi < 200 ms |
 | 3 | Mieszanka angielskiego i polskiego (My Dashboard, regulamin EN, komunikaty formularzy EN) | Tłumaczenia wtyczek | Wszystkie teksty w jednym pliku `lang/pl.php`. Nie ma tekstu spoza tego pliku |
-| 4 | Fejkowe konta zakładane tylko po to, żeby obejrzeć treść oferty | Rejestracja bez weryfikacji | Rejestracja = e-mail (double opt-in) + telefon (kod SMS) + NIP (suma kontrolna + automatyczne pobranie danych firmy) |
+| 4 | Fejkowe konta zakładane tylko po to, żeby obejrzeć treść oferty | Rejestracja bez weryfikacji | Rejestracja = e-mail (double opt-in) + telefon (kod WhatsApp, zapasowo SMS) + NIP (suma kontrolna + automatyczne pobranie danych firmy) |
 | 5 | Kilka podejść do weryfikacji SMS i NIP, rejestracja bez hasła, mylące komunikaty | Doklejanie funkcji do cudzego formularza rejestracji | Jeden prosty, własny proces: hasło ustawiane od razu, SMS z loaderem, czytelne komunikaty, telefon zawsze w formacie E.164 (`+48…`) |
 | 6 | Treść ofert znikała dla zalogowanych albo pokazywała się wszystkim (kilka razy) | Uprawnienia sterowane ustawieniami wtyczki | 3 poziomy dostępu wbudowane w model danych — każde pole i każdy załącznik ma swój poziom |
 | 7 | Brak powiadomienia o ofercie do zatwierdzenia | Domyślne powiadomienia wtyczki | Kolejka moderacji + e-mail do admina przy każdej nowej i każdej edytowanej ofercie |
@@ -81,9 +81,15 @@ Uprawnienia są zapisane w kodzie (prosta mapa `rola → akcje`), bez rozbudowan
 
 1. Formularz: imię i nazwisko, e-mail, **hasło (od razu)**, telefon (domyślny prefiks `+48`, maska), **NIP**, zgody (regulamin — wymagana, marketing — opcjonalna).
 2. Po wpisaniu NIP: walidacja sumy kontrolnej w przeglądarce i na serwerze + pobranie nazwy i adresu firmy z **API Wykazu podatników VAT MF** (`wl-api.mf.gov.pl`, bez klucza) — z możliwością ręcznej korekty, gdy firma nie jest czynnym podatnikiem VAT.
-3. „Wyślij kod SMS” → loader i blokada przycisku na 60 s → 6-cyfrowy kod (ważny 10 min, maks. 5 prób, limit wysyłek na numer/IP/dobę). Bramka: **SMSAPI.pl** (konto już istnieje), adapter wymienny (np. Twilio).
+3. **Kod weryfikacyjny: najpierw WhatsApp, zapasowo SMS** (jak Allegro i Amazon). Kod 6 cyfr, ważny 10 min, maks. 5 prób, limity wysyłek na numer i IP.
+   - WhatsApp Business Platform (Cloud API, bezpośrednio u Meta): szablon uwierzytelniający z przyciskiem „Kopiuj kod”.
+   - Gdy Meta od razu odrzuci wysyłkę → ten sam formularz idzie SMS-em (SMSAPI.pl).
+   - Gdy Meta zgłosi webhookiem „nie doręczono” (numer bez WhatsAppa) → automatycznie SMS z **tym samym** kodem.
+   - Po 30 s użytkownik może sam kliknąć „Nie mam WhatsAppa — wyślij SMS”.
+   - Kolejność kanałów ustawiana per portal (`otp.channels` w config albo `registration.otp_channels` w presecie); nieskonfigurowany kanał jest pomijany, więc portal może działać na samych SMS-ach.
+   - Instrukcja założenia konta WhatsApp dla właściciela: `docs/WHATSAPP-KONFIGURACJA.md`.
 4. Po poprawnym kodzie konto zostaje utworzone, a użytkownik — zalogowany. E-mail z linkiem potwierdzającym (double opt-in). Do czasu potwierdzenia e-maila: dostęp L2 do 24 h, potem blokada do kliknięcia linku.
-5. Kontakt trafia do listy GetResponse (z telefonem w polu własnym) przez kolejkę integracji.
+5. Kontakt trafia do listy GetResponse (z telefonem w polu własnym) przez kolejkę integracji — **tylko przy zaznaczonej zgodzie marketingowej** (RODO). Admin dostaje e-mail o nowym użytkowniku.
 6. Admin dostaje powiadomienie o nowym użytkowniku (dzienne podsumowanie lub od razu — do wyboru).
 
 Komunikaty mówią wprost, co się dzieje: „Kod wysłany na +48 600 *** 123”, „Konto utworzone — jesteś zalogowany”, „Sprawdź skrzynkę, aby potwierdzić e-mail”.
@@ -229,7 +235,8 @@ Nowy portal = nowa subdomena w cPanelu + `config.php` + import presetu + logo. S
 
 | Integracja | Cel | Uwagi |
 |---|---|---|
-| **SMSAPI.pl** | Kody weryfikacyjne, opcjonalnie powiadomienia | Konto już istnieje; nadawca alfanumeryczny (np. `FinDewelopera`), adapter wymienny na Twilio |
+| **WhatsApp Business Platform** (Cloud API, Meta) | Kody weryfikacyjne — kanał pierwszy | Szablon *Authentication* z „Kopiuj kod”; webhook ze statusami doręczenia (podpis HMAC); instrukcja: `docs/WHATSAPP-KONFIGURACJA.md` |
+| **SMSAPI.pl** | Kody weryfikacyjne — kanał zapasowy (lub jedyny), opcjonalnie powiadomienia | Konto już istnieje; nadawca alfanumeryczny; `normalize=1` (bez polskich znaków = tańszy SMS) |
 | **MF — Wykaz podatników VAT** | Dane firmy po NIP | Bez klucza API; fallback: wpis ręczny + flaga „do weryfikacji” |
 | **GetResponse API v3** | Synchronizacja kontaktów (lista portalu, tagi: typ konta z presetu, `zapytanie-{id}`), telefon w polu własnym | Kolejka z ponawianiem — awaria GR nie blokuje rejestracji |
 | **Webhook ogólny** | Zapytania i rejestracje do dowolnego CRM / Make / Zapier | Podpis HMAC |

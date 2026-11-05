@@ -20,12 +20,16 @@ if (PHP_VERSION_ID < 80200) {
 define('APP_ROOT', dirname(__DIR__));
 
 spl_autoload_register(static function (string $class): void {
-    if (!str_starts_with($class, 'App\\')) {
-        return;
-    }
-    $file = APP_ROOT . '/app/' . str_replace('\\', '/', substr($class, 4)) . '.php';
-    if (is_file($file)) {
-        require $file;
+    // Kod portalu: App\… → app/…; dołączona biblioteka: PHPMailer\PHPMailer\… → lib/PHPMailer/…
+    $map = ['App\\' => '/app/', 'PHPMailer\\PHPMailer\\' => '/lib/PHPMailer/'];
+    foreach ($map as $prefix => $dir) {
+        if (str_starts_with($class, $prefix)) {
+            $file = APP_ROOT . $dir . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+            if (is_file($file)) {
+                require $file;
+            }
+            return;
+        }
     }
 });
 

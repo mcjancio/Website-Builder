@@ -47,6 +47,27 @@ function csrf_field(): string
     return '<input type="hidden" name="_csrf" value="' . e(Csrf::token()) . '">';
 }
 
+/** Zalogowany użytkownik (tablica) albo null. */
+function auth_user(): ?array
+{
+    return \App\Auth\Auth::user();
+}
+
+/** Komunikat błędu pola formularza (z tablicy $errors widoku) jako HTML z id do aria-describedby. */
+function field_error(array $errors, string $field): string
+{
+    if (!isset($errors[$field])) {
+        return '';
+    }
+    return '<p class="field-error" id="' . e($field) . '-error">' . e($errors[$field]) . '</p>';
+}
+
+/** Atrybuty dostępności dla pola z błędem. */
+function field_aria(array $errors, string $field): string
+{
+    return isset($errors[$field]) ? ' aria-invalid="true" aria-describedby="' . e($field) . '-error"' : '';
+}
+
 /** Ustawienie portalu z tabeli settings (np. setting('portal.name')). */
 function setting(string $key, mixed $default = null): mixed
 {

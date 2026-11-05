@@ -33,7 +33,7 @@ final class T
             self::$passed++;
             return;
         }
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1] ?? [];
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0] ?? [];
         self::$failures[] = sprintf('%s: %s (%s:%d)', self::$current, $message ?: 'asercja nie powiodła się',
             basename($trace['file'] ?? '?'), $trace['line'] ?? 0);
     }

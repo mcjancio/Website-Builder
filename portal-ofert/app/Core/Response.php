@@ -77,6 +77,7 @@ final class Response
             foreach ($this->headers as $name => $value) {
                 header($name . ': ' . $value);
             }
+            Cookies::flush();
         }
         echo $this->body;
     }

@@ -31,20 +31,32 @@ try {
 <header class="site-header">
     <div class="container site-header__inner">
         <a class="brand" href="<?= e(url('/')) ?>"><?= e($portalName) ?></a>
-        <?php if ($menuPages !== []): ?>
-            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu-glowne"><?= e(__('app.menu')) ?></button>
-            <nav id="menu-glowne" class="site-nav" aria-label="<?= e(__('app.main_nav')) ?>">
-                <ul>
-                    <?php foreach ($menuPages as $p): ?>
-                        <li><a href="<?= e(url($p['slug'])) ?>"><?= e($p['title']) ?></a></li>
-                    <?php endforeach; ?>
-                </ul>
-            </nav>
-        <?php endif; ?>
+        <?php $currentUser = auth_user(); ?>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu-glowne"><?= e(__('app.menu')) ?></button>
+        <nav id="menu-glowne" class="site-nav" aria-label="<?= e(__('app.main_nav')) ?>">
+            <ul>
+                <?php foreach ($menuPages as $p): ?>
+                    <li><a href="<?= e(url($p['slug'])) ?>"><?= e($p['title']) ?></a></li>
+                <?php endforeach; ?>
+                <?php if ($currentUser): ?>
+                    <li><a href="<?= e(url('/konto')) ?>"><?= e(__('nav.account')) ?></a></li>
+                    <li>
+                        <form method="post" action="<?= e(url('/wyloguj')) ?>" class="inline-form">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="link-button"><?= e(__('nav.logout')) ?></button>
+                        </form>
+                    </li>
+                <?php else: ?>
+                    <li><a href="<?= e(url('/logowanie')) ?>"><?= e(__('nav.login')) ?></a></li>
+                    <li><a class="button button--small" href="<?= e(url('/rejestracja')) ?>"><?= e(__('nav.register')) ?></a></li>
+                <?php endif; ?>
+            </ul>
+        </nav>
     </div>
 </header>
 
 <main id="tresc" class="site-main" tabindex="-1">
+    <?= \App\Core\View::partial('partials/flash') ?>
     <?= $content ?>
 </main>
 

@@ -52,6 +52,11 @@ $check(($perms & 0077) === 0 || DIRECTORY_SEPARATOR === '\\', sprintf('uprawnien
 $check(config('app.url') !== 'https://portal.example.pl', 'app.url ustawione', 'uzupełnij app.url w config.php');
 $check(strlen((string) base64_decode((string) config('app.key'), true)) === 32, 'app.key (32 bajty base64)',
     'wygeneruj: php -r "echo base64_encode(random_bytes(32)), PHP_EOL;"');
+$check(!(config('otp.test_mode') && config('app.env') === 'production'), 'otp.test_mode wyłączony na produkcji', 'kody weryfikacyjne nie są wysyłane — ustaw test_mode => false');
+$channels = array_map(static fn($c) => $c->name(), \App\Auth\OtpService::channels());
+$check($channels !== [] || config('otp.test_mode'), 'kanał weryfikacji telefonu: ' . ($channels ? implode(' → ', $channels) : 'brak'),
+    'uzupełnij whatsapp i/lub sms w config.php (docs/WHATSAPP-KONFIGURACJA.md)');
+$check(config('mail.driver', 'smtp') !== 'smtp' || config('mail.host') !== 'mail.example.pl', 'konfiguracja poczty (mail)', 'uzupełnij sekcję mail w config.php');
 if (config('app.debug') && config('app.env') === 'production') {
     $check(false, 'app.debug wyłączone na produkcji', 'ustaw debug => false');
 }

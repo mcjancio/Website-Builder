@@ -24,8 +24,7 @@
     "allow_private_person": false,
     "nip_autofill": "mf_vat_whitelist",
     "require_sms": true,
-    "sms_provider": "smsapi",
-    "sms_sender": "FinDewelop",
+    "otp_channels": ["whatsapp", "sms"],
     "require_email_double_optin": true,
     "email_grace_hours": 24,
     "getresponse_list": "inwestycje.finansedewelopera.pl"

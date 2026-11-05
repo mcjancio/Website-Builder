@@ -16,8 +16,11 @@ final class Session
             return;
         }
         if (PHP_SAPI === 'cli') {
+            // Testy/CLI: sesja w pamięci (jedna „przeglądarka”), bez nagłówków; flash jak w WWW.
             $_SESSION ??= [];
-            return; // testy/CLI: sesja w pamięci, bez nagłówków
+            $_SESSION[self::FLASH_OLD] = $_SESSION[self::FLASH] ?? [];
+            $_SESSION[self::FLASH] = [];
+            return;
         }
 
         ini_set('session.use_strict_mode', '1');

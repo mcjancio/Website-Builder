@@ -17,7 +17,23 @@ final class Request
         public readonly array $server = [],
         public readonly array $cookies = [],
         public readonly array $files = [],
+        private ?string $body = null,
     ) {
+    }
+
+    /** Surowa treść żądania (np. JSON webhooka — potrzebna do sprawdzenia podpisu HMAC). */
+    public function rawBody(): string
+    {
+        if ($this->body === null) {
+            $this->body = PHP_SAPI === 'cli' ? '' : (string) file_get_contents('php://input');
+        }
+        return $this->body;
+    }
+
+    public function cookie(string $name): ?string
+    {
+        $v = $this->cookies[$name] ?? null;
+        return is_string($v) ? $v : null;
     }
 
     public static function fromGlobals(): self

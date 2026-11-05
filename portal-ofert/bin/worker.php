@@ -77,7 +77,7 @@ if (!is_file($stamp) || filemtime($stamp) < time() - 3600) {
         'jobs' => Queue::purgeDone(30),
         'rate_limits' => RateLimiter::purge(),
         'tokens' => DB::query('DELETE FROM user_tokens WHERE expires_at < UTC_TIMESTAMP() - INTERVAL 7 DAY')->rowCount(),
-        'sms_codes' => DB::query('DELETE FROM sms_codes WHERE created_at < UTC_TIMESTAMP() - INTERVAL 30 DAY')->rowCount(),
+        'otp_codes' => DB::query('DELETE FROM otp_codes WHERE created_at < UTC_TIMESTAMP() - INTERVAL 30 DAY')->rowCount(),
         'logs' => Logger::purgeOlderThan(30),
         'sessions' => purge_sessions(APP_ROOT . '/storage/sessions', (int) config('session.lifetime', 7200)),
     ];

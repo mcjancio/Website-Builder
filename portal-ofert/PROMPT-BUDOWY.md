@@ -69,7 +69,7 @@ Test: instalacja na czystej bazie, import presetu inwestycje-deweloperskie.json
 dwa razy (bez duplikatów), /health zwraca ok.
 ```
 
-## Etap 2 — Konta: rejestracja NIP + SMS + e-mail, logowanie
+## Etap 2 — Konta: rejestracja NIP + kod WhatsApp/SMS + e-mail, logowanie ✅ (zrealizowany — kanały: WhatsApp → zapasowo SMS, patrz docs/WHATSAPP-KONFIGURACJA.md)
 
 ```text
 ETAP 2: uwierzytelnianie wg KONCEPCJA.md §5.1–5.2.

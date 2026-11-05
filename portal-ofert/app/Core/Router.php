@@ -110,7 +110,8 @@ final class Router
     public static function compile(string $pattern): string
     {
         $regex = preg_replace_callback(
-            '#\{([a-z_][a-z0-9_]*)(?::([^}]+))?\}#i',
+            // Wzorzec parametru może sam zawierać klamry, np. {selector:[a-f0-9]{24}}.
+            '#\{([a-z_][a-z0-9_]*)(?::((?:[^{}]|\{[^{}]*\})+))?\}#i',
             static fn($m) => '(?P<' . $m[1] . '>' . ($m[2] ?? '[^/]+') . ')',
             $pattern
         );

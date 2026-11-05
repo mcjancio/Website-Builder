@@ -60,10 +60,12 @@ return [
         'token' => '',
     ],
 
-    // ---- Uzupełniane w kolejnych etapach ----
+    // ---- Konta i weryfikacja (etap 2) ----
 
     'mail' => [
-        // Etap 2: skrzynka w domenie portalu (cPanel → Konta e-mail), SPF/DKIM włączone.
+        // smtp (produkcja) | log (lokalnie: treść e-maili trafia do storage/logs zamiast do skrzynki)
+        'driver' => 'smtp',
+        // Skrzynka w domenie portalu (cPanel → Konta e-mail). Włącz SPF i DKIM (cPanel → Email Deliverability).
         'host' => 'mail.example.pl',
         'port' => 465,
         'encryption' => 'ssl',   // ssl (465) | tls (587)
@@ -73,17 +75,45 @@ return [
         'from_name' => 'Portal Ofert',
     ],
 
+    'otp' => [
+        // Kolejność kanałów kodu weryfikacyjnego. Pusty/null = z presetu (registration.otp_channels),
+        // domyślnie ['whatsapp', 'sms']. Kanały bez danych dostępowych są pomijane automatycznie.
+        'channels' => null,
+        // true = kody NIE są wysyłane, tylko zapisywane w storage/logs (testy bez kont WhatsApp/SMSAPI).
+        // NIGDY na produkcji — instalator i /health ostrzegają.
+        'test_mode' => false,
+        'ttl' => 600,                 // ważność kodu (s)
+        'max_attempts' => 5,          // błędne próby na kod
+        'resend_after' => 30,         // po ilu sekundach można poprosić o SMS zamiast WhatsAppa
+        'limit_per_phone_hour' => 5,
+        'limit_per_ip_day' => 20,
+    ],
+
+    'whatsapp' => [
+        // WhatsApp Business Platform (Cloud API). Krok po kroku: docs/WHATSAPP-KONFIGURACJA.md
+        'phone_number_id' => '',     // „Phone number ID” z WhatsApp Manager / App Dashboard
+        'access_token' => '',        // stały token użytkownika systemowego (System User)
+        'template' => '',            // nazwa zatwierdzonego szablonu kategorii Authentication
+        'language' => 'pl',          // język szablonu
+        'graph_version' => 'v23.0',
+        'app_secret' => '',          // App Secret aplikacji Meta — podpis webhooka
+        'verify_token' => '',        // dowolny losowy ciąg, ten sam wpisany w konfiguracji webhooka
+    ],
+
     'sms' => [
-        // Etap 2: smsapi | twilio
+        // SMSAPI.pl — token OAuth z panelu (Ustawienia API → Tokeny API), uprawnienie „SMS”.
         'provider' => 'smsapi',
-        'token' => '',           // SMSAPI: token OAuth z panelu (Ustawienia API)
-        'sender' => '',          // zarejestrowana nazwa nadawcy
-        'test_mode' => false,    // true = SMS nie są wysyłane, kod trafia do logu
+        'token' => '',
+        'sender' => '',              // zarejestrowana i zatwierdzona nazwa nadawcy (pole „from”)
+        'test' => false,             // true = SMSAPI przyjmuje żądanie, ale nie wysyła SMS-a
     ],
 
     'getresponse' => [
+        // Kontakt trafia do listy TYLKO przy zgodzie marketingowej z formularza rejestracji.
         'api_key' => '',
-        'list_token' => '',
+        'list_token' => '',          // ID listy (campaignId)
+        'phone_field_id' => '',      // ID pola własnego na telefon (GetResponse → Pola własne)
+        'tags' => [],                // typ konta z presetu => ID tagu GR, np. ['investor' => 'AbC1']
     ],
 
     'ai' => [

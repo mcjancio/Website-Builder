@@ -20,9 +20,14 @@ return [
             }
         }
         // Klucze dynamiczne: validation.{reguła}
-        foreach (['required', 'accepted', 'email', 'maxlength', 'minlength', 'int', 'decimal', 'min', 'max', 'date', 'in', 'url', 'phone_pl', 'nip'] as $rule) {
-            if (!Lang::has('validation.' . $rule)) {
-                $missing[] = 'validation.' . $rule;
+        $dynamic = array_merge(
+            array_map(fn($r) => 'validation.' . $r, ['required', 'accepted', 'email', 'maxlength', 'minlength', 'int', 'decimal', 'min', 'max', 'date', 'in', 'url', 'phone_pl', 'nip']),
+            ['otp.invalid', 'otp.expired', 'otp.too_many', 'otp.sent_whatsapp', 'otp.sent_sms', 'otp.sent_sms_fallback',
+             'register.phone_hint_whatsapp', 'register.phone_hint_sms', 'register.phone_hint_none'],
+        );
+        foreach ($dynamic as $key) {
+            if (!Lang::has($key)) {
+                $missing[] = $key;
             }
         }
         T::same([], array_values(array_unique($missing)));

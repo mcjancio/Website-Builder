@@ -1,0 +1,3 @@
+PHPMailer 6.9.3 (LGPL-2.1, https://github.com/PHPMailer/PHPMailer)
+Tylko pliki potrzebne do wysyłki SMTP: PHPMailer.php, SMTP.php, Exception.php.
+Aktualizacja: podmień pliki z nowego wydania i zmień numer wersji tutaj.

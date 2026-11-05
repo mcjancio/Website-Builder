@@ -45,6 +45,12 @@ final class HealthController
             }
         }
 
+        // Tryb testowy kodów na produkcji = nikt nie dostanie kodu weryfikacyjnego.
+        if (Config::get('otp.test_mode', false) && Config::get('app.env') === 'production') {
+            $checks['otp'] = 'test_mode';
+            $ok = false;
+        }
+
         $checks['storage'] = $this->storageWritable() ? 'ok' : 'error';
         $ok = $ok && $checks['storage'] === 'ok';
 
