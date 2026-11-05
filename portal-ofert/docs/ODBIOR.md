@@ -4,7 +4,7 @@ Stan na 2026-11-05 (etap 6). Każdy punkt ma opis, **jak go sprawdzono**. Rzeczy
 
 Oznaczenia: ✅ sprawdzone · ⏳ do sprawdzenia z klientem lub na docelowym serwerze.
 
-Testy automatyczne: `PORTAL_DB_SOCKET=… PORTAL_TEST_DB=1 php tests/run.php` → **81 testów, 0 błędów** (rdzeń, konta, oferty, lista, panel, konto, kopie, import).
+Testy automatyczne: `PORTAL_DB_SOCKET=… PORTAL_TEST_DB=1 php tests/run.php` → **88 testów, 0 błędów** (rdzeń, konta, oferty, lista, panel, konto, kopie, import, asystent AI).
 
 ## A. Kryteria odbioru MVP (KONCEPCJA §11)
 
@@ -51,6 +51,7 @@ Testy automatyczne: `PORTAL_DB_SOCKET=… PORTAL_TEST_DB=1 php tests/run.php` �
 - [ ] **Test odtworzenia** na stagingu: skopiuj ostatnie `baza-…sql.gz` i `pliki-….tar.gz`, potem `php bin/restore.php … --yes`, zaloguj się i otwórz kilka ofert z dokumentami. Zapisz datę testu; kolejny za 3 miesiące.
 - [ ] Testerzy klienta (2–3 osoby): rejestracja i dodanie oferty na telefonie — punkty A1 i A2.
 - [ ] Pomiar na hostingu: PageSpeed Insights dla strony głównej, listy i oferty (A5).
+- [ ] (Opcjonalnie) Asystent AI: klucz API, włączenie i budżet w panelu, wpis o Anthropic w polityce prywatności; próba na prawdziwym teaserze PDF i ocena, ile pól wypełnił poprawnie (INSTALACJA §7).
 
 ## D. Decyzje do potwierdzenia z klientem (KONCEPCJA §13)
 

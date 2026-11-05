@@ -38,6 +38,8 @@ final class ModerationController
             'attachments' => MediaService::attachments((int) $listing['id']),
             'author' => DB::fetch('SELECT u.id, u.email, u.first_name, u.last_name, u.phone_e164, u.created_at, c.name AS company, c.nip FROM users u LEFT JOIN companies c ON c.id = u.company_id WHERE u.id = ?', [$listing['user_id']]),
             'authorListings' => (int) DB::value("SELECT COUNT(*) FROM listings WHERE user_id = ? AND status = 'published'", [$listing['user_id']]),
+            'aiEnabled' => \App\Ai\Assistant::enabled('hints'),
+            'aiHints' => \App\Ai\Assistant::latest((int) $listing['id'], 'hints'),
             'noindex' => true,
         ]);
     }

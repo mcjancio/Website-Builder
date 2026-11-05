@@ -170,7 +170,7 @@ ETAP 6: produkcja.
 - Checklista odbioru z KONCEPCJA.md §11 — każdy punkt zweryfikowany i opisany.
 ```
 
-## Etap 7 (wersja 2) — Asystent AI
+## Etap 7 (wersja 2) — Asystent AI ✅ (zrealizowany — app/Ai, app/Integrations/Claude.php; włączenie w panelu → Ustawienia)
 
 ```text
 ETAP 7: moduł AI wg KONCEPCJA.md §9 (wyłączony domyślnie, ustawienie ai.enabled).

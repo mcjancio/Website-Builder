@@ -38,7 +38,7 @@ return [
         $m = new Migrator(APP_ROOT . '/migrations');
         T::same([], $m->pending());
         T::same([], $m->migrate(), 'drugi raz nic nie robi');
-        T::same(30, (int) DB::value('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE()'));
+        T::same(31, (int) DB::value('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE()'));
         T::same('+00:00', DB::value('SELECT @@session.time_zone'));
     },
 

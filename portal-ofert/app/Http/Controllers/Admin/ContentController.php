@@ -124,6 +124,14 @@ final class ContentController
             }
         }
         Settings::set('terms', $terms);
+
+        $ai = (array) Settings::get('ai', []);
+        $aiIn = (array) ($request->post['ai'] ?? []);
+        foreach (['enabled', 'extract_from_pdf', 'rewrite_description', 'moderation_hints'] as $flag) {
+            $ai[$flag] = !empty($aiIn[$flag]);
+        }
+        $ai['monthly_budget_usd'] = max(0, min(10000, (float) str_replace(',', '.', (string) ($aiIn['monthly_budget_usd'] ?? ($ai['monthly_budget_usd'] ?? 30)))));
+        Settings::set('ai', $ai);
         Audit::log('settings.save', null, null, [], $request, Auth::id());
         Session::flash('success', __('admin.saved'));
         return Response::redirect(url('/admin/ustawienia'));
@@ -182,6 +190,11 @@ final class ContentController
             'defaults' => array_combine($termKeys, array_map(fn($k) => $this->defaultText($k), $termKeys)),
             'errors' => $errors,
             'old' => $old,
+            'ai' => (array) Settings::get('ai', []),
+            'aiKey' => \App\Integrations\Claude::hasKey(),
+            'aiModel' => \App\Integrations\Claude::model(),
+            'aiSpend' => \App\Integrations\Claude::monthSpend(),
+            'aiCalls' => (int) DB::value("SELECT COUNT(*) FROM ai_usage WHERE created_at >= DATE_FORMAT(UTC_TIMESTAMP(), '%Y-%m-01')"),
             'noindex' => true,
         ];
     }

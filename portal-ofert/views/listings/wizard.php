@@ -14,6 +14,7 @@
  * @var array $limits
  * @var array $accessLevels
  * @var array $attachmentTypes
+ * @var ?array $ai          asystent AI: extract, rewrite (włączone?), review (pola do sprawdzenia), ostatnie zlecenia
  */
 use App\Core\Str;
 
@@ -54,6 +55,13 @@ $levelName = static fn(int $l) => $accessLevels[$l]['name'] ?? __('access.level_
 
     <?php if ($errors !== []): ?>
         <div class="form-summary" role="alert" tabindex="-1" data-focus><p><?= e(__('form.fix_errors', ['count' => count($errors)])) ?></p></div>
+    <?php endif; ?>
+
+    <?php if ($listing && $ai && (($step === 2 && $ai['extract']) || ($step === 3 && $ai['rewrite']))): ?>
+        <?= \App\Core\View::partial('listings/partials/ai-box', ['listing' => $listing, 'step' => $step, 'ai' => $ai, 'attachments' => $attachments]) ?>
+    <?php endif; ?>
+    <?php if ($listing && $ai && $ai['review'] !== [] && in_array($step, [2, 3], true)): ?>
+        <p class="notice notice--ai" role="status"><?= e(__('ai.review_notice')) ?></p>
     <?php endif; ?>
 
     <form method="post" action="<?= e($action) ?>" class="form" novalidate <?= $listing ? 'data-autosave' : '' ?> data-loading-form>
@@ -101,6 +109,7 @@ $levelName = static fn(int $l) => $accessLevels[$l]['name'] ?? __('access.level_
                         'value' => array_key_exists('f', $old) ? ($old['f'][$key] ?? null) : ($state['values'][$key] ?? null),
                         'error' => $errors[$key] ?? null,
                         'accessLevels' => $accessLevels,
+                        'aiReview' => $ai !== null && in_array($key, $ai['review'], true),
                     ]) ?>
                 <?php endforeach; ?>
             </fieldset>
@@ -108,7 +117,7 @@ $levelName = static fn(int $l) => $accessLevels[$l]['name'] ?? __('access.level_
 
     <?php elseif ($step === 3): ?>
         <div class="field">
-            <label for="full_desc_md"><?= e(__('listing.full_desc')) ?> <span class="level-badge level-badge--2"><?= e($levelName(2)) ?></span></label>
+            <label for="full_desc_md"><?= e(__('listing.full_desc')) ?> <span class="level-badge level-badge--2"><?= e($levelName(2)) ?></span><?php if ($ai !== null && in_array('full_desc_md', $ai['review'], true)): ?> <span class="ai-badge"><?= e(__('ai.badge')) ?></span><?php endif; ?></label>
             <textarea id="full_desc_md" name="full_desc_md" rows="12" maxlength="20000" data-md-preview="<?= e(url('/podglad-markdown')) ?>" data-md-show="<?= e(__('wizard.md_preview')) ?>" data-md-hide="<?= e(__('wizard.md_edit')) ?>"
                       aria-describedby="full_desc-hint"><?= e($val('full_desc_md')) ?></textarea>
             <p class="hint" id="full_desc-hint"><?= e(__('listing.markdown_hint')) ?></p>

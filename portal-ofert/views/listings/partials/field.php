@@ -5,6 +5,7 @@
  * @var mixed $value  wartość znormalizowana (FieldInput) albo surowa z POST po błędzie
  * @var ?string $error
  * @var array $accessLevels  nazwy poziomów z presetu
+ * @var bool $aiReview       wartość wpisana przez asystenta AI, jeszcze niesprawdzona przez autora
  */
 $k = $field['key'];
 $id = 'f-' . $k;
@@ -15,9 +16,12 @@ $aria = ($describedBy !== '' ? ' aria-describedby="' . e($describedBy) . '"' : '
 $level = (int) $field['access_level'];
 $levelName = $accessLevels[$level]['name'] ?? __('access.level_' . $level);
 $badge = '<span class="level-badge level-badge--' . $level . '" title="' . e(__('access.badge_title')) . '">' . e($levelName) . '</span>';
+if (!empty($aiReview)) {
+    $badge .= ' <span class="ai-badge" title="' . e(__('ai.badge_title')) . '">' . e(__('ai.badge')) . '</span>';
+}
 $scalar = is_scalar($value) ? (string) $value : '';
 ?>
-<div class="field field--<?= e($field['type']) ?>">
+<div class="field field--<?= e($field['type']) ?><?= !empty($aiReview) ? ' field--ai' : '' ?>">
 <?php switch ($field['type']):
     case 'textarea': ?>
         <label for="<?= e($id) ?>"><?= e($field['label']) ?><?= $req ?> <?= $badge ?></label>

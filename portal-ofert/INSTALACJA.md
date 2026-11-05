@@ -85,6 +85,20 @@ Kopie zapasowe muszą obejmować bazę **i** katalog `storage/uploads` (etap 6: 
 - Linki do przefiltrowanej listy działają w kampaniach, np. `/oferty?region=wielkopolskie&capital_needed_od=1000000`. Kombinacje filtrów mają `noindex`, żeby nie mnożyć duplikatów w Google.
 - Zapytania o oferty mogą trafiać też do CRM / Make / Zapier: ustaw `webhook.url` i `webhook.secret` w `config.php` (POST JSON z podpisem `X-Portal-Signature`).
 
+### Asystent AI (opcjonalnie)
+
+Asystent ma trzy funkcje:
+- autor wgrywa PDF (teaser, prospekt) i dostaje wypełnione **puste** pola formularza z oznaczeniem „AI — sprawdź”;
+- z notatek powstaje krótki i pełny opis;
+- moderator dostaje podpowiedzi: kompletność, niespójności i ryzyka.
+
+Nic nie publikuje się bez człowieka. Model działa w tle przez kolejkę, więc worker z crona musi działać.
+
+1. Załóż konto na platform.claude.com i utwórz klucz API. Najlepiej w osobnym workspace z limitem wydatków.
+2. Wpisz klucz w `config.php → ai.anthropic_api_key`. Domyślny model to `claude-sonnet-5-5` (`ai.model`), a dokładność ustawia `ai.effort`.
+3. W panelu: **Ustawienia → Asystent AI** — włącz moduł i wybrane funkcje, ustaw miesięczny budżet w USD. Po przekroczeniu budżetu funkcje same się wyłączają do końca miesiąca. Bieżące wydatki widać w tym samym miejscu (tabela `ai_usage`).
+4. **RODO:** treść dokumentów i opisów jest przesyłana do Anthropic (podmiot przetwarzający). Dopisz to do polityki prywatności. Pola wskazane w presecie (`ai.anonymize_level1`, np. nazwa firmy, dokładny adres) nie trafiają do publicznych opisów pisanych przez AI.
+
 ## 8. Polecenia na co dzień
 
 | Polecenie | Do czego |

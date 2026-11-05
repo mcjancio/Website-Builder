@@ -3,6 +3,7 @@
  * Moderacja jednej oferty: porównanie „było / jest”, pliki, autor, decyzja.
  * @var array $listing @var bool $isRevision @var ?array $revision @var bool $pending
  * @var array $diff @var array $images @var array $attachments @var ?array $author @var int $authorListings
+ * @var bool $aiEnabled @var ?array $aiHints
  */
 use App\Core\Str;
 use App\Core\View;
@@ -97,6 +98,34 @@ $stateLabel = static fn(string $s): string => match ($s) {
                     <p class="muted"><?= e(__('admin.author_since', ['date' => Display::datetime($author['created_at']), 'count' => $authorListings])) ?></p>
                     <?php if ((auth_user()['role'] ?? '') === 'admin'): ?>
                         <p><a href="<?= e(url('/admin/uzytkownicy/' . $author['id'])) ?>"><?= e(__('admin.user_details')) ?></a></p>
+                    <?php endif; ?>
+                </section>
+            <?php endif; ?>
+
+            <?php if ($aiEnabled || $aiHints !== null): ?>
+                <section class="admin-box ai-hints" id="ai" aria-labelledby="ai-h">
+                    <h2 id="ai-h" class="h3"><span aria-hidden="true">✦</span> <?= e(__('ai.hints_title')) ?></h2>
+                    <?php if ($aiHints !== null && in_array($aiHints['status'], ['queued', 'running'], true)): ?>
+                        <p role="status" data-ai-poll="<?= e(url('/moje-oferty/' . $listing['id'] . '/ai/' . $aiHints['id'])) ?>"><span class="spinner" aria-hidden="true"></span> <?= e(__('ai.working')) ?></p>
+                    <?php elseif ($aiHints !== null && $aiHints['status'] === 'done' && is_array($aiHints['result'])): $h = $aiHints['result']; ?>
+                        <p><strong><?= e(__('ai.completeness', ['score' => (int) $h['completeness']])) ?></strong></p>
+                        <p><?= e((string) $h['summary']) ?></p>
+                        <?php if (!empty($h['issues'])): ?>
+                            <ul class="ai-issues">
+                                <?php foreach ($h['issues'] as $issue): ?>
+                                    <li class="ai-issue ai-issue--<?= e((string) $issue['type']) ?>"><span class="ai-issue__type"><?= e(__('ai.issue_' . (in_array($issue['type'], ['missing', 'inconsistency', 'risk', 'style'], true) ? $issue['type'] : 'style'))) ?></span> <?= e((string) $issue['message']) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                        <p class="hint"><?= e(__('ai.hints_disclaimer', ['date' => Display::datetime($aiHints['finished_at'])])) ?></p>
+                    <?php elseif ($aiHints !== null && $aiHints['status'] === 'failed'): ?>
+                        <p class="notice notice--warning"><?= e($aiHints['error'] ?: __('ai.err_api')) ?></p>
+                    <?php endif; ?>
+                    <?php if ($aiEnabled && !($aiHints !== null && in_array($aiHints['status'], ['queued', 'running'], true))): ?>
+                        <form method="post" action="<?= e(url('/admin/moderacja/' . $listing['id'] . '/ai')) ?>" class="inline-form">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="link-button"><?= e(__($aiHints === null ? 'ai.hints_run' : 'ai.hints_rerun')) ?></button>
+                        </form>
                     <?php endif; ?>
                 </section>
             <?php endif; ?>

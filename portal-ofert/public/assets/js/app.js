@@ -290,3 +290,19 @@
       .finally(function () { btn.disabled = false; });
   });
 })();
+
+/* Asystent AI: model pracuje w tle — sprawdzamy stan co 4 s i odświeżamy stronę po zakończeniu. */
+(function () {
+  'use strict';
+  var el = document.querySelector('[data-ai-poll]');
+  if (!el || !window.fetch) { return; }
+  var url = el.getAttribute('data-ai-poll'), tries = 0;
+  var tick = function () {
+    if (++tries > 90) { return; }
+    fetch(url, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { if (d.done) { window.location.reload(); } else { setTimeout(tick, 4000); } })
+      .catch(function () { setTimeout(tick, 8000); });
+  };
+  setTimeout(tick, 4000);
+})();

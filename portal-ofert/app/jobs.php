@@ -44,4 +44,7 @@ return [
     'getresponse.upsert' => static function (array $p): void {
         GetResponse::upsertContact((string) $p['email'], (string) $p['name'], $p['phone'] ?? null, (array) ($p['tags'] ?? []));
     },
+    'ai.run' => static function (array $p): void {
+        \App\Ai\Assistant::run((int) $p['task']);
+    },
 ];

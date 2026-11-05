@@ -153,8 +153,13 @@ return [
     ],
 
     'ai' => [
-        // Etap 7 (opcjonalnie)
+        // Asystent AI (etap 7): oferta z PDF, redakcja opisu, podpowiedzi dla moderatora.
+        // Włączenie i miesięczny budżet: panel → Ustawienia (albo preset → ai). Bez klucza moduł jest niewidoczny.
+        // Klucz: platform.claude.com → API Keys. Najlepiej osobny „workspace” z limitem wydatków.
         'anthropic_api_key' => '',
         'model' => 'claude-sonnet-5-5',
+        'effort' => 'medium',        // low | medium | high — dokładność kontra koszt
+        'timeout' => 180,            // sekundy na jedno wywołanie (działa w tle, w kolejce)
+        // 'prices' => ['claude-sonnet-5-5' => [2.00, 10.00]],  // USD / 1 mln tokenów (wejście, wyjście), gdy cennik się zmieni
     ],
 ];

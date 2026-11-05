@@ -46,6 +46,10 @@ return [
              'admin.approved_new', 'admin.approved_revision', 'admin.rejected_new', 'admin.rejected_revision',
              'admin.company_source_manual', 'admin.company_source_registry', 'fields.level_1_hint', 'fields.level_2_hint', 'fields.level_3_hint',
              'fields.val_min', 'fields.val_max', 'fields.val_maxlength'],
+            // Etap 7
+            array_map(fn($s) => 'ai.issue_' . $s, ['missing', 'inconsistency', 'risk', 'style']),
+            array_map(fn($s) => 'settings.ai_' . $s, ['extract_from_pdf', 'rewrite_description', 'moderation_hints']),
+            ['ai.use_all', 'ai.use_full', 'ai.use_short', 'ai.extract_title', 'ai.rewrite_title', 'ai.hints_run', 'ai.hints_rerun'],
         );
         foreach ($dynamic as $key) {
             if (!Lang::has($key)) {

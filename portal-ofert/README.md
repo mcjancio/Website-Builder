@@ -14,7 +14,7 @@ Punkt wyjścia: następca portalu **inwestycje.finansedewelopera.pl** (dziś Wor
 | 4 | Publiczna lista ofert z filtrami generowanymi z presetu (czytelne adresy do kampanii, kwoty w PLN, sortowanie), strona oferty z ukrywaniem treści wg L1/L2/L3, osadzone filmy, zapytania (zgoda, pułapka na boty, e-mail do admina i autora, webhook do CRM), prośby o dostęp L3 (`bin/access.php`), statystyki wyświetleń, sitemap/robots/Open Graph | ✅ gotowy, testy przechodzą |
 | 5 | Panel admina (`/admin`): pulpit z wykresem 30 dni, moderacja z porównaniem „było/jest”, oferty (wstrzymaj, zakończ, wyróżnij, archiwum), zapytania jako prosty CRM + CSV, dostępy L3 z datą wygaśnięcia, użytkownicy (blokada, rola, reset 2FA, CSV), **edytor kryteriów** (pola, opcje, kategorie, eksport do presetu), strony treści z wersjami, ustawienia i słownictwo, dziennik zdarzeń, tryb kampanii. „Moje konto”: profil, hasło i urządzenia, usunięcie konta (RODO), obserwowane, zapisane wyszukiwania z alertami e-mail, moje dostępy, statystyki ofert | ✅ gotowy, testy przechodzą |
 | 6 | Kopie zapasowe (baza + pliki, rotacja, wysyłka do magazynu S3, odtworzenie), dzienny raport problemów e-mailem, import z WordPressa (konta, oferty, pola, zdjęcia, dokumenty, przekierowania 301, raport, zaproszenia), lista odbioru (`docs/ODBIOR.md`) | ✅ gotowy, testy przechodzą |
-| 7 | Asystent AI (wersja 2) | — |
+| 7 | Asystent AI (wyłączony domyślnie): oferta z PDF → wypełnione pola z oznaczeniem „AI — sprawdź”, redakcja opisu z anonimizacją, podpowiedzi dla moderatora; Claude przez cURL, praca w tle, koszt każdego wywołania i miesięczny budżet | ✅ gotowy, testy przechodzą |
 
 ## Dokumenty
 

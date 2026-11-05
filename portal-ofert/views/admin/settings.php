@@ -1,5 +1,8 @@
 <?php
-/** @var array $portal @var array $terms @var array $termKeys @var array $defaults @var array $errors @var array $old */
+/**
+ * @var array $portal @var array $terms @var array $termKeys @var array $defaults @var array $errors @var array $old
+ * @var array $ai @var bool $aiKey @var string $aiModel @var float $aiSpend @var int $aiCalls
+ */
 use App\Core\View;
 
 $val = static function (string $k, string $fromPortal) use ($old): string {
@@ -64,6 +67,24 @@ $val = static function (string $k, string $fromPortal) use ($old): string {
                     <label for="s-cta-label"><?= e(__('settings.cta_label')) ?></label>
                     <input id="s-cta-label" name="portal[consultation_label]" value="<?= e($val('consultation_label', (string) ($portal['cta']['consultation_label'] ?? ''))) ?>" maxlength="60">
                 </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="field-group" id="ai">
+            <legend><?= e(__('settings.ai')) ?></legend>
+            <?php if (!$aiKey): ?>
+                <p class="notice notice--warning"><?= e(__('settings.ai_no_key')) ?></p>
+            <?php else: ?>
+                <p class="hint"><?= e(__('settings.ai_usage', ['spend' => number_format($aiSpend, 2, ',', ' '), 'budget' => number_format((float) ($ai['monthly_budget_usd'] ?? 30), 2, ',', ' '), 'calls' => $aiCalls, 'model' => $aiModel])) ?></p>
+            <?php endif; ?>
+            <label class="check"><input type="checkbox" name="ai[enabled]" value="1" <?= !empty($ai['enabled']) ? 'checked' : '' ?>> <span><strong><?= e(__('settings.ai_enabled')) ?></strong></span></label>
+            <?php foreach (['extract_from_pdf', 'rewrite_description', 'moderation_hints'] as $flag): ?>
+                <label class="check"><input type="checkbox" name="ai[<?= $flag ?>]" value="1" <?= ($ai[$flag] ?? true) ? 'checked' : '' ?>> <span><?= e(__('settings.ai_' . $flag)) ?></span></label>
+            <?php endforeach; ?>
+            <div class="field">
+                <label for="ai-budget"><?= e(__('settings.ai_budget')) ?></label>
+                <input id="ai-budget" name="ai[monthly_budget_usd]" value="<?= e((string) ($ai['monthly_budget_usd'] ?? 30)) ?>" inputmode="decimal" class="input--short" aria-describedby="ai-budget-hint">
+                <p class="hint" id="ai-budget-hint"><?= e(__('settings.ai_budget_hint')) ?></p>
             </div>
         </fieldset>
 

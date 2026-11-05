@@ -118,6 +118,12 @@ final class ListingWizardController
             $fresh = ListingService::find((int) $listing['id']);
             return Response::html(View::render('listings/wizard', $this->viewData($fresh, $step, $errors, $request->post)), 422);
         }
+        // Zapis kroku przez autora = pola z AI w tym kroku zostały przez niego sprawdzone.
+        if ($step === 2) {
+            \App\Ai\Assistant::markReviewed($listing, array_keys(Fields::forCategory($state['category_id'])));
+        } elseif ($step === 3) {
+            \App\Ai\Assistant::markReviewed($listing, ['full_desc_md']);
+        }
         if (in_array($result, ['back_to_draft', 'revision_back_to_draft'], true)) {
             Session::flash('notice', __('wizard.back_to_draft'));
         }
@@ -143,6 +149,10 @@ final class ListingWizardController
             return Response::redirect(url('/moje-oferty/' . $listing['id'] . '/edycja/4'));
         }
         Session::forget('wizard_missing_' . $listing['id']);
+        if (\App\Ai\Assistant::enabled('hints')) {
+            // Podpowiedzi AI czekają na moderatora, zanim otworzy ofertę.
+            \App\Ai\Assistant::request('hints', (int) $listing['id'], null);
+        }
         Session::flash('success', __(ListingService::isLive($listing) ? 'wizard.submitted_revision' : 'wizard.submitted'));
         return Response::redirect(url('/moje-oferty'));
     }
@@ -304,6 +314,13 @@ final class ListingWizardController
             'limits' => (array) Settings::get('limits', []),
             'accessLevels' => (array) Settings::get('access_levels', []),
             'attachmentTypes' => MediaService::attachmentTypes(),
+            'ai' => $listing ? [
+                'extract' => \App\Ai\Assistant::enabled('extract'),
+                'rewrite' => \App\Ai\Assistant::enabled('rewrite'),
+                'review' => \App\Ai\Assistant::reviewKeys($listing),
+                'lastExtract' => \App\Ai\Assistant::latest((int) $listing['id'], 'extract'),
+                'lastRewrite' => \App\Ai\Assistant::latest((int) $listing['id'], 'rewrite'),
+            ] : null,
             'noindex' => true,
         ];
     }

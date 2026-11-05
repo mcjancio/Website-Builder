@@ -9,6 +9,7 @@ declare(strict_types=1);
  */
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AiController;
 use App\Http\Controllers\AccountSettingsController;
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\MemberController;
@@ -106,6 +107,7 @@ $router->group('', [StartSession::class, VerifyCsrf::class, LoadUser::class], st
         $g->get('/moje-oferty/{id:\d+}/podglad', [MyListingsController::class, 'preview']);
         $g->get('/moje-oferty/{id:\d+}/statystyki', [MyListingsController::class, 'stats']);
         $g->post('/moje-oferty/{id:\d+}/status', [MyListingsController::class, 'status']);
+        $g->get('/moje-oferty/{id:\d+}/ai/{task:\d+}', [AiController::class, 'status']);
         $g->post('/podglad-markdown', [ListingWizardController::class, 'markdownPreview']);
         $g->group('', [RequireVerifiedEmail::class], static function ($v): void {
             $v->get('/dodaj-oferte', [ListingWizardController::class, 'create']);
@@ -118,6 +120,10 @@ $router->group('', [StartSession::class, VerifyCsrf::class, LoadUser::class], st
             $v->post('/moje-oferty/{id:\d+}/{kind:zdjecia|dokumenty}/{item:\d+}', [ListingWizardController::class, 'mediaAction']);
             $v->post('/moje-oferty/{id:\d+}/wyslij', [ListingWizardController::class, 'submit']);
             $v->post('/moje-oferty/{id:\d+}/usun', [ListingWizardController::class, 'destroy']);
+            // Asystent AI (etap 7) — wyłączony, dopóki admin go nie włączy
+            $v->post('/moje-oferty/{id:\d+}/ai/z-pdf', [AiController::class, 'extract']);
+            $v->post('/moje-oferty/{id:\d+}/ai/opis', [AiController::class, 'rewrite']);
+            $v->post('/moje-oferty/{id:\d+}/ai/{task:\d+}/zastosuj', [AiController::class, 'applyRewrite']);
         });
 
         // Panel administracyjny (etap 5): admin + moderator; sekcje ustawień tylko admin
@@ -126,6 +132,7 @@ $router->group('', [StartSession::class, VerifyCsrf::class, LoadUser::class], st
             $a->get('/moderacja', [Admin\ModerationController::class, 'index']);
             $a->get('/moderacja/{id:\d+}', [Admin\ModerationController::class, 'show']);
             $a->post('/moderacja/{id:\d+}', [Admin\ModerationController::class, 'decide']);
+            $a->post('/moderacja/{id:\d+}/ai', [AiController::class, 'hints']);
             $a->get('/oferty', [Admin\ListingsAdminController::class, 'index']);
             $a->post('/oferty/{id:\d+}', [Admin\ListingsAdminController::class, 'action']);
             $a->get('/zapytania', [Admin\InquiriesController::class, 'index']);
