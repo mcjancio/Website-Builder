@@ -11,7 +11,7 @@ $tagline = (string) setting('portal.tagline', __('home.lead'));
 </section>
 
 <section class="container section" aria-labelledby="kategorie">
-    <h2 id="kategorie"><?= e(__('home.categories_title')) ?></h2>
+    <h2 id="kategorie"><?= e(__('term.categories')) ?></h2>
     <?php if ($categories === []): ?>
         <p class="muted"><?= e(__('home.no_categories')) ?></p>
     <?php else: ?>

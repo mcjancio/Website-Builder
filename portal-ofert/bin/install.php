@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Instalator — przeprowadza przez pierwszą instalację (i bezpiecznie powtarza się przy kolejnych).
  *
- *   php bin/install.php --preset=presets/inwestycje-deweloperskie.json
+ *   php bin/install.php --preset=presets/<preset>.json   (np. presets/inwestycje-deweloperskie.json)
  *
  * Kroki: 1) wymagania serwera  2) połączenie z bazą  3) migracje  4) import presetu
  *        5) konto administratora (jeśli żadnego nie ma)  6) podsumowanie: cron i adres /health
@@ -49,7 +49,7 @@ foreach (['logs', 'cache', 'uploads', 'sessions', 'backups'] as $dir) {
 $cfg = getenv('PORTAL_CONFIG') ?: APP_ROOT . '/config.php';
 $perms = fileperms($cfg) & 0777;
 $check(($perms & 0077) === 0 || DIRECTORY_SEPARATOR === '\\', sprintf('uprawnienia config.php (%o)', $perms), 'ustaw chmod 600 config.php');
-$check(config('app.url') !== 'https://inwestycje.example.pl', 'app.url ustawione', 'uzupełnij app.url w config.php');
+$check(config('app.url') !== 'https://portal.example.pl', 'app.url ustawione', 'uzupełnij app.url w config.php');
 $check(strlen((string) base64_decode((string) config('app.key'), true)) === 32, 'app.key (32 bajty base64)',
     'wygeneruj: php -r "echo base64_encode(random_bytes(32)), PHP_EOL;"');
 if (config('app.debug') && config('app.env') === 'production') {

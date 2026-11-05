@@ -222,4 +222,38 @@ return [
         $css = $router->dispatch(new App\Core\Request('GET', '/theme.css'));
         T::assert(str_contains($css->body, '--accent:#C8102E'));
     },
+
+    'Uniwersalność: słownictwo z presetu w interfejsie, typy kont, inny preset = inny portal' => function (): void {
+        test_reset_db();
+        $router = new App\Core\Router();
+        require APP_ROOT . '/app/routes.php';
+
+        $neutral = $router->dispatch(new App\Core\Request('GET', '/'))->body;
+        T::assert(str_contains($neutral, '<h2 id="kategorie">Kategorie</h2>'), 'bez presetu: neutralnie');
+
+        (new Importer())->import(preset_file('inwestycje-deweloperskie'));
+        $inv = $router->dispatch(new App\Core\Request('GET', '/'))->body;
+        T::assert(str_contains($inv, 'Rodzaje ofert inwestycyjnych'), 'słownictwo inwestycyjne z presetu');
+        T::same(['developer', 'investor', 'advisor'], array_column(Settings::get('account_types'), 'key'));
+
+        test_reset_db();
+        (new Importer())->import(preset_file('maszyny-i-sprzet'));
+        $m = $router->dispatch(new App\Core\Request('GET', '/'))->body;
+        T::assert(str_contains($m, 'Kategorie maszyn') && str_contains($m, 'Giełda Maszyn'), 'portal maszyn');
+        T::assert(!str_contains($m, 'Koparki'), 'podkategorie nie na stronie głównej');
+        T::same('budowlane', DB::value("SELECT p.slug FROM categories c JOIN categories p ON p.id = c.parent_id WHERE c.slug = 'koparki'"));
+        T::same(['koparki', 'ladowarki'], array_column(DB::fetchAll(
+            "SELECT c.slug FROM field_categories fc JOIN categories c ON c.id = fc.category_id
+             JOIN field_definitions f ON f.id = fc.field_id WHERE f.`key` = 'bucket_capacity' ORDER BY c.slug"), 'slug'), 'pole tylko dla wybranych kategorii');
+        $css = $router->dispatch(new App\Core\Request('GET', '/theme.css'))->body;
+        T::assert(str_contains($css, '--accent:#E07A00'));
+    },
+
+    'Wszystkie presety instalują się na czystej bazie' => function (): void {
+        foreach (glob(APP_ROOT . '/presets/*.json') as $file) {
+            test_reset_db();
+            $r = (new Importer())->import(Importer::readFile($file));
+            T::assert(($r['fields.created'] ?? 0) > 0, basename($file));
+        }
+    },
 ];

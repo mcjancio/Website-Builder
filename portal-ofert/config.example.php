@@ -18,7 +18,7 @@ return [
         // true TYLKO lokalnie: pokazuje szczegóły błędów na stronie 500.
         'debug' => false,
         // Pełny adres portalu, bez ukośnika na końcu (linki w e-mailach, sitemap).
-        'url' => 'https://inwestycje.example.pl',
+        'url' => 'https://portal.example.pl',
         // Gdy portal działa w podkatalogu domeny (np. /portal) — inaczej zostaw pusty.
         'base_path' => '',
         // Strefa czasowa do wyświetlania dat (w bazie zawsze UTC).
@@ -67,9 +67,9 @@ return [
         'host' => 'mail.example.pl',
         'port' => 465,
         'encryption' => 'ssl',   // ssl (465) | tls (587)
-        'user' => 'inwestycje@example.pl',
+        'user' => 'portal@example.pl',
         'pass' => '',
-        'from_email' => 'inwestycje@example.pl',
+        'from_email' => 'portal@example.pl',
         'from_name' => 'Portal Ofert',
     ],
 

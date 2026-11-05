@@ -1,6 +1,8 @@
-# Portal Ofert — uniwersalny silnik portalu ofert B2B
+# Portal Ofert — uniwersalny silnik portalu ofert
 
-Następca portalu **inwestycje.finansedewelopera.pl** (dziś WordPress + WooCommerce), pisany w **czystym PHP 8.2 + MySQL + HTML/CSS/vanilla JS** pod standardowy hosting **cPanel**. Ma być prostszy w utrzymaniu, odporny na „rozsypywanie się” po aktualizacjach wtyczek i używalny dla innych branż dzięki presetom.
+Uniwersalny portal ofert w **czystym PHP 8.2 + MySQL + HTML/CSS/vanilla JS** pod standardowy hosting **cPanel**. **Silnik nie zna żadnej branży** — kategorie, kryteria ofert, słownictwo („Oferta” / „Inwestycja” / „Ogłoszenie”), typy kont, kolory i zasady rejestracji pochodzą z presetu JSON. Ten sam kod obsłuży portal inwestycji, giełdę maszyn czy sprzedaż firm.
+
+Punkt wyjścia: następca portalu **inwestycje.finansedewelopera.pl** (dziś WordPress + WooCommerce) — prostszy w utrzymaniu i odporny na „rozsypywanie się” po aktualizacjach wtyczek.
 
 ## Stan prac
 
@@ -18,8 +20,11 @@ Następca portalu **inwestycje.finansedewelopera.pl** (dziś WordPress + WooComm
 | [`INSTALACJA.md`](INSTALACJA.md) | Instalacja i wdrożenie na cPanelu krok po kroku, polecenia CLI, uruchomienie lokalne i testy |
 | [`PROMPT-BUDOWY.md`](PROMPT-BUDOWY.md) | Prompt dla Claude do budowy kolejnych etapów |
 | [`migrations/001_init.sql`](migrations/001_init.sql) | Schemat bazy MySQL/MariaDB — pola ofert definiowane danymi, nie kodem |
-| [`presets/inwestycje-deweloperskie.json`](presets/inwestycje-deweloperskie.json) | Preset wdrożenia referencyjnego (31 kryteriów, kategorie, poziomy dostępu, strony treści) |
-| [`presets/sprzedaz-firm.json`](presets/sprzedaz-firm.json) | Przykład innej branży na tym samym silniku |
+| [`presets/README.md`](presets/README.md) | **Jak dostosować portal do dowolnych ofert** — opis wszystkich sekcji presetu |
+| [`presets/szablon-nowego-portalu.json`](presets/szablon-nowego-portalu.json) | Punkt startowy nowego portalu |
+| [`presets/inwestycje-deweloperskie.json`](presets/inwestycje-deweloperskie.json) | Inwestycje deweloperskie (31 kryteriów, 3 poziomy dostępu) |
+| [`presets/sprzedaz-firm.json`](presets/sprzedaz-firm.json) | Firmy na sprzedaż / sukcesja |
+| [`presets/maszyny-i-sprzet.json`](presets/maszyny-i-sprzet.json) | Używane maszyny — bez NIP, podkategorie, pola zależne od kategorii |
 
 ## Struktura kodu
 

@@ -82,8 +82,13 @@ ETAP 2: uwierzytelnianie wg KONCEPCJA.md §5.1–5.2.
   (drugi adapter: Twilio). Kod 6 cyfr, hash w sms_codes, 10 min, 5 prób,
   limity: 3 SMS/numer/h, 10/IP/dobę. Przycisk z loaderem i odliczaniem 60 s.
 - Rejestracja: imię, nazwisko, e-mail, hasło (min. 10 znaków, wskaźnik siły),
-  telefon, NIP (+ autouzupełnienie firmy), zgody → kod SMS → konto + logowanie
-  → e-mail weryfikacyjny (24 h dostępu przed potwierdzeniem).
+  telefon, typ konta (lista z settings.account_types, jeśli preset ją ma),
+  NIP + autouzupełnienie firmy — WYMAGANY TYLKO gdy registration.require_nip,
+  osoby prywatne gdy registration.allow_private_person, zgody → kod SMS
+  → konto + logowanie → e-mail weryfikacyjny (24 h dostępu przed potwierdzeniem).
+  Wszystkie etykiety przez __() — słownictwo (np. „oferujący”) z presetu (terms).
+  Test na dwóch presetach: inwestycje-deweloperskie (NIP wymagany)
+  i maszyny-i-sprzet (bez NIP, osoba prywatna).
 - Logowanie, "Zapamiętaj mnie" (selector/validator, 30 dni), reset hasła (1 h),
   blokada po 5 nieudanych próbach, 2FA TOTP (obowiązkowe dla admin/moderator).
 - Po rejestracji job getresponse.upsert (telefon w polu własnym, tag).

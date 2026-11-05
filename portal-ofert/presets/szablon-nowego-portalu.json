@@ -1,0 +1,47 @@
+{
+  "$schema_version": 1,
+  "preset": "szablon-nowego-portalu",
+  "description": "Minimalny punkt startowy. Skopiuj plik, zmień nazwę presetu, uzupełnij sekcje — opis każdej sekcji w presets/README.md.",
+
+  "portal": {
+    "name": "Nazwa portalu",
+    "domain": "oferty.example.pl",
+    "tagline": "Jedno zdanie: co tu znajdzie odwiedzający",
+    "locale": "pl_PL",
+    "currencies": ["PLN"],
+    "default_currency": "PLN",
+    "theme": { "mode": "light", "accent": "#2457D6", "accent_contrast": "#FFFFFF" },
+    "locked_content_notice": "Pełna treść jest dostępna po zalogowaniu. {login} lub {register}."
+  },
+
+  "registration": { "require_nip": false, "allow_private_person": true, "require_sms": true, "require_email_double_optin": true },
+
+  "limits": { "short_desc_max": 250, "images_max": 20, "attachments_max": 10, "attachment_default_level": 2 },
+
+  "terms": {
+    "term.listing": "Oferta",
+    "term.listings": "Oferty",
+    "term.listing_add": "Dodaj ofertę"
+  },
+
+  "account_types": [
+    { "key": "offerer", "label": "Oferuję" },
+    { "key": "seeker", "label": "Szukam" }
+  ],
+
+  "categories": [
+    { "slug": "kategoria-1", "name": "Kategoria 1" },
+    { "slug": "kategoria-2", "name": "Kategoria 2" }
+  ],
+
+  "fields": [
+    { "key": "price", "label": "Cena", "type": "money", "group": "Podstawowe", "required": true, "access_level": 1, "filterable": true, "filter_ui": "range", "show_in_card": true },
+    { "key": "region", "label": "Województwo", "type": "region", "group": "Lokalizacja", "access_level": 1, "filterable": true, "filter_ui": "select", "show_in_card": true },
+    { "key": "details", "label": "Szczegóły dla zalogowanych", "type": "textarea", "group": "Szczegóły", "access_level": 2 }
+  ],
+
+  "pages": [
+    { "slug": "zasady", "title": "Zasady", "in_menu": true, "body_md": "_Do uzupełnienia._" },
+    { "slug": "kontakt", "title": "Kontakt", "in_menu": true, "body_md": "_Do uzupełnienia._" }
+  ]
+}

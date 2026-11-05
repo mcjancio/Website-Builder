@@ -1,0 +1,70 @@
+{
+  "$schema_version": 1,
+  "preset": "maszyny-i-sprzet",
+  "description": "Przykład spoza nieruchomości: giełda używanych maszyn i sprzętu (budowlane, rolnicze, produkcyjne). Rejestracja także dla osób prywatnych, bez NIP.",
+
+  "portal": {
+    "name": "Giełda Maszyn",
+    "domain": "maszyny.example.pl",
+    "tagline": "Używane maszyny i sprzęt od sprawdzonych sprzedawców",
+    "locale": "pl_PL",
+    "currencies": ["PLN", "EUR"],
+    "default_currency": "PLN",
+    "theme": { "mode": "light", "accent": "#E07A00", "accent_contrast": "#111111" },
+    "locked_content_notice": "Numer seryjny, historię serwisową i dane sprzedawcy widzą zalogowani. {login} lub {register}."
+  },
+
+  "registration": { "require_nip": false, "allow_private_person": true, "require_sms": true, "require_email_double_optin": true },
+
+  "limits": { "short_desc_max": 200, "images_max": 30, "attachments_max": 10, "attachment_default_level": 2 },
+
+  "terms": {
+    "term.listing": "Ogłoszenie",
+    "term.listings": "Ogłoszenia",
+    "term.listing_add": "Wystaw maszynę",
+    "term.categories": "Kategorie maszyn",
+    "term.offerer": "Sprzedawca",
+    "term.offerers": "Sprzedawcy",
+    "term.seeker": "Kupujący",
+    "term.seekers": "Kupujący",
+    "home.lead": "Maszyny budowlane, rolnicze i produkcyjne — z weryfikacją sprzedawców."
+  },
+
+  "account_types": [
+    { "key": "dealer", "label": "Dealer / komis" },
+    { "key": "company", "label": "Firma (sprzedaję własny sprzęt)" },
+    { "key": "private", "label": "Osoba prywatna" }
+  ],
+
+  "categories": [
+    { "slug": "budowlane", "name": "Maszyny budowlane" },
+    { "slug": "koparki", "name": "Koparki", "parent": "budowlane" },
+    { "slug": "ladowarki", "name": "Ładowarki", "parent": "budowlane" },
+    { "slug": "rolnicze", "name": "Maszyny rolnicze" },
+    { "slug": "produkcyjne", "name": "Maszyny produkcyjne" }
+  ],
+
+  "fields": [
+    { "key": "price", "label": "Cena", "type": "money", "group": "Cena", "required": true, "access_level": 1, "filterable": true, "filter_ui": "range", "show_in_card": true },
+    { "key": "price_negotiable", "label": "Do negocjacji", "type": "bool", "group": "Cena", "access_level": 1, "filterable": true, "filter_ui": "toggle" },
+    { "key": "vat_invoice", "label": "Faktura VAT", "type": "bool", "group": "Cena", "access_level": 1, "filterable": true, "filter_ui": "toggle" },
+    { "key": "brand", "label": "Marka", "type": "text", "group": "Maszyna", "required": true, "access_level": 1, "show_in_card": true },
+    { "key": "model", "label": "Model", "type": "text", "group": "Maszyna", "required": true, "access_level": 1, "show_in_card": true },
+    { "key": "year", "label": "Rok produkcji", "type": "int", "group": "Maszyna", "required": true, "access_level": 1, "filterable": true, "filter_ui": "range", "show_in_card": true, "validation": { "min": 1950, "max": 2027 } },
+    { "key": "hours", "label": "Motogodziny", "type": "int", "group": "Maszyna", "access_level": 1, "filterable": true, "filter_ui": "range", "show_in_card": true },
+    { "key": "condition", "label": "Stan", "type": "select", "group": "Maszyna", "required": true, "access_level": 1, "filterable": true, "filter_ui": "checkboxes",
+      "options": [["new", "Nowa"], ["very_good", "Bardzo dobry"], ["good", "Dobry"], ["repair", "Do naprawy"]] },
+    { "key": "operating_weight", "label": "Masa robocza (t)", "type": "decimal", "group": "Parametry", "access_level": 1, "filterable": true, "filter_ui": "range", "categories": ["budowlane", "koparki", "ladowarki"] },
+    { "key": "bucket_capacity", "label": "Pojemność łyżki (m³)", "type": "decimal", "group": "Parametry", "access_level": 1, "categories": ["koparki", "ladowarki"] },
+    { "key": "power_hp", "label": "Moc (KM)", "type": "int", "group": "Parametry", "access_level": 1, "filterable": true, "filter_ui": "range", "categories": ["rolnicze"] },
+    { "key": "region", "label": "Województwo", "type": "region", "group": "Lokalizacja", "required": true, "access_level": 1, "filterable": true, "filter_ui": "select" },
+    { "key": "serial_number", "label": "Numer seryjny (VIN/PIN)", "type": "text", "group": "Szczegóły", "access_level": 2 },
+    { "key": "service_history", "label": "Historia serwisowa", "type": "textarea", "group": "Szczegóły", "access_level": 2 },
+    { "key": "video_urls", "label": "Film z pracy maszyny", "type": "url_list", "group": "Media", "access_level": 1 }
+  ],
+
+  "pages": [
+    { "slug": "jak-to-dziala", "title": "Jak to działa", "in_menu": true, "body_md": "1. Załóż konto i zweryfikuj telefon.\n2. Wystaw maszynę — ogłoszenie sprawdzi moderator.\n3. Kupujący kontaktują się przez formularz.\n\n_Treść do uzupełnienia._" },
+    { "slug": "kontakt", "title": "Kontakt", "in_menu": true, "body_md": "Masz pytania? **Napisz do nas.**" }
+  ]
+}

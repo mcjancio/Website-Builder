@@ -50,4 +50,6 @@ mb_internal_encoding('UTF-8');
 
 Logger::init(APP_ROOT . '/storage/logs', (string) Config::get('app.log_level', 'info'));
 Lang::load(APP_ROOT . '/lang/' . Config::get('app.locale', 'pl') . '.php');
+// Słownictwo portalu z presetu (np. „Oferta” → „Inwestycja”) — nadpisuje teksty domyślne.
+Lang::setOverrideLoader(static fn(): array => (array) \App\Core\Settings::get('terms', []));
 ErrorHandler::register((bool) Config::get('app.debug', false));

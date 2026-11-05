@@ -1,8 +1,8 @@
 # Portal Ofert — koncepcja v1.0 (PHP + MySQL, cPanel)
 
-> Uniwersalny silnik portalu ogłoszeń/ofert B2B z moderacją, poziomami dostępu i konfigurowalnymi kryteriami.
-> Pierwsze wdrożenie: **portal ofert inwestycji deweloperskich** (następca `inwestycje.finansedewelopera.pl`, dziś WordPress + WooCommerce).
-> Kolejne wdrożenia: ta sama baza kodu, inny „preset” (kategorie, pola, teksty, kolory) — bez programowania.
+> **Uniwersalny** silnik portalu ofert/ogłoszeń z moderacją, poziomami dostępu i konfigurowalnymi kryteriami — do dowolnych ofert (inwestycje, nieruchomości, firmy na sprzedaż, maszyny, usługi, franczyzy…).
+> **Zasada nadrzędna:** kod nie zna żadnej branży. Kategorie, pola ofert, słownictwo interfejsu („Oferta” / „Inwestycja” / „Ogłoszenie”), typy kont, kolory, zasady rejestracji i strony treści pochodzą z **presetu** (plik JSON → baza). Nowy portal = nowy preset, bez programowania.
+> Punkt wyjścia i pierwszy przykład: portal ofert inwestycji deweloperskich (następca `inwestycje.finansedewelopera.pl`, dziś WordPress + WooCommerce) — to jeden z presetów, nie założenie silnika.
 
 Data: 2026-11-05 · Autor koncepcji: IMJ sp. z o.o.
 
@@ -69,7 +69,7 @@ Zasady techniczne:
 | `admin` | Wszystko: konfiguracja portalu, kryteria, użytkownicy, role, integracje, eksporty |
 | `moderator` | Zatwierdzanie/odrzucanie ofert i edycji, nadawanie L3, obsługa zapytań |
 | `member` | Własny profil i firma, własne oferty, zapytania, obserwowane, zapisane wyszukiwania |
-| `member` + flaga `investor` | Jak `member`, plus profil inwestora (preferencje kapitałowe) używany do dopasowań — wersja 2 |
+| `member` + **typ konta z presetu** (`account_type`) | Np. deweloper / inwestor, sprzedający / kupujący, dealer / osoba prywatna. Typ wybierany przy rejestracji; od wersji 2 z preferencjami (`preferences`) do dopasowań i alertów |
 
 Uprawnienia są zapisane w kodzie (prosta mapa `rola → akcje`), bez rozbudowanego edytora ról jak w WP („do czego służy profil Współtwórca?” — takich pytań ma nie być).
 
@@ -128,12 +128,18 @@ Portal nie wie, że obsługuje inwestycje deweloperskie. Wie tylko, że ma **typ
 
 ```
 presets/
-├── inwestycje-deweloperskie.json   ← wdrożenie referencyjne (pełny zestaw kryteriów)
-└── sprzedaz-firm.json              ← przykład: ten sam silnik, inna branża
+├── szablon-nowego-portalu.json     ← punkt startowy dla nowego klienta
+├── inwestycje-deweloperskie.json   ← pierwszy przykład (pełny zestaw kryteriów)
+├── sprzedaz-firm.json              ← firmy na sprzedaż
+├── maszyny-i-sprzet.json           ← zupełnie inna branża: bez NIP, pola zależne od kategorii
+└── README.md                       ← jak napisać preset
 ```
 
 Preset zawiera:
 - `portal` — nazwa, claim, kolory, logo, teksty strony głównej, adresy e-mail.
+- `terms` — **słownictwo interfejsu**: neutralne „Oferta / Oferujący / Zainteresowany” zamieniane np. na „Inwestycja / Deweloper / Inwestor” albo „Ogłoszenie / Sprzedawca / Kupujący”. Preset może nadpisać każdy tekst z `lang/pl.php`.
+- `account_types` — typy kont do wyboru przy rejestracji.
+- `registration` — czy wymagany NIP, czy dopuszczone osoby prywatne, kanały weryfikacji.
 - `categories` — drzewo kategorii.
 - `fields` — definicje pól: `key`, `label`, `type` (`text`, `textarea`, `int`, `decimal`, `money`, `percent`, `date`, `select`, `multiselect`, `bool`, `url`, `region`), `options`, `required`, `access_level`, `filterable`, `filter_ui` (`select`, `checkboxes`, `range`), `show_in_card`, `group`, `help`, `categories` (dla których kategorii pole się pokazuje).
 - `limits` — długość krótkiego opisu, liczba zdjęć/plików, rozmiary.
@@ -178,7 +184,7 @@ Nowy portal = nowa subdomena w cPanelu + `config.php` + import presetu + logo. S
 │   ├── storage/                 ← uploads/, cache/, logs/ (niedostępne z WWW)
 │   ├── lib/                     ← PHPMailer (przypięta wersja)
 │   └── config.php               ← dane dostępowe, klucze (chmod 600, poza Git)
-└── public_html/inwestycje/      ← document root subdomeny
+└── public_html/<subdomena>/     ← document root subdomeny
     ├── index.php                ← jedyny punkt wejścia (front controller)
     ├── .htaccess                ← rewrite, nagłówki bezpieczeństwa, cache statyków
     └── assets/                  ← css, js, img, fonts
@@ -225,7 +231,7 @@ Nowy portal = nowa subdomena w cPanelu + `config.php` + import presetu + logo. S
 |---|---|---|
 | **SMSAPI.pl** | Kody weryfikacyjne, opcjonalnie powiadomienia | Konto już istnieje; nadawca alfanumeryczny (np. `FinDewelopera`), adapter wymienny na Twilio |
 | **MF — Wykaz podatników VAT** | Dane firmy po NIP | Bez klucza API; fallback: wpis ręczny + flaga „do weryfikacji” |
-| **GetResponse API v3** | Synchronizacja kontaktów (lista portalu, tagi: `inwestor`, `deweloper`, `zapytanie-{id}`), telefon w polu własnym | Kolejka z ponawianiem — awaria GR nie blokuje rejestracji |
+| **GetResponse API v3** | Synchronizacja kontaktów (lista portalu, tagi: typ konta z presetu, `zapytanie-{id}`), telefon w polu własnym | Kolejka z ponawianiem — awaria GR nie blokuje rejestracji |
 | **Webhook ogólny** | Zapytania i rejestracje do dowolnego CRM / Make / Zapier | Podpis HMAC |
 | **Zencal / kalendarz** | Przycisk „Umów konsultację” przy ofercie | Link konfigurowalny w presecie |
 | **Google Analytics 4 / GTM / Meta Pixel** | Kampanie | Ładowane dopiero po zgodzie (baner cookies) |
@@ -240,7 +246,7 @@ Wspólnik Pawła opisał problem: dziesiątki projektów w folderach, na które 
 1. **Oferta z teasera / PDF** — użytkownik wgrywa teaser lub prospekt → AI wyciąga wartości do pól presetu (typ, lokalizacja, PUM, koszt, kapitał, etap, zabezpieczenia…) → użytkownik widzi wypełniony formularz z zaznaczonymi polami „do sprawdzenia” → zatwierdza. Oszczędza godzinę na ofertę (lipiec 2024: „wprowadziłem jedną ofertę przez ponad godzinę”).
 2. **Redakcja opisu** — z notatek powstaje krótki opis (z limitem znaków) i pełny opis w ustalonym stylu; anonimizacja na L1 (bez nazwy dewelopera i dokładnego adresu).
 3. **Wstępny scoring dla moderatora** — kompletność danych, niespójności (np. ROI vs koszt), sygnały ryzyka. Tylko jako podpowiedź — decyzję zawsze podejmuje człowiek.
-4. **Dopasowania inwestor ↔ oferta** — na podstawie preferencji inwestora i parametrów oferty; cotygodniowy e-mail „3 nowe oferty dla Ciebie” (wersja 2).
+4. **Dopasowania zainteresowany ↔ oferta** — na podstawie preferencji użytkownika i parametrów oferty; cotygodniowy e-mail „3 nowe oferty dla Ciebie” (wersja 2).
 5. **Generator teasera PDF** — z danych oferty powstaje jednostronicowy teaser w brandingu portalu (wersja 2).
 
 Technicznie: wywołania Claude API z PHP (cURL), ustrukturyzowany JSON zgodny z definicjami pól presetu, kolejka (nie blokuje interfejsu), log kosztów, możliwość wyłączenia w ustawieniach.
@@ -279,7 +285,7 @@ settings, pages, jobs (kolejka), rate_limits, audit_log
 | **2. Migracja** | Eksport ofert, użytkowników i załączników z WP/WooCommerce (skrypt `bin/import-wp.php` — mapowanie meta pól na preset), przekierowania 301 ze starych adresów `/inwestycje/{slug}/` | 2–3 dni |
 | **3. Testy** | Staging, 2–3 „testerów” Pawła, testy mobile (iOS/Android), test obciążeniowy przed kampanią | 1 tydz. |
 | **4. Start** | Przełączenie subdomeny, zamrożenie starego WP (tylko do odczytu → potem wyłączenie) | 1 dzień |
-| **5. Wersja 2** | AI (oferta z PDF), profile inwestorów i dopasowania, alerty, NDA online, mapa, statystyki dla autorów | +2–3 tyg. |
+| **5. Wersja 2** | AI (oferta z PDF), preferencje użytkowników i dopasowania, alerty, NDA online, mapa, statystyki dla autorów | +2–3 tyg. |
 | **6. Wersja 3** | Abonamenty i wyróżnienia płatne (Stripe / Tpay / Przelewy24 + faktury przez API), wielojęzyczność (EN) | wg potrzeb |
 
 Kryteria odbioru MVP (mierzalne): rejestracja na telefonie < 90 s bez pomocy; dodanie oferty z 3 PDF-ami < 10 min; 0 tekstów po angielsku; moderator dostaje e-mail < 1 min od wysłania oferty; LCP < 2 s (4G); kopia zapasowa przywrócona na stagingu.

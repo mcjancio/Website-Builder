@@ -8,16 +8,16 @@
 #
 # Ustaw raz w cPanelu (lub zmień poniżej):
 #   APP = katalog aplikacji POZA public_html
-#   WEB = document root subdomeny
+#   WEB = document root subdomeny (np. public_html/oferty dla oferty.twojadomena.pl)
 #
 # Pierwsze wdrożenie: po „Deploy” utwórz $APP/config.php i uruchom przez SSH/Terminal:
-#   php $APP/bin/install.php --preset=presets/inwestycje-deweloperskie.json
+#   php $APP/bin/install.php --preset=presets/<preset-tego-portalu>.json
 # Kolejne wdrożenia wykonują migracje automatycznie.
 deployment:
   tasks:
     - export SRC=.
     - export APP=$HOME/portal
-    - export WEB=$HOME/public_html/inwestycje
+    - export WEB=$HOME/public_html/portal
     - /bin/mkdir -p $APP $WEB
     # Kod aplikacji (bez config.php i danych w storage/)
     - /bin/rsync -a --delete --exclude=/config.php --exclude=/storage/ --exclude=/public/ --exclude=/.git/ $SRC/ $APP/

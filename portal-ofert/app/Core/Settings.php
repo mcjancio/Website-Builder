@@ -48,7 +48,7 @@ final class Settings
             'INSERT INTO settings (`key`, `value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)',
             [$key, json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)]
         );
-        self::$cache = null;
+        self::flush();
     }
 
     public static function has(string $key): bool
@@ -59,5 +59,6 @@ final class Settings
     public static function flush(): void
     {
         self::$cache = null;
+        Lang::setOverrideLoader(static fn(): array => (array) self::get('terms', []));
     }
 }

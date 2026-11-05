@@ -16,10 +16,20 @@ return [
     'app.menu' => 'Menu',
     'app.main_nav' => 'Nawigacja główna',
 
+    // Słownictwo portalu — NEUTRALNE domyślne. Preset nadpisuje je w sekcji "terms",
+    // np. "term.listing": "Inwestycja", "term.offerer": "Deweloper".
+    'term.listing' => 'Oferta',
+    'term.listings' => 'Oferty',
+    'term.listing_add' => 'Dodaj ofertę',
+    'term.categories' => 'Kategorie',
+    'term.offerer' => 'Oferujący',
+    'term.offerers' => 'Oferujący',
+    'term.seeker' => 'Zainteresowany',
+    'term.seekers' => 'Zainteresowani',
+
     // Strona główna (etap 1 — szkielet)
-    'home.lead' => 'Projekty i oferty inwestycyjne dla zweryfikowanych firm i inwestorów.',
-    'home.categories_title' => 'Rodzaje ofert',
-    'home.coming_soon' => 'Portal jest w przygotowaniu. Lista ofert pojawi się wkrótce.',
+    'home.lead' => 'Sprawdzone oferty od zweryfikowanych firm.',
+    'home.coming_soon' => 'Portal jest w przygotowaniu — wkrótce pojawią się tu pierwsze oferty.',
     'home.no_categories' => 'Brak kategorii — zaimportuj preset: php bin/import-preset.php presets/<plik>.json',
 
     // Strony błędów

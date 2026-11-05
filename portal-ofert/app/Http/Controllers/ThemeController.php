@@ -17,7 +17,7 @@ final class ThemeController
     public function css(Request $request): Response
     {
         $theme = (array) Settings::get('portal.theme', []);
-        $accent = self::color($theme['accent'] ?? null, '#C8102E');
+        $accent = self::color($theme['accent'] ?? null, '#2457D6');
         $accentContrast = self::color($theme['accent_contrast'] ?? null, '#FFFFFF');
         $mode = ($theme['mode'] ?? 'light') === 'dark' ? 'dark' : 'light';
 

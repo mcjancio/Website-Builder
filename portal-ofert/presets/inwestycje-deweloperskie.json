@@ -48,6 +48,24 @@
     "3": { "name": "Dopuszczony", "description": "Kompletne informacje i dokumentacja — po zawarciu umowy NDA i/lub umowy współpracy." }
   },
 
+  "terms": {
+    "term.listing": "Inwestycja",
+    "term.listings": "Inwestycje",
+    "term.listing_add": "Dodaj inwestycję",
+    "term.categories": "Rodzaje ofert inwestycyjnych",
+    "term.offerer": "Deweloper",
+    "term.offerers": "Deweloperzy",
+    "term.seeker": "Inwestor",
+    "term.seekers": "Inwestorzy",
+    "home.lead": "Projekty i oferty inwestycyjne dla zweryfikowanych deweloperów i inwestorów."
+  },
+
+  "account_types": [
+    { "key": "developer", "label": "Deweloper / spółka projektowa", "description": "Szukam kapitału, partnera lub kupca dla projektu." },
+    { "key": "investor", "label": "Inwestor / fundusz", "description": "Szukam projektów do finansowania lub zakupu." },
+    { "key": "advisor", "label": "Doradca / pośrednik", "description": "Reprezentuję klientów po jednej ze stron." }
+  ],
+
   "categories": [
     { "slug": "pozyskanie-kapitalu", "name": "Projekt szuka kapitału" },
     { "slug": "sprzedaz-projektu", "name": "Sprzedaż projektu / gruntu z PnB" },

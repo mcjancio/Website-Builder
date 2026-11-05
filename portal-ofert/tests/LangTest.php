@@ -41,4 +41,39 @@ return [
         ]);
         T::assert(count($bad) >= 6, 'wykryte błędy: ' . implode(' | ', $bad));
     },
+
+    'Słownictwo: preset nadpisuje teksty, tylko istniejące klucze' => function (): void {
+        Lang::setOverrideLoader(fn() => ['term.listing' => 'Inwestycja', 'nie.istnieje' => 'X', 'term.listings' => ['zly typ']]);
+        T::same('Inwestycja', __('term.listing'));
+        T::same('Oferty', __('term.listings'), 'nie-tekst ignorowany');
+        T::assert(!array_key_exists('nie.istnieje', Lang::all()), 'nowe klucze nie powstają z presetu');
+        Lang::setOverrideLoader(fn() => []);
+        T::same('Oferta', __('term.listing'), 'domyślnie neutralnie');
+        \App\Core\Settings::flush();
+
+        $errors = \App\Presets\Importer::validate([
+            'preset' => 'x', 'fields' => [['key' => 'a', 'label' => 'A', 'type' => 'text']],
+            'terms' => ['term.listing' => 'Ogłoszenie', 'term.lisitng' => 'literówka', 'term.listings' => ''],
+            'account_types' => [['key' => 'Zly Klucz', 'label' => 'X'], ['key' => 'a', 'label' => 'A'], ['key' => 'a', 'label' => 'B']],
+        ]);
+        T::same(4, count($errors), implode(' | ', $errors));
+    },
+
+    'Rdzeń nie zna branży: brak słownictwa inwestycyjnego w kodzie i tekstach domyślnych' => function (): void {
+        $files = array_merge(
+            glob(APP_ROOT . '/app/{,*/,*/*/}*.php', GLOB_BRACE) ?: [],
+            glob(APP_ROOT . '/views/{,*/,*/*/}*.php', GLOB_BRACE) ?: [],
+            [APP_ROOT . '/lang/pl.php', APP_ROOT . '/migrations/001_init.sql', APP_ROOT . '/public/assets/css/app.css'],
+        );
+        $hits = [];
+        foreach ($files as $file) {
+            $content = (string) file_get_contents($file);
+            // komentarze z przykładami presetów są dozwolone — sprawdzamy kod i teksty, nie dokumentację w komentarzach
+            $content = (string) preg_replace('#(//|--|\*|\#).*$#m', '', $content);
+            if (preg_match('/inwest|dewelop|investor|developer|kapita/iu', $content, $m)) {
+                $hits[] = basename($file) . ': ' . $m[0];
+            }
+        }
+        T::same([], $hits);
+    },
 ];

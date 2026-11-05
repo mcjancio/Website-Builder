@@ -18,6 +18,23 @@
 
   "limits": { "short_desc_max": 300, "attachments_max": 15, "attachment_default_level": 3 },
 
+  "terms": {
+    "term.listing": "Ogłoszenie",
+    "term.listings": "Ogłoszenia",
+    "term.listing_add": "Dodaj ogłoszenie",
+    "term.categories": "Rodzaje transakcji",
+    "term.offerer": "Sprzedający",
+    "term.offerers": "Sprzedający",
+    "term.seeker": "Kupujący",
+    "term.seekers": "Kupujący"
+  },
+
+  "account_types": [
+    { "key": "seller", "label": "Właściciel firmy (sprzedaję)" },
+    { "key": "buyer", "label": "Kupujący / inwestor" },
+    { "key": "broker", "label": "Doradca M&A / pośrednik" }
+  ],
+
   "categories": [
     { "slug": "sprzedaz-100", "name": "Sprzedaż 100% udziałów" },
     { "slug": "sprzedaz-czesci", "name": "Sprzedaż części udziałów / inwestor" },

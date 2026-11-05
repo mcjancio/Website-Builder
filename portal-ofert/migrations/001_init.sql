@@ -2,7 +2,8 @@
 -- Portal Ofert — migracja 001: schemat bazy danych v1.0
 -- Uruchamiana przez: php bin/migrate.php (wpis w tabeli migrations dodaje migrator)
 -- MySQL 8.0+ / MariaDB 10.6+ · utf8mb4 · InnoDB
--- Uniwersalny: branża definiowana presetem (categories + field_definitions)
+-- Uniwersalny: schemat NIE zna żadnej branży — kategorie, pola, typy kont i słownictwo
+-- pochodzą z presetu (categories, field_definitions, settings).
 -- =====================================================================
 
 SET NAMES utf8mb4;
@@ -55,7 +56,7 @@ CREATE TABLE users (
   last_name           VARCHAR(100) NOT NULL,
   phone_e164          VARCHAR(16) NOT NULL,              -- zawsze +48XXXXXXXXX
   role                ENUM('admin','moderator','member') NOT NULL DEFAULT 'member',
-  is_investor         TINYINT(1) NOT NULL DEFAULT 0,
+  account_type        VARCHAR(40) NULL,                  -- typ konta z presetu (account_types), np. kupujacy / sprzedajacy
   status              ENUM('active','blocked','deleted') NOT NULL DEFAULT 'active',
   email_verified_at   DATETIME NULL,
   phone_verified_at   DATETIME NULL,
@@ -63,11 +64,12 @@ CREATE TABLE users (
   failed_logins       SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   locked_until        DATETIME NULL,
   last_login_at       DATETIME NULL,
-  investor_prefs      JSON NULL,                         -- v2: preferencje do dopasowań
+  preferences         JSON NULL,                         -- v2: preferencje do dopasowań i alertów (format z presetu)
   created_at          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uq_phone (phone_e164),
   KEY idx_role (role),
+  KEY idx_account_type (account_type),
   CONSTRAINT fk_users_company FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_polish_ci;
 
@@ -175,8 +177,8 @@ CREATE TABLE listings (
   title           VARCHAR(200) NOT NULL,
   short_desc      VARCHAR(400) NOT NULL,            -- L1, limit z presetu (np. 287 znaków)
   full_desc_md    MEDIUMTEXT NULL,                  -- L2
-  confidential_md MEDIUMTEXT NULL,                  -- L3 (np. nazwa dewelopera, dokładny adres)
-  region          VARCHAR(40) NULL,                 -- województwo (do filtrów i SEO)
+  confidential_md MEDIUMTEXT NULL,                  -- L3 (np. nazwa firmy, dokładny adres)
+  region          VARCHAR(40) NULL,                 -- lokalizacja jest opcjonalna (np. oferty online/ogólnopolskie)
   city            VARCHAR(120) NULL,
   lat             DECIMAL(9,6) NULL,
   lng             DECIMAL(9,6) NULL,

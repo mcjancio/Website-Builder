@@ -16,7 +16,7 @@
     --text: #16181b;
     --muted: #5b5f66;
     --border: #dcdcd8;
-    --accent: #c8102e;
+    --accent: #2457d6;   /* neutralny domyślny — kolor marki z presetu (/theme.css) */
     --accent-contrast: #ffffff;
     --focus: #1a73e8;
 

@@ -24,7 +24,8 @@ final class Importer
     public const FIELD_TYPES = ['text', 'textarea', 'int', 'decimal', 'money', 'percent', 'date',
         'select', 'multiselect', 'bool', 'url', 'url_list', 'region'];
     public const FILTER_UI = ['none', 'select', 'checkboxes', 'range', 'toggle'];
-    public const SETTINGS_KEYS = ['portal', 'registration', 'limits', 'access_levels', 'ai'];
+    /** Sekcje presetu zapisywane w tabeli settings (terms = słownictwo portalu, account_types = typy kont). */
+    public const SETTINGS_KEYS = ['portal', 'registration', 'limits', 'access_levels', 'terms', 'account_types', 'ai'];
 
     /** Pola typu `region` bez własnych opcji dostają listę województw. */
     public const REGIONS = [
@@ -133,6 +134,33 @@ final class Importer
                     $errors[] = "{$where}: kategoria \"{$slug}\" nie istnieje w presecie.";
                 }
             }
+        }
+
+        if (isset($p['terms'])) {
+            if (!is_array($p['terms']) || array_is_list($p['terms'])) {
+                $errors[] = '"terms" musi być obiektem {"klucz": "tekst"}.';
+            } else {
+                foreach ($p['terms'] as $key => $text) {
+                    if (!\App\Core\Lang::has((string) $key)) {
+                        $errors[] = "terms: nieznany klucz \"{$key}\" (dozwolone są klucze z lang/pl.php, np. term.listing).";
+                    } elseif (!is_string($text) || trim($text) === '') {
+                        $errors[] = "terms[{$key}]: tekst nie może być pusty.";
+                    }
+                }
+            }
+        }
+
+        $typeKeys = [];
+        foreach ($p['account_types'] ?? [] as $i => $t) {
+            $key = $t['key'] ?? null;
+            if (!is_string($key) || !preg_match('/^[a-z][a-z0-9_]{0,39}$/', $key) || !is_string($t['label'] ?? null)) {
+                $errors[] = "account_types[{$i}]: wymagane key (małe litery, cyfry, _) i label.";
+                continue;
+            }
+            if (isset($typeKeys[$key])) {
+                $errors[] = "account_types: powtórzony key \"{$key}\".";
+            }
+            $typeKeys[$key] = true;
         }
 
         foreach ($p['pages'] ?? [] as $i => $pg) {
