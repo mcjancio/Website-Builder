@@ -22,7 +22,7 @@ final class InquiriesController
     {
         [$where, $args] = $this->filters($request);
         $total = (int) DB::value("SELECT COUNT(*) FROM inquiries i LEFT JOIN listings l ON l.id = i.listing_id WHERE {$where}", $args);
-        $page = max(1, (int) $request->str('strona', '1'));
+        $page = max(1, min(100000, (int) $request->str('strona', '1')));
         $rows = DB::fetchAll(
             "SELECT i.*, l.title AS listing_title, l.slug AS listing_slug, a.email AS assignee
              FROM inquiries i LEFT JOIN listings l ON l.id = i.listing_id LEFT JOIN users a ON a.id = i.assigned_to

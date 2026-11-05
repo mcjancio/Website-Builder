@@ -100,11 +100,14 @@ final class AccountSettingsController
             && (int) DB::value("SELECT COUNT(*) FROM users WHERE role = 'admin' AND status = 'active'") <= 1 && $user['role'] === 'admin') {
             $errors['password'] = __('delete.last_admin');
         }
-        if ($errors === [] && !password_verify((string) ($request->post['password'] ?? ''), (string) DB::value('SELECT password_hash FROM users WHERE id = ?', [$user['id']]))) {
-            $errors['password'] = __('security.wrong_password');
-        }
         if ($request->str('confirm') !== '1') {
             $errors['confirm'] = __('validation.accepted', ['field' => __('delete.confirm_label')]);
+        }
+        if ($errors === [] && !RateLimiter::attempt('reauth:user:' . $user['id'], 5, 900)) {
+            $errors['password'] = __('auth.too_many_attempts');
+        }
+        if ($errors === [] && !password_verify((string) ($request->post['password'] ?? ''), (string) DB::value('SELECT password_hash FROM users WHERE id = ?', [$user['id']]))) {
+            $errors['password'] = __('security.wrong_password');
         }
         if ($errors !== []) {
             return Response::html(View::render('account/delete', ['title' => __('delete.title'), 'errors' => $errors, 'noindex' => true]), 422);

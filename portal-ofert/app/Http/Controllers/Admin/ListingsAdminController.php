@@ -58,7 +58,7 @@ final class ListingsAdminController
         if (in_array($action, ['feature', 'unfeature'], true)) {
             ListingService::setFeatured((int) $listing['id'], $action === 'feature', Auth::id());
             Session::flash('success', __('admin.saved'));
-        } elseif (ListingService::changeStatus($listing, $action, Auth::id(), $request)) {
+        } elseif (ListingService::changeStatus($listing, $action, Auth::id(), $request, true)) {
             Session::flash('success', __('admin.status_changed', ['status' => __('status.' . DB::value('SELECT status FROM listings WHERE id = ?', [$listing['id']]))]));
         } else {
             Session::flash('error', __('admin.action_unavailable'));

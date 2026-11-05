@@ -240,7 +240,10 @@ final class ListingService
     }
 
     /** Akcje statusu: autor (własne) i moderacja. @return bool czy zmieniono */
-    public static function changeStatus(array $listing, string $action, ?int $by, ?Request $request = null): bool
+    /**
+     * @param bool $byStaff  zmiana z panelu (moderacja). Ofertę wstrzymaną przez moderację autor nie wznowi sam.
+     */
+    public static function changeStatus(array $listing, string $action, ?int $by, ?Request $request = null, bool $byStaff = false): bool
     {
         $map = [
             'pause' => [['published'], 'paused'],
@@ -252,7 +255,14 @@ final class ListingService
         if (!isset($map[$action]) || !in_array($listing['status'], $map[$action][0], true)) {
             return false;
         }
-        DB::update('listings', ['status' => $map[$action][1]], ['id' => $listing['id']]);
+        if (!$byStaff && !empty($listing['paused_by_staff']) && in_array($action, ['resume', 'sold'], true)) {
+            return false;
+        }
+        $data = ['status' => $map[$action][1]];
+        if ($byStaff) {
+            $data['paused_by_staff'] = (int) ($action === 'pause' || ($action === 'restore'));
+        }
+        DB::update('listings', $data, ['id' => $listing['id']]);
         Audit::log('listing.' . $action, 'listing', (int) $listing['id'], ['from' => $listing['status']], $request, $by);
         return true;
     }
@@ -331,12 +341,15 @@ final class ListingService
     /** Pola o kluczach „region” i „city” zasilają kolumny listings (filtry, SEO) — umowa presetu. */
     private static function syncLocation(int $id, array $values, array $fields): void
     {
+        // Kolumny region/city są pokazywane wszystkim (kafelki, nagłówek oferty) — kopiujemy je tylko,
+        // gdy pole jest publiczne. Inaczej wartość zostaje wyłącznie w polu o swoim poziomie dostępu.
+        $public = static fn(string $k) => isset($fields[$k], $values[$k]) && (int) $fields[$k]['access_level'] === 1;
         $update = [];
         if (isset($fields['region'])) {
-            $update['region'] = isset($values['region']) ? (string) $values['region'] : null;
+            $update['region'] = $public('region') ? (string) $values['region'] : null;
         }
         if (isset($fields['city'])) {
-            $update['city'] = isset($values['city']) ? mb_substr((string) $values['city'], 0, 120) : null;
+            $update['city'] = $public('city') ? mb_substr((string) $values['city'], 0, 120) : null;
         }
         if ($update !== []) {
             DB::update('listings', $update, ['id' => $id]);

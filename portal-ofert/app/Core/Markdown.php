@@ -87,22 +87,23 @@ final class Markdown
 
     public static function inline(string $text): string
     {
-        $s = e($text);
-        // Linki: tylko http(s), mailto i ścieżki względne portalu (bez "//host").
-        // Adresy chowamy pod znacznikami, żeby formatowanie (_ i *) nie psuło href.
-        $hrefs = [];
+        // Znaki z prywatnego obszaru Unicode służą nam za znaczniki — z treści użytkownika je usuwamy.
+        $s = e((string) preg_replace('/[\x{E000}\x{E001}]/u', '', $text));
+        // Linki: tylko http(s), mailto i ścieżki względne portalu (bez "//host" i "/\host").
+        // Cały znacznik <a …> chowamy pod znacznikiem, żeby formatowanie (_ i *) nie psuło atrybutów.
+        $tags = [];
         $s = (string) preg_replace_callback(
-            '/\[([^\]]+)\]\(((?:https?:\/\/|mailto:|\/(?!\/))[^\s)]*)\)/',
-            static function (array $m) use (&$hrefs): string {
-                $hrefs[] = $m[2];
+            '/\[([^\]]+)\]\(((?:https?:\/\/|mailto:|\/(?![\/\\\\]))[^\s)]*)\)/',
+            static function (array $m) use (&$tags): string {
                 $attrs = str_starts_with($m[2], 'http') ? ' rel="noopener" target="_blank"' : '';
-                return '<a href="' . "\u{E000}" . (count($hrefs) - 1) . "\u{E001}" . '"' . $attrs . '>' . $m[1] . '</a>';
+                $tags[] = '<a href="' . $m[2] . '"' . $attrs . '>';
+                return "\u{E000}" . (count($tags) - 1) . "\u{E001}" . $m[1] . '</a>';
             },
             $s
         );
         $s = (string) preg_replace('/\*\*(.+?)\*\*/u', '<strong>$1</strong>', $s);
         $s = (string) preg_replace('/(?<![\w*])\*(?!\s)(.+?)(?<!\s)\*(?![\w*])/u', '<em>$1</em>', $s);
         $s = (string) preg_replace('/(?<![\w])_(?!\s)(.+?)(?<!\s)_(?![\w])/u', '<em>$1</em>', $s);
-        return (string) preg_replace_callback('/\x{E000}(\d+)\x{E001}/u', static fn($m) => $hrefs[(int) $m[1]], $s);
+        return (string) preg_replace_callback('/\x{E000}(\d+)\x{E001}/u', static fn($m) => $tags[(int) $m[1]] ?? '', $s);
     }
 }

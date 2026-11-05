@@ -95,9 +95,8 @@ final class S3Storage
         $ch = curl_init($url);
         $lines = [];
         foreach ($headers as $k => $v) {
-            if ($k !== 'host') {
-                $lines[] = $k . ': ' . $v;
-            }
+            // Host wysyłamy dokładnie taki, jaki został podpisany (także z portem).
+            $lines[] = ($k === 'host' ? 'Host' : $k) . ': ' . $v;
         }
         curl_setopt_array($ch, [
             CURLOPT_UPLOAD => true,

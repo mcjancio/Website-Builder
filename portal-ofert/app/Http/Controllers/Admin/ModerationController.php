@@ -47,6 +47,11 @@ final class ModerationController
     public function decide(Request $request): Response
     {
         $id = (int) $request->params['id'];
+        // Rozdział ról: nikt nie moderuje własnej oferty.
+        if ((int) DB::value('SELECT user_id FROM listings WHERE id = ?', [$id]) === Auth::id()) {
+            Session::flash('error', __('admin.not_own_listing'));
+            return Response::redirect(url('/admin/moderacja/' . $id));
+        }
         try {
             if ($request->str('action') === 'approve') {
                 $kind = ListingService::approve($id, Auth::id(), $request);

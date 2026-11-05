@@ -82,8 +82,12 @@ final class Queue
     }
 
     /** Zadania, które wyczerpały próby — widoczne w /health i w panelu admina. */
-    public static function failedCount(): int
+    /** Zadania, które wyczerpały próby (opcjonalnie: tylko od podanego momentu — do dziennego raportu). */
+    public static function failedCount(?int $since = null): int
     {
+        if ($since !== null) {
+            return (int) DB::value('SELECT COUNT(*) FROM jobs WHERE done_at IS NULL AND attempts >= max_attempts AND reserved_at >= ?', [gmdate('Y-m-d H:i:s', $since)]);
+        }
         return (int) DB::value('SELECT COUNT(*) FROM jobs WHERE done_at IS NULL AND attempts >= max_attempts');
     }
 

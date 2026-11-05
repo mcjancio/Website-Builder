@@ -49,7 +49,8 @@ $statusActions = [
                             <?php if ($l['published_at'] !== null): ?>
                                 <a href="<?= e(url('/moje-oferty/' . $l['id'] . '/statystyki')) ?>"><?= e(__('mine.stats')) ?></a>
                             <?php endif; ?>
-                            <?php foreach ($statusActions[$l['status']] ?? [] as $a): ?>
+                            <?php if (!empty($l['paused_by_staff'])): ?><span class="muted"><?= e(__('mine.paused_by_staff')) ?></span><?php endif; ?>
+                            <?php foreach (!empty($l['paused_by_staff']) ? array_diff($statusActions[$l['status']] ?? [], ['resume', 'sold']) : ($statusActions[$l['status']] ?? []) as $a): ?>
                                 <form method="post" action="<?= e(url('/moje-oferty/' . $l['id'] . '/status')) ?>" class="inline-form"<?= in_array($a, ['sold', 'archive'], true) ? ' data-confirm="' . e(__('mine.confirm_' . $a)) . '"' : '' ?>>
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="action" value="<?= e($a) ?>">

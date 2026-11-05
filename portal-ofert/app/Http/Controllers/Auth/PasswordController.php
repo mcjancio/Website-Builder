@@ -76,7 +76,7 @@ final class PasswordController
             return Response::view('auth/reset-invalid', ['title' => __('password.invalid_title'), 'noindex' => true], 410);
         }
         DB::update('users', ['password_hash' => Auth::hashPassword($password), 'failed_logins' => 0, 'locked_until' => null], ['id' => $userId]);
-        Tokens::revokeAll($userId, 'remember');      // wyloguj „zapamiętane” urządzenia
+        \App\Auth\Auth::invalidateSessions($userId); // wyloguj wszystkie sesje i „zapamiętane” urządzenia
         Tokens::revokeAll($userId, 'password_reset');
         Audit::log('password.reset', 'user', $userId, [], $request, $userId);
 

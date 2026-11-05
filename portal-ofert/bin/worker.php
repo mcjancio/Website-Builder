@@ -81,6 +81,7 @@ if (!is_file($stamp) || filemtime($stamp) < time() - 3600) {
         'otp_codes' => DB::query('DELETE FROM otp_codes WHERE created_at < UTC_TIMESTAMP() - INTERVAL 30 DAY')->rowCount(),
         'logs' => Logger::purgeOlderThan(30),
         'sessions' => purge_sessions(APP_ROOT . '/storage/sessions', (int) config('session.lifetime', 7200)),
+        'ai_stale' => \App\Ai\Assistant::failStale(),
     ];
     Logger::info('Worker: sprzątanie', $purged);
     $verbose && out('Sprzątanie: ' . json_encode($purged));

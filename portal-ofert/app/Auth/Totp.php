@@ -27,6 +27,25 @@ final class Totp
         return str_pad((string) ($value % (10 ** $digits)), $digits, '0', STR_PAD_LEFT);
     }
 
+    /**
+     * Numer 30-sekundowego okna, do którego pasuje kod (±1 okno), albo null.
+     * Logowanie zapamiętuje ostatnie użyte okno — ten sam kod nie zadziała drugi raz.
+     */
+    public static function matchStep(string $secretBase32, string $code, ?int $time = null): ?int
+    {
+        $code = (string) preg_replace('/\D+/', '', $code);
+        if (strlen($code) !== 6) {
+            return null;
+        }
+        $time ??= time();
+        foreach ([-30, 0, 30] as $drift) {
+            if (hash_equals(self::code($secretBase32, $time + $drift), $code)) {
+                return intdiv($time + $drift, 30);
+            }
+        }
+        return null;
+    }
+
     /** Akceptuje kod z bieżącego okna ±1 (zegar telefonu może się spieszyć/spóźniać o 30 s). */
     public static function verify(string $secretBase32, string $code, ?int $time = null): bool
     {

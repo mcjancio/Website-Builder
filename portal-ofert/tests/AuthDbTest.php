@@ -406,9 +406,20 @@ return [
         }
         $r = Browser::post('/logowanie', ['email' => 'jan@example.pl', 'password' => 'poprawne-haslo-1']);
         T::same(429, $r->status, 'zablokowane także poprawnym hasłem');
-        T::assert(str_contains($r->body, 'zablokowane na 15 min'));
+        T::assert(str_contains($r->body, 'Spróbuj ponownie za 15 min'), $r->body);
+        T::same(429, Browser::post('/logowanie', ['email' => 'jan@example.pl', 'password' => 'poprawne-haslo-1'], ['REMOTE_ADDR' => '203.0.113.10'])->status);
 
-        DB::query('UPDATE users SET locked_until = NULL');
+        // Atakujący z innego adresu nie blokuje właściciela; blokada nie zdradza, czy konto istnieje.
+        T::same('/konto', Browser::post('/logowanie', ['email' => 'jan@example.pl', 'password' => 'poprawne-haslo-1'], ['REMOTE_ADDR' => '198.51.100.7'])->headers['Location'] ?? null, 'inny adres IP loguje się normalnie');
+        Browser::post('/wyloguj');
+        for ($i = 0; $i < 5; $i++) {
+            Browser::post('/logowanie', ['email' => 'nikt@example.pl', 'password' => 'zle']);
+        }
+        $ghost = Browser::post('/logowanie', ['email' => 'nikt@example.pl', 'password' => 'zle']);
+        T::same(429, $ghost->status, 'nieistniejące konto zachowuje się tak samo');
+        T::assert(str_contains($ghost->body, 'Spróbuj ponownie za'));
+
+        DB::query('DELETE FROM rate_limits');
         $r = Browser::post('/logowanie', ['email' => 'JAN@example.pl', 'password' => 'poprawne-haslo-1', 'next' => '/konto']);
         T::same('/konto', $r->headers['Location']);
         T::same('0', (string) DB::value('SELECT failed_logins FROM users'));

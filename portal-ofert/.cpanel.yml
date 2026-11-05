@@ -21,15 +21,16 @@ deployment:
     - export SRC=.
     - export APP=$HOME/portal
     - export WEB=$HOME/public_html/portal
-    - /bin/sh -c 'if [ -f "$APP/storage/campaign.lock" ] && [ "$(cat "$APP/storage/campaign.lock")" -gt "$(date +%s)" ]; then echo "Tryb kampanii aktywny - wdrozenie wstrzymane."; exit 1; fi'
+    - /bin/sh -c 'if [ -f "$APP/storage/campaign.lock" ] && [ "$(cat "$APP/storage/campaign.lock" 2>/dev/null || echo 0)" -gt "$(date +%s)" ] 2>/dev/null; then echo "Tryb kampanii aktywny - wdrozenie wstrzymane."; exit 1; fi'
     - /bin/mkdir -p $APP $WEB
     # Kod aplikacji (bez config.php i danych w storage/)
-    - /bin/rsync -a --delete --exclude=/config.php --exclude=/storage/ --exclude=/public/ --exclude=/.git/ $SRC/ $APP/
+    - /bin/rsync -a --delete --exclude=/config.php --exclude=/storage/ --exclude=/public/ --exclude=/.git/ $SRC/ ${APP:?}/
     - /bin/mkdir -p $APP/storage/logs $APP/storage/cache $APP/storage/import $APP/storage/uploads $APP/storage/sessions $APP/storage/backups
     - /bin/cp -n $SRC/storage/.htaccess $APP/storage/.htaccess
     - /bin/chmod 750 $APP/storage
     # Pliki publiczne (index.php, .htaccess, assets/) + wskazanie katalogu aplikacji
-    - /bin/rsync -a --delete --exclude=/.portal-root --exclude=/.well-known/ $SRC/public/ $WEB/
+    - /bin/rsync -a --delete --exclude=/.portal-root --exclude=/.well-known/ $SRC/public/ ${WEB:?}/
     - /bin/echo "$APP" > $WEB/.portal-root
-    # Migracje (tylko gdy aplikacja jest już skonfigurowana)
-    - /bin/sh -c "test -f $APP/config.php && /usr/local/bin/php $APP/bin/migrate.php || true"
+    # Migracje (tylko gdy aplikacja jest już skonfigurowana): najpierw kopia bazy, a błąd migracji przerywa
+    # wdrożenie (widać go w cPanelu) zamiast udawać sukces. Kopia: $APP/storage/backups, odtworzenie: bin/restore.php.
+    - /bin/sh -c 'if [ -f "$APP/config.php" ]; then /usr/local/bin/php "$APP/bin/backup.php" --no-files --no-upload && /usr/local/bin/php "$APP/bin/migrate.php"; fi'

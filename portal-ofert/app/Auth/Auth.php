@@ -31,8 +31,13 @@ final class Auth
         $id = Session::get('user_id');
         if (is_int($id)) {
             self::$user = self::load($id);
+            // Sesja sprzed zmiany hasła / „wyloguj wszędzie” / blokady jest nieważna.
+            if (self::$user !== null && (int) Session::get('sv', 0) !== (int) self::$user['session_version']) {
+                self::$user = null;
+            }
             if (self::$user === null) {
                 Session::forget('user_id');
+                Session::forget('sv');
             }
         } elseif ($request !== null && ($cookie = $request->cookie(self::REMEMBER_COOKIE)) !== null) {
             self::$user = self::fromRememberCookie($cookie, $request);
@@ -49,6 +54,7 @@ final class Auth
     {
         Session::regenerate();
         Session::set('user_id', $userId);
+        Session::set('sv', (int) DB::value('SELECT session_version FROM users WHERE id = ?', [$userId]));
         Session::forget('2fa_pending');
         DB::query('UPDATE users SET last_login_at = UTC_TIMESTAMP(), failed_logins = 0, locked_until = NULL WHERE id = ?', [$userId]);
         if ($remember) {
@@ -79,6 +85,19 @@ final class Auth
         }
     }
 
+    /**
+     * Unieważnia wszystkie sesje i ciasteczka „Zapamiętaj mnie” użytkownika.
+     * $keepCurrent — bieżąca sesja tego użytkownika zostaje (np. po zmianie własnego hasła).
+     */
+    public static function invalidateSessions(int $userId, bool $keepCurrent = false): void
+    {
+        DB::query('UPDATE users SET session_version = session_version + 1 WHERE id = ?', [$userId]);
+        Tokens::revokeAll($userId, 'remember');
+        if ($keepCurrent && Session::get('user_id') === $userId) {
+            Session::set('sv', (int) DB::value('SELECT session_version FROM users WHERE id = ?', [$userId]));
+        }
+    }
+
     public static function forgetCache(): void
     {
         self::$user = null;
@@ -99,7 +118,7 @@ final class Auth
     {
         return DB::fetch(
             "SELECT u.id, u.email, u.first_name, u.last_name, u.phone_e164, u.role, u.account_type, u.status,
-                    u.email_verified_at, u.phone_verified_at, u.totp_enabled_at, u.created_at,
+                    u.email_verified_at, u.phone_verified_at, u.totp_enabled_at, u.created_at, u.session_version,
                     c.name AS company_name, c.nip AS company_nip
              FROM users u LEFT JOIN companies c ON c.id = u.company_id
              WHERE u.id = ? AND u.status = 'active'",
@@ -121,13 +140,14 @@ final class Auth
         }
         // Konta z 2FA nie wpuszczamy samym ciasteczkiem — wymagamy kodu (sesja 2fa_pending).
         if (self::requiresTwoFactor($user) && $user['totp_enabled_at'] !== null) {
-            Session::set('2fa_pending', ['user_id' => $userId, 'remember' => false]);
+            Session::set('2fa_pending', ['user_id' => $userId, 'remember' => false, 'at' => time()]);
             return null;
         }
         // Rotacja: stary token kasujemy, wydajemy nowy.
         Tokens::deleteBySelector($selector);
         Session::regenerate();
         Session::set('user_id', $userId);
+        Session::set('sv', (int) $user['session_version']);
         $t = Tokens::create($userId, 'remember', self::REMEMBER_DAYS * 86400, $request->userAgent());
         Cookies::queue(self::REMEMBER_COOKIE, $t['selector'] . ':' . $t['validator'], time() + self::REMEMBER_DAYS * 86400, $request->isHttps());
         Audit::log('login.remember', 'user', $userId, [], $request);

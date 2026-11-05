@@ -18,7 +18,8 @@ final class MediaService
 {
     public const SIZES = [400, 960, 1600];
     public const IMAGE_MIME = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
-    private const MAX_PIXELS = 40_000_000; // ochrona pamięci przed „bombą” z gigantycznym obrazem
+    // Ochrona pamięci: 24 Mpx × 4 B ≈ 96 MB na obraz (+ kopia przy obrocie EXIF) — mieści się w memory_limit 256M.
+    private const MAX_PIXELS = 24_000_000;
 
     // ------------------------------------------------------------------ zdjęcia
 

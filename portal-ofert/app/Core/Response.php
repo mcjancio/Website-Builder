@@ -45,7 +45,7 @@ final class Response
     public static function redirect(string $to, int $status = 302): self
     {
         // Tylko adresy wewnętrzne — ochrona przed open redirect.
-        if (!str_starts_with($to, '/') || str_starts_with($to, '//')) {
+        if (!str_starts_with($to, '/') || str_starts_with($to, '//') || str_starts_with($to, '/\\') || preg_match('/[\r\n]/', $to)) {
             $to = url('/');
         }
         return new self('', $status, ['Location' => $to]);

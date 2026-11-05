@@ -30,7 +30,10 @@ return [
         $c = Crypto::encrypt('123456');
         T::assert($c !== '123456' && strlen($c) > 24);
         T::same('123456', Crypto::decrypt($c));
-        T::same(null, Crypto::decrypt(substr($c, 0, -1) . 'x'), 'zmieniony szyfrogram odrzucony');
+        $tampered = $c;
+        $i = intdiv(strlen($c), 2);                       // znak ze środka zawsze niesie dane (ostatni bywa dopełnieniem)
+        $tampered[$i] = $c[$i] === 'A' ? 'B' : 'A';
+        T::same(null, Crypto::decrypt($tampered), 'zmieniony szyfrogram odrzucony');
         T::assert(Crypto::encrypt('a') !== Crypto::encrypt('a'), 'losowy nonce');
     },
 

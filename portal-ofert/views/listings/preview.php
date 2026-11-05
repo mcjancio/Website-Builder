@@ -5,7 +5,7 @@
  * @var array $listing
  * @var array $state
  * @var array $groups
- * @var string $description
+ * @var string $descriptionHtml
  * @var string $confidential
  * @var array $images
  * @var array $attachments
@@ -57,9 +57,9 @@ $format = static fn(array $f, mixed $v): string => \App\Listings\Display::value(
         </dl>
     <?php endforeach; ?>
 
-    <?php if (trim(strip_tags($description)) !== ''): ?>
+    <?php if (trim(strip_tags($descriptionHtml)) !== ''): ?>
         <h2 class="h3"><?= e(__('listing.full_desc')) ?> <?= $badge(2) ?></h2>
-        <div class="prose"><?= $description ?></div>
+        <div class="prose"><?= $descriptionHtml ?></div>
     <?php endif; ?>
     <?php if (trim(strip_tags($confidential)) !== ''): ?>
         <h2 class="h3"><?= e(__('listing.confidential')) ?> <?= $badge(3) ?></h2>

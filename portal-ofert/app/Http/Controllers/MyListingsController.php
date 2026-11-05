@@ -68,7 +68,8 @@ final class MyListingsController
         }
         $action = $request->str('action');
         $ok = in_array($action, ['pause', 'resume', 'sold', 'archive'], true) && ListingService::changeStatus($listing, $action, Auth::id(), $request);
-        \App\Core\Session::flash($ok ? 'success' : 'error', $ok ? __('mine.status_' . $action) : __('admin.action_unavailable'));
+        \App\Core\Session::flash($ok ? 'success' : 'error', $ok ? __('mine.status_' . $action)
+            : __(!empty($listing['paused_by_staff']) ? 'mine.paused_by_staff' : 'admin.action_unavailable'));
         return Response::redirect(url('/moje-oferty'));
     }
 
@@ -86,7 +87,7 @@ final class MyListingsController
             'listing' => $listing,
             'state' => $state,
             'groups' => Fields::grouped($fields),
-            'description' => Markdown::toHtml((string) ($state['core']['full_desc_md'] ?? '')),
+            'descriptionHtml' => Markdown::toHtml((string) ($state['core']['full_desc_md'] ?? '')),
             'confidential' => Markdown::toHtml((string) ($state['core']['confidential_md'] ?? '')),
             'images' => MediaService::images((int) $listing['id']),
             'attachments' => MediaService::attachments((int) $listing['id']),

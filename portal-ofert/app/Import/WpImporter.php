@@ -241,27 +241,35 @@ final class WpImporter
                 $short = rtrim(mb_substr($short, 0, $shortMax - 1)) . '…';
             }
 
-            $id = ListingService::create($userId, $categoryId, $title, $short);
-            $listing = ListingService::find($id);
-            $fields = Fields::forCategory($categoryId);
-            [$values, $errors] = FieldInput::parse($fields, $this->fieldValues($fields, $post, $meta, $label));
-            foreach ($errors as $key => $err) {
-                $this->report['values']['rejected'][] = "{$label} → {$key}: {$err}";
-            }
-            ListingService::save($listing, array_intersect_key($core, array_flip(['full_desc_md', 'confidential_md'])), $fields, $values);
-            $this->media($id, $post, $meta, $label);
+            // Jedna oferta = jedna transakcja: błąd w połowie (np. uszkodzone zdjęcie) nie zostawia
+            // niezapisanej w import_map oferty, która przy ponownym imporcie powstałaby drugi raz.
+            try {
+                DB::transaction(function () use ($userId, $categoryId, $title, $short, $core, $post, $meta, $label, $statuses, $pid): void {
+                    $id = ListingService::create($userId, $categoryId, $title, $short);
+                    $listing = ListingService::find($id);
+                    $fields = Fields::forCategory($categoryId);
+                    [$values, $errors] = FieldInput::parse($fields, $this->fieldValues($fields, $post, $meta, $label));
+                    foreach ($errors as $key => $err) {
+                        $this->report['values']['rejected'][] = "{$label} → {$key}: {$err}";
+                    }
+                    ListingService::save($listing, array_intersect_key($core, array_flip(['full_desc_md', 'confidential_md'])), $fields, $values);
+                    $this->media($id, $post, $meta, $label);
 
-            $status = $statuses[$post['post_status']] ?? 'draft';
-            $gmt = (string) $post['post_date_gmt'];
-            $date = $gmt !== '' && !str_starts_with($gmt, '0000') ? $this->utc($gmt, true) : $this->utc((string) $post['post_date']);
-            DB::update('listings', [
-                'status' => $status,
-                'published_at' => in_array($status, ['published', 'paused', 'sold'], true) ? $date : null,
-                'created_at' => $date,
-            ], ['id' => $id]);
-            $this->remember('listing', $pid, $id, $this->oldPath($post));
-            $this->redirectFor($post, $id);
-            $this->report['listings']['imported']++;
+                    $status = $statuses[$post['post_status']] ?? 'draft';
+                    $gmt = (string) $post['post_date_gmt'];
+                    $date = $gmt !== '' && !str_starts_with($gmt, '0000') ? $this->utc($gmt, true) : $this->utc((string) $post['post_date']);
+                    DB::update('listings', [
+                        'status' => $status,
+                        'published_at' => in_array($status, ['published', 'paused', 'sold'], true) ? $date : null,
+                        'created_at' => $date,
+                    ], ['id' => $id]);
+                    $this->remember('listing', $pid, $id, $this->oldPath($post));
+                    $this->redirectFor($post, $id);
+                    $this->report['listings']['imported']++;
+                });
+            } catch (\Throwable $e) {
+                $this->report['listings']['skipped'][] = "{$label}: błąd importu — " . mb_substr($e->getMessage(), 0, 200);
+            }
         }
     }
 

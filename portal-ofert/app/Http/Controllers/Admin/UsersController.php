@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Auth\Audit;
 use App\Auth\Auth;
-use App\Auth\Tokens;
 use App\Core\Csv;
 use App\Core\DB;
 use App\Core\Request;
@@ -22,7 +21,7 @@ final class UsersController
     {
         [$where, $args] = $this->filters($request);
         $total = (int) DB::value("SELECT COUNT(*) FROM users u LEFT JOIN companies c ON c.id = u.company_id WHERE {$where}", $args);
-        $page = max(1, (int) $request->str('strona', '1'));
+        $page = max(1, min(100000, (int) $request->str('strona', '1')));
         $rows = DB::fetchAll(
             "SELECT u.id, u.email, u.first_name, u.last_name, u.phone_e164, u.role, u.account_type, u.status, u.created_at,
                     u.last_login_at, u.email_verified_at, u.totp_enabled_at, c.name AS company,
@@ -74,7 +73,7 @@ final class UsersController
         switch ($request->str('action')) {
             case 'block':
                 DB::update('users', ['status' => 'blocked'], ['id' => $id]);
-                Tokens::revokeAll($id, 'remember');
+                \App\Auth\Auth::invalidateSessions($id);
                 Audit::log('user.block', 'user', $id, [], $request, Auth::id());
                 break;
             case 'unblock':
@@ -87,12 +86,13 @@ final class UsersController
                     break;
                 }
                 DB::update('users', ['role' => $role], ['id' => $id]);
+                \App\Auth\Auth::invalidateSessions($id);
                 Audit::log('role.change', 'user', $id, ['from' => $u['role'], 'to' => $role], $request, Auth::id());
                 break;
             case 'reset2fa':
                 // Np. zgubiony telefon. Admin/moderator zostanie poproszony o ponowną konfigurację przy logowaniu.
-                DB::update('users', ['totp_secret' => null, 'totp_enabled_at' => null, 'recovery_codes' => null], ['id' => $id]);
-                Tokens::revokeAll($id, 'remember');
+                DB::update('users', ['totp_secret' => null, 'totp_enabled_at' => null, 'recovery_codes' => null, 'totp_last_step' => null], ['id' => $id]);
+                \App\Auth\Auth::invalidateSessions($id);
                 Audit::log('2fa.reset_by_admin', 'user', $id, [], $request, Auth::id());
                 break;
             default:

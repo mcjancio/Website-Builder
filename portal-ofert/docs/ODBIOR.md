@@ -4,7 +4,7 @@ Stan na 2026-11-05 (etap 6). Każdy punkt ma opis, **jak go sprawdzono**. Rzeczy
 
 Oznaczenia: ✅ sprawdzone · ⏳ do sprawdzenia z klientem lub na docelowym serwerze.
 
-Testy automatyczne: `PORTAL_DB_SOCKET=… PORTAL_TEST_DB=1 php tests/run.php` → **88 testów, 0 błędów** (rdzeń, konta, oferty, lista, panel, konto, kopie, import, asystent AI).
+Testy automatyczne: `PORTAL_DB_SOCKET=… PORTAL_TEST_DB=1 php tests/run.php` → **97 testów, 0 błędów** (rdzeń, konta, oferty, lista, panel, konto, kopie, import, asystent AI, regresje z przeglądu bezpieczeństwa).
 
 ## A. Kryteria odbioru MVP (KONCEPCJA §11)
 
@@ -63,3 +63,49 @@ Silnik obsługuje każdą z opcji; potrzebna jest tylko decyzja:
 4. Kod przy każdym logowaniu czy tylko przy rejestracji — obecnie przy rejestracji, a dla zespołu 2FA przy każdym logowaniu.
 5. Domena i marka — ustawienia w panelu (nazwa, kolor) i `app.url`.
 6. Treść regulaminu i polityki prywatności — po stronie klienta (wpisywane w panelu → Strony; każda zmiana tworzy nową wersję).
+
+## E. Przegląd bezpieczeństwa przed startem (2026-11-05)
+
+Trzy niezależne przeglądy kodu objęły: logowanie i uprawnienia; widoki, wejście danych i pliki; kopie, import, asystenta AI i wdrożenie. **Nie znaleziono podatności krytycznej**, a XSS, SQL injection i przejęcia cudzych ofert (IDOR) nie wykryto. Poprawki (migracja `006_security_hardening`, testy `SecurityDbTest`):
+
+- **Sesje:** zmiana i reset hasła, „wyloguj wszędzie”, blokada konta, zmiana roli i reset 2FA kończą wszystkie otwarte sesje, a nie tylko „Zapamiętaj mnie”.
+- **Uprawnienia zespołu i 2FA:**
+  - admin lub moderator ma uprawnienia zespołu dopiero po włączeniu 2FA;
+  - kod 2FA działa tylko raz;
+  - krok 2FA wygasa po 10 minutach.
+- **Logowanie i ponowne uwierzytelnienie:**
+  - blokada po 5 błędnych hasłach dotyczy pary konto + adres IP, więc nikt nie zablokuje cudzego konta ze swojego adresu;
+  - odpowiedź jest taka sama dla kont istniejących i nieistniejących;
+  - usunięcie konta i wyłączenie 2FA mają limit prób.
+- **Moderacja:**
+  - ofertę wstrzymaną przez moderację autor nie może sam wznowić;
+  - nikt nie moderuje własnej oferty.
+- **Dane niepubliczne:**
+  - miasto i województwo z pola niepublicznego nie trafiają do nagłówka ani kafelków;
+  - zdjęcia publiczne są cache'owane 5 minut zamiast doby.
+- **Odporność na błędy i ataki:**
+  - Markdown jest odporny na znaczniki wewnętrzne (wcześniej błąd 500) i linki `/\host`;
+  - przekierowania odrzucają `/\host` oraz znaki nowej linii;
+  - limit wielkości zdjęcia dopasowany do pamięci PHP;
+  - stronicowanie w panelu jest ograniczone, więc za duży numer strony nie daje błędu.
+- **Kopie zapasowe:**
+  - zrzut z migawki transakcji;
+  - każdy zapis jest sprawdzany, a ucięta kopia nie zastępuje dobrych;
+  - odtworzenie najpierw weryfikuje cały plik (ucięty zrzut nie zmienia bazy) i usuwa tabele spoza kopii, więc migracje po odtworzeniu przechodzą;
+  - jedna instrukcja SQL ma najwyżej ~1 MB;
+  - archiwum plików jest odporne na pliki zmieniane w trakcie.
+- **Wdrożenie:** przed migracjami jest robiona kopia bazy, a błąd migracji przerywa wdrożenie zamiast udawać sukces. Ochrona przed pustą zmienną `$APP` przy `rsync --delete`.
+- **Asystent AI:**
+  - zlecenie jest przejmowane atomowo;
+  - porzucone zlecenia są kończone po 15 minutach;
+  - limit pliku PDF to 20 MB;
+  - dane z `ai.anonymize_level1` są usuwane także z pełnego opisu i z propozycji krótkiego opisu;
+  - model dostaje instrukcję, by ignorować polecenia z treści dokumentu.
+- **Import z WordPressa:** każda oferta jest importowana w osobnej transakcji, a błąd jednej trafia do raportu bez tworzenia duplikatów.
+- **Raport dzienny:** liczy tylko nieudane zadania z ostatniej doby.
+
+Pozostaje do sprawdzenia na serwerze:
+- **PDF w Chrome:** czy plik otwiera się w przeglądarce. Nagłówki zostały poprawione (bez `sandbox` dla PDF).
+- **cPanel przy aktywnym trybie kampanii:** czy `exit 1` faktycznie przerywa „Deploy”.
+- **Kolejność wdrożenia:** migracje uruchamiają się po skopiowaniu kodu, więc przez kilka sekund nowy kod działa na starej bazie. Przy dużych zmianach schematu warto włączyć tryb kampanii i wdrażać poza godzinami ruchu.
+- **Pierwsza konfiguracja 2FA:** nowo mianowany moderator konfiguruje 2FA samym hasłem. Mianuj moderatorów tylko z kont, których właściciela znasz.

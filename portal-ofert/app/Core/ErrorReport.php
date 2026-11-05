@@ -50,7 +50,7 @@ final class ErrorReport
         $age = $latest !== null ? (int) floor((time() - $latest) / 3600) : null;
         return [
             'errors' => array_slice($groups, 0, 30),
-            'failed_jobs' => Queue::failedCount(),
+            'failed_jobs' => Queue::failedCount($since),
             'backup_age_h' => $age,
             'backup_stale' => $age === null || $age > self::BACKUP_MAX_AGE_HOURS,
         ];

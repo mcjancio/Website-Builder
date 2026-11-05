@@ -167,7 +167,7 @@ final class ContentController
             $args[] = '%' . addcslashes($email, '%_\\') . '%';
         }
         $w = implode(' AND ', $where);
-        $page = max(1, (int) $request->str('strona', '1'));
+        $page = max(1, min(100000, (int) $request->str('strona', '1')));
         $total = (int) DB::value("SELECT COUNT(*) FROM audit_log a LEFT JOIN users u ON u.id = a.user_id WHERE {$w}", $args);
         $rows = DB::fetchAll(
             "SELECT a.*, u.email FROM audit_log a LEFT JOIN users u ON u.id = a.user_id WHERE {$w} ORDER BY a.id DESC LIMIT 50 OFFSET " . (($page - 1) * 50),

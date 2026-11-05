@@ -37,7 +37,8 @@ final class FileController
         $public = $listing['status'] === 'published' && (int) $media['access_level'] === 1 && $media['state'] !== 'pending_add';
         $headers = [
             'Content-Type' => 'image/webp',
-            'Cache-Control' => $public ? 'public, max-age=86400' : 'private, max-age=600',
+            // Krótko: po wstrzymaniu oferty zdjęcie nie może długo krążyć w pamięci podręcznej CDN/proxy.
+            'Cache-Control' => $public ? 'public, max-age=300' : 'private, max-age=600',
             'ETag' => $etag,
             'X-Content-Type-Options' => 'nosniff',
         ];
@@ -76,7 +77,8 @@ final class FileController
             'Content-Disposition' => $disposition . '; filename="' . $ascii . '"; filename*=UTF-8\'\'' . rawurlencode($name),
             'Cache-Control' => 'private, no-store',
             'X-Content-Type-Options' => 'nosniff',
-            'Content-Security-Policy' => "default-src 'none'; sandbox",
+            // „sandbox” blokuje wbudowaną przeglądarkę PDF w Chrome — dla PDF tylko zakaz ładowania czegokolwiek.
+            'Content-Security-Policy' => $disposition === 'inline' ? "default-src 'none'" : "default-src 'none'; sandbox",
         ]);
     }
 

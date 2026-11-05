@@ -14,7 +14,7 @@ final class AccountService
     public static function changePassword(int $userId, string $new, ?Request $request = null): void
     {
         DB::update('users', ['password_hash' => Auth::hashPassword($new)], ['id' => $userId]);
-        Tokens::revokeAll($userId, 'remember');
+        Auth::invalidateSessions($userId, true);
         Tokens::revokeAll($userId, 'password_reset');
         Audit::log('password.change', 'user', $userId, [], $request, $userId);
     }
@@ -57,7 +57,7 @@ final class AccountService
 
     public static function logoutEverywhere(int $userId, ?Request $request = null): void
     {
-        Tokens::revokeAll($userId, 'remember');
+        Auth::invalidateSessions($userId, true);
         Audit::log('devices.revoke_all', 'user', $userId, [], $request, $userId);
     }
 

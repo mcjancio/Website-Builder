@@ -91,6 +91,10 @@ final class AccountController
             Session::flash('error', __('twofa.cannot_disable'));
             return Response::redirect(url('/konto/2fa'));
         }
+        if (!\App\Core\RateLimiter::attempt('reauth:user:' . $user['id'], 5, 900)) {
+            Session::flash('error', __('auth.too_many_attempts'));
+            return Response::redirect(url('/konto/2fa'));
+        }
         $secret = Crypto::decrypt((string) DB::value('SELECT totp_secret FROM users WHERE id = ?', [$user['id']]));
         if ($secret === null || !Totp::verify($secret, $request->str('code'))) {
             Session::flash('error', __('twofa.invalid'));

@@ -17,6 +17,8 @@ use PDO;
 final class Backup
 {
     private const ROWS_PER_INSERT = 200;
+    private const MAX_INSERT_BYTES = 1_000_000;
+    private const END_MARK = '-- koniec';
     private const PREFIX_DB = 'baza-';
     private const PREFIX_FILES = 'pliki-';
 
@@ -29,88 +31,139 @@ final class Backup
         return $dir;
     }
 
-    /** Zrzut całej bazy do pliku .sql.gz. Zwraca ścieżkę. */
+    /**
+     * Zrzut całej bazy do pliku .sql.gz. Zwraca ścieżkę.
+     * Spójny stan (migawka transakcji InnoDB) — wiersze usuwane w trakcie przez worker nie „przesuwają” stron.
+     * Po zapisie plik jest sprawdzany (znacznik końca), zanim zastąpi cokolwiek w katalogu kopii.
+     */
     public static function dumpDatabase(?string $file = null): string
     {
         $file ??= self::dir() . '/' . self::PREFIX_DB . gmdate('Ymd-His') . '.sql.gz';
+        $part = $file . '.part';
         $pdo = DB::pdo();
-        $gz = gzopen($file . '.part', 'wb6');
+        $gz = gzopen($part, 'wb6');
         if ($gz === false) {
             throw new \RuntimeException("Nie można zapisać {$file}");
         }
-        $w = static function (string $line) use ($gz): void {
-            gzwrite($gz, $line . "\n");
-        };
-        $w('-- Portal Ofert: kopia bazy ' . gmdate('Y-m-d H:i:s') . ' UTC');
-        $w('SET NAMES utf8mb4;');
-        $w("SET time_zone = '+00:00';");
-        $w('SET FOREIGN_KEY_CHECKS = 0;');
-
-        $tables = DB::fetchAll("SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'");
-        foreach ($tables as $row) {
-            $table = (string) array_values($row)[0];
-            $create = (string) array_values(DB::fetch('SHOW CREATE TABLE ' . DB::ident($table)))[1];
-            $w('DROP TABLE IF EXISTS ' . DB::ident($table) . ';');
-            // CREATE w jednej linii — odtwarzanie czyta instrukcję po instrukcji.
-            $w((string) preg_replace('/\s*\R\s*/', ' ', $create) . ';');
-
-            $columns = DB::fetchAll('SHOW COLUMNS FROM ' . DB::ident($table));
-            $binary = [];
-            $names = [];
-            foreach ($columns as $c) {
-                $names[] = DB::ident($c['Field']);
-                $binary[] = (bool) preg_match('/binary|blob/i', (string) $c['Type']);
+        $w = static function (string $line) use ($gz, $part): void {
+            $line .= "\n";
+            if (gzwrite($gz, $line) !== strlen($line)) {
+                throw new \RuntimeException("Zapis kopii nieudany ({$part}) — brak miejsca na dysku?");
             }
-            $order = self::orderBy($table, $columns);
-            $offset = 0;
-            do {
-                $rows = $pdo->query('SELECT * FROM ' . DB::ident($table) . " ORDER BY {$order} LIMIT " . self::ROWS_PER_INSERT . " OFFSET {$offset}")->fetchAll(PDO::FETCH_NUM);
-                if ($rows === []) {
-                    break;
+        };
+        $pdo->exec('START TRANSACTION WITH CONSISTENT SNAPSHOT');
+        try {
+            $w('-- Portal Ofert: kopia bazy ' . gmdate('Y-m-d H:i:s') . ' UTC');
+            $w('SET NAMES utf8mb4;');
+            $w("SET time_zone = '+00:00';");
+            $w('SET FOREIGN_KEY_CHECKS = 0;');
+
+            foreach (DB::fetchAll("SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'") as $row) {
+                $table = (string) array_values($row)[0];
+                $create = (string) array_values(DB::fetch('SHOW CREATE TABLE ' . DB::ident($table)))[1];
+                $w('DROP TABLE IF EXISTS ' . DB::ident($table) . ';');
+                // CREATE w jednej linii — odtwarzanie czyta instrukcję po instrukcji.
+                $w((string) preg_replace('/\s*\R\s*/', ' ', $create) . ';');
+
+                $columns = DB::fetchAll('SHOW COLUMNS FROM ' . DB::ident($table));
+                $binary = [];
+                $names = [];
+                foreach ($columns as $c) {
+                    $names[] = DB::ident($c['Field']);
+                    $binary[] = (bool) preg_match('/binary|blob/i', (string) $c['Type']);
                 }
-                $values = [];
-                foreach ($rows as $r) {
-                    $vals = [];
-                    foreach ($r as $i => $v) {
-                        $vals[] = match (true) {
-                            $v === null => 'NULL',
-                            $binary[$i] => $v === '' ? "''" : '0x' . bin2hex((string) $v),
-                            is_int($v), is_float($v) => (string) $v,
-                            default => $pdo->quote((string) $v),
-                        };
+                $prefix = 'INSERT INTO ' . DB::ident($table) . ' (' . implode(',', $names) . ') VALUES ';
+                $order = self::orderBy($table, $columns);
+                $offset = 0;
+                do {
+                    $rows = $pdo->query('SELECT * FROM ' . DB::ident($table) . " ORDER BY {$order} LIMIT " . self::ROWS_PER_INSERT . " OFFSET {$offset}")->fetchAll(PDO::FETCH_NUM);
+                    $values = [];
+                    $bytes = 0;
+                    foreach ($rows as $r) {
+                        $vals = [];
+                        foreach ($r as $i => $v) {
+                            $vals[] = match (true) {
+                                $v === null => 'NULL',
+                                $binary[$i] => $v === '' ? "''" : '0x' . bin2hex((string) $v),
+                                is_int($v), is_float($v) => (string) $v,
+                                default => $pdo->quote((string) $v),
+                            };
+                        }
+                        $tuple = '(' . implode(',', $vals) . ')';
+                        // Jedna instrukcja najwyżej ~1 MB — mieści się w max_allowed_packet typowego hostingu.
+                        if ($values !== [] && $bytes + strlen($tuple) > self::MAX_INSERT_BYTES) {
+                            $w($prefix . implode(',', $values) . ';');
+                            $values = [];
+                            $bytes = 0;
+                        }
+                        $values[] = $tuple;
+                        $bytes += strlen($tuple) + 1;
                     }
-                    $values[] = '(' . implode(',', $vals) . ')';
-                }
-                $w('INSERT INTO ' . DB::ident($table) . ' (' . implode(',', $names) . ') VALUES ' . implode(',', $values) . ';');
-                $offset += self::ROWS_PER_INSERT;
-            } while (count($rows) === self::ROWS_PER_INSERT);
+                    $values !== [] && $w($prefix . implode(',', $values) . ';');
+                    $offset += self::ROWS_PER_INSERT;
+                } while (count($rows) === self::ROWS_PER_INSERT);
+            }
+            $w('SET FOREIGN_KEY_CHECKS = 1;');
+            $w(self::END_MARK);
+        } catch (\Throwable $e) {
+            gzclose($gz);
+            @unlink($part);
+            throw $e;
+        } finally {
+            $pdo->inTransaction() && $pdo->commit();
         }
-        $w('SET FOREIGN_KEY_CHECKS = 1;');
-        $w('-- koniec');
-        gzclose($gz);
-        rename($file . '.part', $file);
+        if (!gzclose($gz) || !self::isComplete($part)) {
+            @unlink($part);
+            throw new \RuntimeException('Kopia bazy jest niekompletna (zapis przerwany) — poprzednie kopie zostają nietknięte.');
+        }
+        rename($part, $file);
         @chmod($file, 0640);
         return $file;
     }
 
+    /** Czy zrzut kończy się znacznikiem końca (cały plik da się rozpakować i nie jest ucięty). */
+    public static function isComplete(string $file): bool
+    {
+        $gz = @gzopen($file, 'rb');
+        if ($gz === false) {
+            return false;
+        }
+        $last = '';
+        while (($line = gzgets($gz)) !== false) {
+            if (trim($line) !== '') {
+                $last = rtrim($line, "\r\n");
+            }
+        }
+        $ok = gzeof($gz);
+        gzclose($gz);
+        return $ok && $last === self::END_MARK;
+    }
+
     /**
-     * Odtworzenie bazy ze zrzutu (.sql.gz). UWAGA: nadpisuje tabele. Zwraca liczbę instrukcji.
+     * Odtworzenie bazy ze zrzutu (.sql.gz). UWAGA: nadpisuje bazę. Zwraca liczbę instrukcji.
+     * Najpierw sprawdza cały plik (nic nie jest zmieniane, jeśli zrzut jest ucięty), potem usuwa wszystkie
+     * tabele — także nowsze niż kopia — żeby migracje po odtworzeniu zaczynały od stanu z kopii.
      */
     public static function restoreDatabase(string $file): int
     {
+        if (!self::isComplete($file)) {
+            throw new \RuntimeException('Zrzut jest niekompletny (brak znacznika końca) — baza nie została zmieniona.');
+        }
         $gz = gzopen($file, 'rb');
         if ($gz === false) {
             throw new \RuntimeException("Nie można otworzyć {$file}");
         }
         $pdo = DB::pdo();
+        $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
+        foreach (DB::fetchAll("SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'") as $row) {
+            $pdo->exec('DROP TABLE ' . DB::ident((string) array_values($row)[0]));
+        }
         $buffer = '';
         $count = 0;
-        $complete = false;
         try {
             while (($line = gzgets($gz)) !== false) {
                 $line = rtrim($line, "\r\n");
                 if ($buffer === '' && (str_starts_with($line, '-- ') || $line === '')) {
-                    $complete = $complete || $line === '-- koniec';
                     continue;
                 }
                 $buffer .= ($buffer === '' ? '' : "\n") . $line;
@@ -123,9 +176,6 @@ final class Backup
         } finally {
             gzclose($gz);
             $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
-        }
-        if (!$complete) {
-            throw new \RuntimeException('Zrzut jest niekompletny (brak znacznika końca) — przerwana kopia?');
         }
         return $count;
     }
@@ -151,12 +201,18 @@ final class Backup
             }
             $rel = str_replace('\\', '/', substr($f->getPathname(), strlen($src) + 1));
             gzwrite($gz, self::tarHeader($rel, (int) $f->getSize(), (int) $f->getMTime()));
+            // Dokładnie tyle bajtów, ile podano w nagłówku — plik zmieniony w trakcie nie rozjedzie archiwum.
+            $size = (int) $f->getSize();
             $in = fopen($f->getPathname(), 'rb');
-            while ($in && !feof($in)) {
-                gzwrite($gz, (string) fread($in, 1048576));
+            $left = $size;
+            while ($in && $left > 0 && !feof($in)) {
+                $chunk = (string) fread($in, min(1048576, $left));
+                gzwrite($gz, $chunk);
+                $left -= strlen($chunk);
             }
             $in && fclose($in);
-            $pad = (512 - $f->getSize() % 512) % 512;
+            $left > 0 && gzwrite($gz, str_repeat("\0", $left)); // plik skrócił się w trakcie
+            $pad = (512 - $size % 512) % 512;
             $pad > 0 && gzwrite($gz, str_repeat("\0", $pad));
             $count++;
         }
@@ -186,6 +242,13 @@ final class Backup
                 $prefix = rtrim(substr($h, 345, 155), "\0");
                 $rel = $prefix !== '' ? $prefix . '/' . $name : $name;
                 $size = (int) octdec(trim(substr($h, 124, 12), "\0 "));
+                $type = $h[156];
+                if ($type !== '0' && $type !== "\0") {
+                    // Katalogi, dowiązania itp. pomijamy (razem z ewentualną treścią).
+                    $skip = $size + (512 - $size % 512) % 512;
+                    $skip > 0 && gzread($gz, $skip);
+                    continue;
+                }
                 // Ochrona przed „../” i ścieżkami bezwzględnymi w archiwum.
                 if ($rel === '' || str_starts_with($rel, '/') || preg_match('#(^|/)\.\.(/|$)#', $rel)) {
                     throw new \RuntimeException("Niedozwolona ścieżka w archiwum: {$rel}");

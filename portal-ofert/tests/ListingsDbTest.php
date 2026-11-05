@@ -214,7 +214,10 @@ return [
         auth_setup();
         $owner = DB::fetch('SELECT * FROM users WHERE id = ?', [create_user('o@example.pl', 'x-haslo-12345', 'member', '+48600000001')]);
         $member = DB::fetch('SELECT * FROM users WHERE id = ?', [create_user('m@example.pl', 'x-haslo-12345', 'member', '+48600000002')]);
-        $mod = DB::fetch('SELECT * FROM users WHERE id = ?', [create_user('mod@example.pl', 'x-haslo-12345', 'moderator', '+48600000003')]);
+        $modId = create_user('mod@example.pl', 'x-haslo-12345', 'moderator', '+48600000003');
+        T::assert(!Gate::isStaff(DB::fetch('SELECT * FROM users WHERE id = ?', [$modId])), 'moderator bez 2FA nie ma uprawnień zespołu');
+        DB::update('users', ['totp_enabled_at' => gmdate('Y-m-d H:i:s')], ['id' => $modId]);
+        $mod = DB::fetch('SELECT * FROM users WHERE id = ?', [$modId]);
         $unverified = DB::fetch('SELECT * FROM users WHERE id = ?', [create_user('u@example.pl', 'x-haslo-12345', 'member', '+48600000004')]);
         DB::query('UPDATE users SET email_verified_at = NULL, created_at = UTC_TIMESTAMP() - INTERVAL 3 DAY WHERE id = ?', [$unverified['id']]);
         $unverified = DB::fetch('SELECT * FROM users WHERE id = ?', [$unverified['id']]);
@@ -304,7 +307,7 @@ return [
         Browser::post('/wyloguj');
         T::same(404, Browser::get("/media/{$newImg}/400")->status, 'nowe zdjęcie niewidoczne publicznie');
         T::same(200, Browser::get("/media/{$liveImg}/400")->status, 'usuwane zdjęcie widoczne do akceptacji');
-        T::same('public, max-age=86400', Browser::get("/media/{$liveImg}/400")->headers['Cache-Control']);
+        T::same('public, max-age=300', Browser::get("/media/{$liveImg}/400")->headers['Cache-Control']);
         Browser::post('/logowanie', ['email' => 'autor@example.pl', 'password' => 'haslo-autora-123']);
 
         Browser::post("/moje-oferty/{$id}/wyslij");

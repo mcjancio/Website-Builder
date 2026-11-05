@@ -21,7 +21,9 @@ use App\Core\View;
  */
 final class LoginController
 {
-    private const MAX_FAILS = 5;
+    private const MAX_FAILS = 5;            // błędne hasła z jednego adresu IP dla jednego konta…
+    private const LOCK_SECONDS = 900;        // …w ciągu 15 minut
+    private const MAX_FAILS_ACCOUNT = 30;    // błędne hasła dla konta ze wszystkich adresów w ciągu godziny
 
     public function show(Request $request): Response
     {
@@ -41,17 +43,18 @@ final class LoginController
             return Response::html(View::render('auth/login', $this->data(['email' => __('auth.too_many_attempts')], $old)), 429);
         }
 
-        $user = $email !== '' ? DB::fetch(
-            "SELECT id, password_hash, status, role, totp_enabled_at, failed_logins, locked_until,
-                    locked_until > UTC_TIMESTAMP() AS locked, CEIL(TIMESTAMPDIFF(SECOND, UTC_TIMESTAMP(), locked_until) / 60) AS locked_min
-             FROM users WHERE email = ?",
-            [$email]
-        ) : null;
+        $user = $email !== '' ? DB::fetch('SELECT id, password_hash, status, role, totp_enabled_at, failed_logins FROM users WHERE email = ?', [$email]) : null;
 
-        if ($user !== null && (int) $user['locked']) {
-            Audit::log('login.locked', 'user', (int) $user['id'], [], $request);
+        // Blokada po 5 błędach liczona dla pary e-mail + IP: atakujący nie zablokuje cudzego konta ze swojego adresu,
+        // a odpowiedź jest taka sama dla kont istniejących i nieistniejących (bez zdradzania, kto jest zarejestrowany).
+        // Dodatkowo limit na konto ze wszystkich adresów (zgadywanie rozproszone).
+        $acct = 'login:acct:' . hash('sha256', $email);
+        $acctIp = $acct . ':ip:' . $request->ip();
+        if (RateLimiter::count($acctIp, self::LOCK_SECONDS) >= self::MAX_FAILS || RateLimiter::count($acct, 3600) >= self::MAX_FAILS_ACCOUNT) {
+            $user !== null && Audit::log('login.locked', 'user', (int) $user['id'], [], $request);
+            $wait = max(RateLimiter::retryAfter($acctIp, self::LOCK_SECONDS), 60);
             return Response::html(View::render('auth/login', $this->data(
-                ['email' => __('auth.locked', ['minutes' => max(1, (int) $user['locked_min'])])], $old)), 429);
+                ['email' => __('auth.locked', ['minutes' => (int) ceil($wait / 60)])], $old)), 429);
         }
 
         // Stały czas odpowiedzi także dla nieistniejącego konta.
@@ -59,15 +62,11 @@ final class LoginController
         $valid = password_verify($password, (string) $hash) && $user !== null && $user['status'] === 'active';
 
         if (!$valid) {
+            RateLimiter::hit($acctIp, self::LOCK_SECONDS);
+            RateLimiter::hit($acct, 3600);
             if ($user !== null) {
-                $fails = (int) $user['failed_logins'] + 1;
-                // 5 błędów → 15 min, każde kolejne 5 → dwa razy dłużej (maks. 24 h)
-                $lockMinutes = $fails % self::MAX_FAILS === 0 ? min(1440, 15 * (2 ** (intdiv($fails, self::MAX_FAILS) - 1))) : 0;
-                DB::query(
-                    'UPDATE users SET failed_logins = ?, locked_until = IF(? > 0, UTC_TIMESTAMP() + INTERVAL ? MINUTE, locked_until) WHERE id = ?',
-                    [$fails, $lockMinutes, $lockMinutes, $user['id']]
-                );
-                Audit::log('login.fail', 'user', (int) $user['id'], ['fails' => $fails], $request);
+                DB::query('UPDATE users SET failed_logins = failed_logins + 1 WHERE id = ?', [$user['id']]);
+                Audit::log('login.fail', 'user', (int) $user['id'], ['fails' => (int) $user['failed_logins'] + 1], $request);
             }
             return Response::html(View::render('auth/login', $this->data(['email' => __('auth.invalid_credentials')], $old)), 422);
         }
@@ -76,6 +75,7 @@ final class LoginController
             DB::update('users', ['password_hash' => Auth::hashPassword($password)], ['id' => $user['id']]);
         }
 
+        RateLimiter::clear($acctIp);
         $remember = $request->str('remember') !== '';
         if ($user['totp_enabled_at'] !== null) {
             Session::regenerate();
@@ -107,13 +107,15 @@ final class LoginController
             return Response::html(View::render('auth/two-factor', ['title' => __('twofa.title'), 'errors' => ['code' => __('auth.too_many_attempts')], 'noindex' => true]), 429);
         }
 
-        $row = DB::fetch('SELECT totp_secret, recovery_codes FROM users WHERE id = ?', [$userId]);
+        $row = DB::fetch('SELECT totp_secret, recovery_codes, totp_last_step FROM users WHERE id = ?', [$userId]);
         $code = trim($request->str('code'));
         $ok = false;
         $usedRecovery = false;
         $secret = $row && $row['totp_secret'] !== null ? Crypto::decrypt((string) $row['totp_secret']) : null;
-        if ($secret !== null && Totp::verify($secret, $code)) {
+        $step = $secret !== null ? Totp::matchStep($secret, $code) : null;
+        if ($step !== null && $step > (int) ($row['totp_last_step'] ?? 0)) {
             $ok = true;
+            DB::update('users', ['totp_last_step' => $step], ['id' => $userId]); // ten sam kod nie zadziała drugi raz
         } elseif ($row && preg_match('/^[a-f0-9]{6}-[a-f0-9]{6}$/i', $code)) {
             $hashes = json_decode((string) ($row['recovery_codes'] ?? '[]'), true) ?: [];
             $h = hash('sha256', strtolower($code));

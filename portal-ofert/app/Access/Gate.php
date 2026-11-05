@@ -24,9 +24,10 @@ final class Gate
     /** @var array<string,bool> */
     private static array $grantCache = [];
 
+    /** Zespół (admin/moderator) z WŁĄCZONYM 2FA — bez 2FA rola nie daje żadnych dodatkowych uprawnień. */
     public static function isStaff(?array $user): bool
     {
-        return $user !== null && in_array($user['role'] ?? '', ['admin', 'moderator'], true);
+        return $user !== null && in_array($user['role'] ?? '', ['admin', 'moderator'], true) && ($user['totp_enabled_at'] ?? null) !== null;
     }
 
     public static function isOwner(?array $user, array $listing): bool
