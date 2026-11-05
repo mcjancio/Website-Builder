@@ -10,7 +10,8 @@ Punkt wyjścia: następca portalu **inwestycje.finansedewelopera.pl** (dziś Wor
 |---|---|---|
 | 1 | Rdzeń (router, widoki, baza, sesje, CSRF, walidacja, limity, kolejka, logi), migracje, import presetów, instalator, `/health`, wdrożenie cPanel | ✅ gotowy, testy przechodzą |
 | 2 | Konta: rejestracja z NIP (dane z MF), kod **WhatsApp → zapasowo SMS** (webhook Meta), potwierdzenie e-mail, logowanie z blokadą, „Zapamiętaj mnie”, reset hasła, 2FA (obowiązkowe dla admina) | ✅ gotowy, testy przechodzą |
-| 3–7 | Oferty, front z filtrami, panele, produkcja, AI | — |
+| 3 | Oferty: kreator w 4 krokach z autozapisem, pola z presetu w typowanych kolumnach (kwoty przeliczane na PLN wg NBP), zdjęcia → WebP, do 25 dokumentów z poziomem dostępu, `Gate` (L1/L2/L3), wysyłka do moderacji, edycja opublikowanych przez rewizje, moderacja z CLI (`bin/moderate.php`) | ✅ gotowy, testy przechodzą |
+| 4–7 | Lista ofert z filtrami i strona oferty, panele (moderacja w przeglądarce), produkcja, AI | — |
 
 ## Dokumenty
 
@@ -36,6 +37,8 @@ app/
              RateLimiter, Queue, Migrator, Settings, Markdown, Lang, Logger, ErrorHandler,
              Http (klient API z trybem testowym), Crypto (sodium), Mailer (PHPMailer)
   Auth/      Auth (sesja + „Zapamiętaj mnie”), OtpService (WhatsApp → SMS), Totp (2FA), Tokens, Audit
+  Access/    Gate — JEDYNE miejsce decyzji o dostępie L1/L2/L3
+  Listings/  Fields, FieldInput (walidacja pól presetu), ValueStore, ListingService (cykl życia, rewizje, moderacja), MediaService
   Integrations/  Otp/ (WhatsAppChannel, SmsApiChannel, LogChannel), MfVatWhitelist, GetResponse
   Http/      Controllers/ (Home, Page, Health, Theme, Account, Webhook, CompanyLookup,
              Auth/Register, Auth/Login, Auth/Password, Auth/EmailVerification)
@@ -43,7 +46,7 @@ app/
   Presets/   Importer (walidacja + idempotentny import presetu)
 lib/         PHPMailer 6.9.3 (jedyna biblioteka zewnętrzna, przypięta wersja)
 docs/        instrukcje dla właściciela portalu
-bin/         install.php, migrate.php, import-preset.php, create-admin.php, worker.php
+bin/         install.php, migrate.php, import-preset.php, create-admin.php, worker.php, moderate.php
 lang/pl.php  wszystkie teksty interfejsu
 views/       layouts/, errors/, home.php, page.php
 public/      index.php (jedyny punkt wejścia), .htaccess, assets/

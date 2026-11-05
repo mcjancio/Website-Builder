@@ -14,6 +14,9 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CompanyLookupController;
+use App\Http\Controllers\FileController;
+use App\Http\Controllers\ListingWizardController;
+use App\Http\Controllers\MyListingsController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
@@ -22,6 +25,7 @@ use App\Http\Controllers\WebhookController;
 use App\Http\Middleware\LoadUser;
 use App\Http\Middleware\RequireAuth;
 use App\Http\Middleware\RequireGuest;
+use App\Http\Middleware\RequireVerifiedEmail;
 use App\Http\Middleware\StartSession;
 use App\Http\Middleware\VerifyCsrf;
 
@@ -65,7 +69,28 @@ $router->group('', [StartSession::class, VerifyCsrf::class, LoadUser::class], st
         $g->get('/konto/2fa', [AccountController::class, 'twoFactor']);
         $g->post('/konto/2fa', [AccountController::class, 'enableTwoFactor']);
         $g->post('/konto/2fa/wylacz', [AccountController::class, 'disableTwoFactor']);
+
+        // Oferty autora (etap 3): kreator, pliki, wysyłka do moderacji
+        $g->get('/moje-oferty', [MyListingsController::class, 'index']);
+        $g->get('/moje-oferty/{id:\d+}/podglad', [MyListingsController::class, 'preview']);
+        $g->post('/podglad-markdown', [ListingWizardController::class, 'markdownPreview']);
+        $g->group('', [RequireVerifiedEmail::class], static function ($v): void {
+            $v->get('/dodaj-oferte', [ListingWizardController::class, 'create']);
+            $v->post('/dodaj-oferte', [ListingWizardController::class, 'store']);
+            $v->get('/moje-oferty/{id:\d+}/edycja', [ListingWizardController::class, 'edit']);
+            $v->get('/moje-oferty/{id:\d+}/edycja/{step:[1-4]}', [ListingWizardController::class, 'edit']);
+            $v->post('/moje-oferty/{id:\d+}/edycja/{step:[1-4]}', [ListingWizardController::class, 'update']);
+            $v->post('/moje-oferty/{id:\d+}/zdjecia', [ListingWizardController::class, 'uploadImages']);
+            $v->post('/moje-oferty/{id:\d+}/dokumenty', [ListingWizardController::class, 'uploadAttachments']);
+            $v->post('/moje-oferty/{id:\d+}/{kind:zdjecia|dokumenty}/{item:\d+}', [ListingWizardController::class, 'mediaAction']);
+            $v->post('/moje-oferty/{id:\d+}/wyslij', [ListingWizardController::class, 'submit']);
+            $v->post('/moje-oferty/{id:\d+}/usun', [ListingWizardController::class, 'destroy']);
+        });
     });
+
+    // Zdjęcia i dokumenty z kontrolą dostępu (Gate) — także dla niezalogowanych (poziom 1)
+    $r->get('/media/{id:\d+}/{size:400|960|1600}', [FileController::class, 'image']);
+    $r->get('/plik/{id:\d+}', [FileController::class, 'attachment']);
 
     // Strony treści — trasa ogólna, MUSI być ostatnia (łapie każdy pojedynczy segment).
     $r->get('/{slug:[a-z0-9\-]+}', [PageController::class, 'show']);

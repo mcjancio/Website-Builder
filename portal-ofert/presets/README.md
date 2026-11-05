@@ -50,6 +50,22 @@ Neutralne domyślne: **Oferta / Oferty / Dodaj ofertę / Kategorie / Oferujący 
 | `validation` | np. `{"min": 1950, "max": 2027}`, `{"allow_past_years": 5}` |
 | `categories` | pole tylko w wybranych kategoriach (np. „Pojemność łyżki” tylko dla koparek); brak = wszystkie |
 
+### Pola o specjalnym znaczeniu
+
+- `region` (typ `region`) i `city` (typ `text`) — jeśli preset ma pola o **tych kluczach**, ich wartości trafiają też do kolumn oferty i służą do filtrów lokalizacji oraz adresów SEO. Nazwy (etykiety) mogą być dowolne.
+- Pola `money` zapisują kwotę, walutę i równowartość w PLN (kurs średni NBP z dnia zapisu) — filtr „od–do” porównuje oferty w różnych walutach.
+
+### Limity (`limits`)
+
+| Klucz | Domyślnie | Znaczenie |
+|---|---|---|
+| `title_max` | 120 | długość tytułu |
+| `short_desc_max` | 300 | krótki opis (publiczny) |
+| `images_max`, `image_max_mb` | 20, 10 | zdjęcia (→ WebP 400/960/1600 px, bez EXIF) |
+| `attachments_max`, `attachment_max_mb` | 25, 25 | dokumenty |
+| `attachment_mime` | PDF | dozwolone typy (PDF, DOCX, XLSX, PPTX, JPG, PNG) |
+| `attachment_default_level` | 3 | domyślny poziom dostępu nowego dokumentu |
+
 ### Zasady bezpieczeństwa importu
 
 - Import można powtarzać — niczego nie dubluje i niczego nie usuwa.

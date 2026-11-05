@@ -51,7 +51,7 @@ final class FakeNet
         self::$waStatus = 200;
         self::$mf = ['name' => 'PRZYKŁADOWA SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ', 'nip' => '5260250274', 'statusVat' => 'Czynny',
             'regon' => '012345678', 'krs' => '0000012345', 'workingAddress' => 'UL. PRZYKŁADOWA 1, 61-001 POZNAŃ'];
-        foreach (glob(APP_ROOT . '/storage/cache/nip-*.json') ?: [] as $f) {
+        foreach (array_merge(glob(APP_ROOT . '/storage/cache/nip-*.json') ?: [], glob(APP_ROOT . '/storage/cache/nbp-*.json') ?: []) as $f) {
             unlink($f);
         }
         Http::fake(static function (string $method, string $url, array $headers, ?string $body): array {
@@ -62,6 +62,11 @@ final class FakeNet
             }
             if (str_contains($url, 'api.smsapi.pl')) {
                 return ['status' => 200, 'body' => json_encode(['count' => 1, 'list' => [['id' => 'sms-' . bin2hex(random_bytes(4)), 'points' => 0.16]]])];
+            }
+            if (str_contains($url, 'api.nbp.pl')) {
+                $rates = ['eur' => 4.30, 'usd' => 3.95, 'gbp' => 5.10];
+                preg_match('#/rates/a/([a-z]{3})/#', $url, $m);
+                return isset($rates[$m[1] ?? '']) ? ['status' => 200, 'body' => json_encode(['rates' => [['mid' => $rates[$m[1]], 'effectiveDate' => '2026-11-05']]])] : ['status' => 404, 'body' => '{}'];
             }
             if (str_contains($url, 'wl-api.mf.gov.pl')) {
                 return ['status' => 200, 'body' => json_encode(['result' => ['subject' => self::$mf ?: null]])];
@@ -114,6 +119,23 @@ final class Browser
     {
         $data += ['_csrf' => Csrf::token()];
         return self::send(new Request('POST', $path, [], $data, $server + ['REMOTE_ADDR' => '203.0.113.10'], self::$cookies, [], $raw));
+    }
+
+    /** Wysyłka plików: $files = ['images' => ['/sciezka/a.jpg', …]] (format jak $_FILES dla name[]). */
+    public static function upload(string $path, array $files, array $data = [], bool $json = false): Response
+    {
+        $f = [];
+        foreach ($files as $field => $paths) {
+            foreach ($paths as $p) {
+                $one = \App\Core\UploadedFile::fake($p);
+                foreach ($one as $k => $v) {
+                    $f[$field][$k][] = $v;
+                }
+            }
+        }
+        $data += ['_csrf' => Csrf::token()];
+        $server = ['REMOTE_ADDR' => '203.0.113.10'] + ($json ? ['HTTP_ACCEPT' => 'application/json'] : []);
+        return self::send(new Request('POST', $path, [], $data, $server, self::$cookies, $f));
     }
 
     private static function send(Request $r): Response

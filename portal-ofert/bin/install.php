@@ -38,6 +38,13 @@ foreach (['pdo_mysql', 'mbstring', 'json', 'curl', 'openssl', 'fileinfo', 'intl'
 }
 $check(extension_loaded('gd') || extension_loaded('imagick'), 'gd lub imagick (obrazy WebP)', 'włącz gd');
 $check(extension_loaded('sodium'), 'sodium (szyfrowanie sekretów 2FA)', 'włącz sodium');
+$toBytes = static function (string $v): int {
+    $n = (int) $v;
+    return match (strtoupper(substr(trim($v), -1))) { 'G' => $n << 30, 'M' => $n << 20, 'K' => $n << 10, default => $n };
+};
+$check($toBytes((string) ini_get('upload_max_filesize')) >= 25 << 20,
+    'limit uploadu PHP: ' . ini_get('upload_max_filesize') . ' (CLI; WWW czyta public/.user.ini)',
+    'ustaw upload_max_filesize ≥ 30M w cPanel → MultiPHP INI Editor (public/.user.ini robi to dla WWW)');
 $check(defined('PASSWORD_ARGON2ID'), 'hasła Argon2id', 'brak — użyty zostanie bcrypt (akceptowalne)');
 foreach (['logs', 'cache', 'uploads', 'sessions', 'backups'] as $dir) {
     $path = APP_ROOT . '/storage/' . $dir;

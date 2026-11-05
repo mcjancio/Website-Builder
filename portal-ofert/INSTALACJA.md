@@ -61,7 +61,13 @@ Instalator sprawdzi wymagania i połączenie z bazą, wykona migracje, zaimportu
   Sprawdzenie: `php bin/worker.php --ping --verbose`, a po minucie `/health` musi pokazywać `"queue":"ok"`.
 - **Monitoring** (UptimeRobot / Better Stack): `https://oferty.twojadomena.pl/health` — 200 = ok, 503 = problem (baza, zapis plików, niewykonane migracje, stojąca kolejka). Z `health.token` w configu: `/health?token=…` pokazuje też liczniki kolejki.
 
-## 6. Polecenia na co dzień
+## 6. Pliki i limity PHP
+
+Zdjęcia i dokumenty ofert leżą w `~/portal/storage/uploads` (poza `public_html`) i są wydawane przez PHP po sprawdzeniu uprawnień. Plik `public/.user.ini` podnosi limity PHP dla portalu (upload do 30 MB, 64 MB na żądanie). Jeśli hosting go ignoruje, ustaw te same wartości w **cPanel → MultiPHP INI Editor**. `php bin/install.php --check` ostrzega, gdy limit jest za niski.
+
+Kopie zapasowe muszą obejmować bazę **i** katalog `storage/uploads` (etap 6: `bin/backup.php`).
+
+## 7. Polecenia na co dzień
 
 | Polecenie | Do czego |
 |---|---|
@@ -73,13 +79,16 @@ Instalator sprawdzi wymagania i połączenie z bazą, wykona migracje, zaimportu
 | `… --overwrite` | Nadpisanie stron treści i ustawień zmienionych w panelu |
 | `php bin/create-admin.php` | Nowy administrator albo nadanie roli istniejącemu kontu |
 | `php bin/worker.php --verbose` | Ręczne przetworzenie kolejki |
+| `php bin/moderate.php` | Oferty i zmiany czekające na akceptację (do czasu panelu w etapie 5) |
+| `php bin/moderate.php --approve=12` | Akceptacja oferty #12 albo jej zmian — autor dostaje e-mail |
+| `php bin/moderate.php --reject=12 --reason="…"` | Odrzucenie z uzasadnieniem widocznym dla autora |
 
-## 7. Lokalnie (dla programisty)
+## 8. Lokalnie (dla programisty)
 
 ```bash
 cp config.example.php config.php           # debug => true, hsts => false, dane lokalnej bazy
 php bin/install.php --preset=presets/inwestycje-deweloperskie.json
-php -S 127.0.0.1:8080 -t public public/index.php
+php -d upload_max_filesize=30M -d post_max_size=64M -S 127.0.0.1:8080 -t public public/index.php
 
 # testy (bez bazy / z bazą testową — UWAGA: testy z bazą czyszczą wskazaną bazę)
 php tests/run.php

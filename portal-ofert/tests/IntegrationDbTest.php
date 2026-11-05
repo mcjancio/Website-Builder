@@ -23,6 +23,8 @@ function test_reset_db(): void
     DB::pdo()->exec('SET FOREIGN_KEY_CHECKS = 1');
     (new Migrator(APP_ROOT . '/migrations'))->migrate();
     Settings::flush();
+    \App\Listings\Fields::flush();
+    \App\Access\Gate::flush();
 }
 
 function preset_file(string $name): array

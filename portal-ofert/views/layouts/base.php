@@ -39,6 +39,7 @@ try {
                     <li><a href="<?= e(url($p['slug'])) ?>"><?= e($p['title']) ?></a></li>
                 <?php endforeach; ?>
                 <?php if ($currentUser): ?>
+                    <li><a href="<?= e(url('/moje-oferty')) ?>"><?= e(__('mine.title')) ?></a></li>
                     <li><a href="<?= e(url('/konto')) ?>"><?= e(__('nav.account')) ?></a></li>
                     <li>
                         <form method="post" action="<?= e(url('/wyloguj')) ?>" class="inline-form">

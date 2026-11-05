@@ -23,7 +23,12 @@ return [
         $dynamic = array_merge(
             array_map(fn($r) => 'validation.' . $r, ['required', 'accepted', 'email', 'maxlength', 'minlength', 'int', 'decimal', 'min', 'max', 'date', 'in', 'url', 'phone_pl', 'nip']),
             ['otp.invalid', 'otp.expired', 'otp.too_many', 'otp.sent_whatsapp', 'otp.sent_sms', 'otp.sent_sms_fallback',
-             'register.phone_hint_whatsapp', 'register.phone_hint_sms', 'register.phone_hint_none'],
+             'register.phone_hint_whatsapp', 'register.phone_hint_sms', 'register.phone_hint_none',
+             'access.level_1', 'access.level_2', 'access.level_3', 'media.state_pending_add', 'media.state_pending_remove',
+             'email.moderation.subject_new', 'email.moderation.subject_revision', 'email.moderation.text_new', 'email.moderation.text_revision',
+             'email.approved.subject_new', 'email.approved.subject_revision', 'email.approved.text_new', 'email.approved.text_revision',
+             'email.rejected.text_new', 'email.rejected.text_revision', 'upload.too_large_server', 'upload.partial', 'upload.failed'],
+            array_map(fn($s) => 'status.' . $s, ['draft', 'pending', 'published', 'paused', 'sold', 'archived', 'rejected']),
         );
         foreach ($dynamic as $key) {
             if (!Lang::has($key)) {

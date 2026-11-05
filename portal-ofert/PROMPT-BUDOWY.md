@@ -97,7 +97,7 @@ Test: pełna ścieżka na telefonie (360 px) < 90 s; zły NIP, zły kod SMS ×5,
 wygaśnięcie kodu, reset hasła zalogowanego użytkownika.
 ```
 
-## Etap 3 — Oferty: kreator, wartości pól, media, załączniki
+## Etap 3 — Oferty: kreator, wartości pól, media, załączniki ✅ (zrealizowany — moderacja tymczasowo z CLI: bin/moderate.php)
 
 ```text
 ETAP 3: oferty wg KONCEPCJA.md §5.3 i §6.

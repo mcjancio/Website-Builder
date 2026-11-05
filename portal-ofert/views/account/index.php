@@ -35,6 +35,10 @@
         <dd><?= e($user['totp_enabled_at'] ? __('twofa.status_on') : __('twofa.status_off')) ?> · <a href="<?= e(url('/konto/2fa')) ?>"><?= e(__('twofa.manage')) ?></a></dd>
     </dl>
 
+    <p class="account-links">
+        <a class="button" href="<?= e(url('/dodaj-oferte')) ?>"><?= e(__('term.listing_add')) ?></a>
+        <a class="button button--secondary" href="<?= e(url('/moje-oferty')) ?>"><?= e(__('mine.title')) ?></a>
+    </p>
     <p class="muted"><?= e(__('account.coming_soon')) ?></p>
     <p><a href="<?= e(url('/reset-hasla')) ?>"><?= e(__('account.change_password')) ?></a></p>
 </section>

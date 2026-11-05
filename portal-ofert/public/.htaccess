@@ -21,6 +21,8 @@ ServerSignature Off
     RewriteRule ^ index.php [QSA,L]
 </IfModule>
 
+# .user.ini (limity PHP) nie może być pobierany z WWW — blokuje go też reguła plików ukrytych.
+
 # Jedynym wykonywalnym plikiem PHP jest index.php.
 <FilesMatch "\.(php|phtml|phar|inc)$">
     Require all denied

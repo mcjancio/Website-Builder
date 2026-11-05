@@ -196,6 +196,7 @@ final class Importer
             throw $e;
         }
         Settings::flush();
+        \App\Listings\Fields::flush();
         ksort($this->report);
         return $this->report;
     }

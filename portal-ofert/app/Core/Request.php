@@ -72,7 +72,7 @@ final class Request
     public function str(string $key, string $default = ''): string
     {
         $v = $this->input($key, $default);
-        return is_string($v) ? trim($v) : $default;
+        return is_scalar($v) ? trim((string) $v) : $default;
     }
 
     public function header(string $name): ?string
