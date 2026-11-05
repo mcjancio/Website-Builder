@@ -1,0 +1,52 @@
+# Portal Ofert — document root subdomeny (Apache / LiteSpeed na cPanelu)
+
+Options -Indexes -MultiViews
+DirectoryIndex index.php
+ServerSignature Off
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Pliki i katalogi ukryte (.portal-root, .git, .env…) — zawsze 403. Wyjątek: .well-known (AutoSSL).
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+
+    # Wymuszenie HTTPS (także za proxy, np. Cloudflare). Lokalnie (localhost) bez przekierowania.
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+    RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+    # Wszystko, co nie jest istniejącym plikiem, idzie do index.php.
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+# Jedynym wykonywalnym plikiem PHP jest index.php.
+<FilesMatch "\.(php|phtml|phar|inc)$">
+    Require all denied
+</FilesMatch>
+<Files "index.php">
+    Require all granted
+</Files>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" "expr=%{HTTPS} == 'on'"
+    Header unset X-Powered-By
+
+    # Zasoby statyczne z parametrem ?v= — długi cache.
+    <FilesMatch "\.(css|js|svg|png|jpe?g|webp|avif|woff2|ico)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml text/plain
+</IfModule>
+
+AddType image/webp .webp
+AddType image/avif .avif
+AddType font/woff2 .woff2

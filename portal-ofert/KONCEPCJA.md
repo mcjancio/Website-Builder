@@ -138,7 +138,7 @@ Preset zawiera:
 - `fields` — definicje pól: `key`, `label`, `type` (`text`, `textarea`, `int`, `decimal`, `money`, `percent`, `date`, `select`, `multiselect`, `bool`, `url`, `region`), `options`, `required`, `access_level`, `filterable`, `filter_ui` (`select`, `checkboxes`, `range`), `show_in_card`, `group`, `help`, `categories` (dla których kategorii pole się pokazuje).
 - `limits` — długość krótkiego opisu, liczba zdjęć/plików, rozmiary.
 
-**Przechowywanie wartości pól** (szczegóły w `schema.sql`): tabela `listing_values` z kolumnami typowanymi (`v_int`, `v_dec`, `v_text`, `v_date`, `currency`) i indeksami pod filtry + `listing_value_options` dla wielokrotnego wyboru. Filtry działają na indeksach SQL, nie na przeszukiwaniu JSON-ów. Zmiana opcji w panelu nie psuje starych ofert (opcje mają stałe `id`, etykiety można zmieniać, a opcję można ukryć zamiast ją usuwać).
+**Przechowywanie wartości pól** (szczegóły w `migrations/001_init.sql`): tabela `listing_values` z kolumnami typowanymi (`v_int`, `v_dec`, `v_text`, `v_date`, `currency`) i indeksami pod filtry + `listing_value_options` dla wielokrotnego wyboru. Filtry działają na indeksach SQL, nie na przeszukiwaniu JSON-ów. Zmiana opcji w panelu nie psuje starych ofert (opcje mają stałe `id`, etykiety można zmieniać, a opcję można ukryć zamiast ją usuwać).
 
 Nowy portal = nowa subdomena w cPanelu + `config.php` + import presetu + logo. Szacunkowo 1–2 dni zamiast nowego projektu.
 
@@ -249,7 +249,7 @@ Technicznie: wywołania Claude API z PHP (cURL), ustrukturyzowany JSON zgodny z 
 
 ## 10. Model danych (skrót)
 
-Pełny schemat: [`schema.sql`](schema.sql).
+Pełny schemat: [`migrations/001_init.sql`](migrations/001_init.sql).
 
 ```
 users ─┬─< user_tokens (remember-me, reset, email-verify)

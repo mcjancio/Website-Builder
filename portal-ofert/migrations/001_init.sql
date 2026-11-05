@@ -1,5 +1,6 @@
 -- =====================================================================
--- Portal Ofert — schemat bazy danych v1.0
+-- Portal Ofert — migracja 001: schemat bazy danych v1.0
+-- Uruchamiana przez: php bin/migrate.php (wpis w tabeli migrations dodaje migrator)
 -- MySQL 8.0+ / MariaDB 10.6+ · utf8mb4 · InnoDB
 -- Uniwersalny: branża definiowana presetem (categories + field_definitions)
 -- =====================================================================
@@ -414,9 +415,5 @@ CREATE TABLE ai_usage (                   -- kontrola kosztów modułu AI
   KEY idx_created (created_at)
 ) ENGINE=InnoDB;
 
-CREATE TABLE migrations (
-  version      VARCHAR(50) PRIMARY KEY,
-  applied_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+-- Tabelę `migrations` tworzy sam migrator (App\Core\Migrator) przed pierwszą migracją.
 
-INSERT INTO migrations (version) VALUES ('001_init');

@@ -1,0 +1,31 @@
+---
+# Wdrożenie przez cPanel → Git™ Version Control → „Deploy HEAD Commit”.
+#
+# UWAGA: cPanel czyta ten plik tylko z KATALOGU GŁÓWNEGO repozytorium.
+# Portal docelowo ma własne repo (wtedy ten plik leży w jego korzeniu i SRC=.).
+# Dopóki kod jest w podkatalogu portal-ofert/ repo Website-Builder, skopiuj ten plik
+# do korzenia repo i ustaw SRC=portal-ofert.
+#
+# Ustaw raz w cPanelu (lub zmień poniżej):
+#   APP = katalog aplikacji POZA public_html
+#   WEB = document root subdomeny
+#
+# Pierwsze wdrożenie: po „Deploy” utwórz $APP/config.php i uruchom przez SSH/Terminal:
+#   php $APP/bin/install.php --preset=presets/inwestycje-deweloperskie.json
+# Kolejne wdrożenia wykonują migracje automatycznie.
+deployment:
+  tasks:
+    - export SRC=.
+    - export APP=$HOME/portal
+    - export WEB=$HOME/public_html/inwestycje
+    - /bin/mkdir -p $APP $WEB
+    # Kod aplikacji (bez config.php i danych w storage/)
+    - /bin/rsync -a --delete --exclude=/config.php --exclude=/storage/ --exclude=/public/ --exclude=/.git/ $SRC/ $APP/
+    - /bin/mkdir -p $APP/storage/logs $APP/storage/cache $APP/storage/uploads $APP/storage/sessions $APP/storage/backups
+    - /bin/cp -n $SRC/storage/.htaccess $APP/storage/.htaccess
+    - /bin/chmod 750 $APP/storage
+    # Pliki publiczne (index.php, .htaccess, assets/) + wskazanie katalogu aplikacji
+    - /bin/rsync -a --delete --exclude=/.portal-root --exclude=/.well-known/ $SRC/public/ $WEB/
+    - /bin/echo "$APP" > $WEB/.portal-root
+    # Migracje (tylko gdy aplikacja jest już skonfigurowana)
+    - /bin/sh -c "test -f $APP/config.php && /usr/local/bin/php $APP/bin/migrate.php || true"

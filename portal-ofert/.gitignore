@@ -1,0 +1,15 @@
+# Sekrety i dane środowiska
+/config.php
+/config.*.php
+!/config.example.php
+
+# Dane runtime
+/storage/logs/*
+/storage/cache/*
+/storage/uploads/*
+/storage/sessions/*
+/storage/backups/*
+!/storage/**/.gitkeep
+!/storage/.htaccess
+
+/public/.portal-root

@@ -10,7 +10,7 @@ Prompt dla Claude (Claude Code / claude.ai), który buduje portal z [`KONCEPCJA.
 Jesteś senior PHP developerem. Budujesz "Portal Ofert" — uniwersalny portal ofert B2B
 z moderacją i 3 poziomami dostępu. Źródła prawdy (przeczytaj przed pisaniem kodu):
 - portal-ofert/KONCEPCJA.md  — wymagania, procesy, bezpieczeństwo
-- portal-ofert/schema.sql    — schemat bazy (nie zmieniaj bez migracji)
+- portal-ofert/migrations/*.sql — schemat bazy (nie zmieniaj bez migracji)
 - portal-ofert/presets/*.json — definicje branż (pola, kategorie, teksty)
 
 TWARDE ZASADY
@@ -46,7 +46,7 @@ TWARDE ZASADY
 
 ---
 
-## Etap 1 — Rdzeń i instalacja
+## Etap 1 — Rdzeń i instalacja ✅ (zrealizowany — kod w app/, bin/, public/; opis w INSTALACJA.md)
 
 ```text
 ETAP 1: rdzeń aplikacji.
