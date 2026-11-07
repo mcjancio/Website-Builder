@@ -52,14 +52,15 @@ js/app.js
 fonts/*.woff2
 img/*.{avif,webp,jpg}
 ```
-* In `index.html` use **relative paths with no leading slash**: `css/site.css`, `fonts/display.woff2`, `img/hero.avif`, favicon `img/favicon.svg`. **Never** `/fonts/…` or `/favicon.svg` (root-relative links are not "relative links" and are not rewritten → 404).
+* In `index.html` use **relative paths with no leading slash**: `css/site.css`, `fonts/display.woff2`, `img/hero.avif`, favicon `img/favicon.svg`. **Never** `/fonts/…` or `/favicon.svg` (root-relative links are not part of the documented rewriting; in a 2026-10-17 test a root-absolute `/img/x.png` in `index.html` was in fact prefixed to `/assets/img/x.png`, but do not rely on it).
 * Put `@font-face`/`url()` in the **external** `css/site.css` and reference siblings with `../fonts/…`, `../img/…` — correct for the stored location `assets/css/site.css` whether or not rewriting happens. If CSS must stay inline (`<style>`), you cannot rely on `url()` rewriting inside it → use absolute `https://` URLs or switch to the external file.
+* **Tested 2026-10-17 (throw-away site `wb-test-paths`):** links in `index.html` are rewritten **only when `index.html` is published together with the other files in the same call**. An index-only publish (`update_site`, or `publish_files` with just `index.html`) rewrites nothing, so when editing a multi-file site re-send the whole file set (or write the `assets/` prefix yourself). `imagesrcset` on `<link rel=preload>` is never rewritten — write `assets/img/…` there explicitly. Inline `<style>` `url()` was rewritten, but external CSS stays the safer choice.
 * Pages other than `index.html` end up under `assets/`; **Hostilo does not document routing for sub-pages.** Default to a **one-page site with anchor navigation**. Build multi-page only if the user explicitly asks, and then tell them the sub-page URLs must be smoke-tested (they may live under `/assets/…`) and that `canonical`/sitemaps for them are unverified.
 * Root files (`robots.txt`, `sitemap.xml`, `404.html`) are also stored under `assets/` → **do not promise** working `/robots.txt` or `/sitemap.xml`. Skip them unless the user confirms the platform serves them at the root.
 
 ## 4. Site URL, canonical and social tags
 
-The live domain is whatever the tool returns (`url`/`hostilo_url`, currently `https://<name>.hostilo.page`); the README still mentions `.hostilo.app`. So:
+The live domain is whatever the tool returns (`url`/`hostilo_url`, currently `https://<name>.hostilo.page`); the README still mentions `.hostilo.app`. (`create_site` itself returned `https://<name>.hostilo.app` on 2026-10-17, so the domain has changed over time — one more reason never to hard-code it.) So:
 1. Ask for / agree the site name early (3–30 chars) — the expected URL is `https://<name>.hostilo.page`, **confirmed only after `create_site` returns it**.
 2. Build with `{{SITE_URL}}` placeholders in `canonical`, `og:url`, `og:image`, `twitter:image`, JSON-LD `url`/`@id`.
 3. After `create_site`/`publish_files` returns the real URL, substitute it and republish (`update_site`/`publish_files`). If not publishing via MCP, ask the user for the final URL (or custom domain) before finalising; otherwise leave the placeholders clearly marked and list them in the handoff.
@@ -75,7 +76,7 @@ The live domain is whatever the tool returns (`url`/`hostilo_url`, currently `ht
 
 ## 6. Publishing through the Hostilo MCP connector (when available)
 
-Detect it by the presence of tools such as `list_sites`, `create_site`, `publish_files`. If missing, offer setup (Claude: Settings → Connectors → Add custom connector → `https://hostilo.app/mcp`; Claude Code: `claude mcp add --transport http hostilo https://hostilo.app/mcp`) or fall back to §9.
+Detect it by the presence of tools such as `list_sites`, `create_site`, `publish_files`. If missing, offer setup (Claude: Settings → Connectors → Add custom connector → `https://hostilo.app/mcp`; Claude Code: `claude mcp add --transport http hostilo https://hostilo.app/mcp`) or fall back to §9. The connector is also listed in Claude's connector directory (registry search, 2026-11-07), so it can be enabled from Settings → Connectors without a custom URL.
 
 1. `list_sites` (paginated) — find an existing site or confirm the name is free.
 2. **New site:** `create_site` with `name` + `html` (single file) or `files` (multi-file). **Existing site:** `get_site` → keep its `version` → edit → `update_site`/`publish_files` with `expected_version`.
@@ -94,7 +95,7 @@ Detect it by the presence of tools such as `list_sites`, `create_site`, `publish
 
 ## 8. Analytics and privacy
 
-Hostilo provides cookieless visitor stats (`get_site_stats`), so **do not add third-party analytics or tag managers by default**. Add them only if the user explicitly asks (then update the CSP and mention consent requirements). Self-hosted fonts remain preferred (no third-party requests).
+Hostilo provides cookieless visitor stats (`get_site_stats`) and a report of AI-crawler visits (`get_ai_traffic`: ChatGPT, Claude, Perplexity and others, by format — HTML, Markdown, llms.txt, robots.txt; per-bot detail on PRO), so **do not add third-party analytics or tag managers by default**. Add them only if the user explicitly asks (then update the CSP and mention consent requirements). Self-hosted fonts remain preferred (no third-party requests).
 
 ## 9. Handoff (no MCP connector)
 
@@ -108,4 +109,4 @@ Hostilo provides cookieless visitor stats (`get_site_stats`), so **do not add th
 
 ## 11. Not verified (say so if asked)
 
-Routing/URLs of sub-pages; whether `/robots.txt` and `/sitemap.xml` can be served; whether rewriting also covers `<link rel=preload>`, `srcset`, `imagesrcset`, CSS `url()` and is idempotent for paths already starting with `assets/`; atomicity/CDN propagation of a publish; the exact form endpoint and its spam protection; whether the `<meta generator>` tags are used; whether Free sites show the badge in all templates; which domain (`.hostilo.page` vs `.hostilo.app`) is canonical long-term. Re-check these when Hostilo publishes documentation or after a smoke test.
+Routing/URLs of sub-pages; whether `/robots.txt` and `/sitemap.xml` can be served; rewriting of multi-candidate `srcset`, `style="…url()"` and `<meta content>` (e.g. `og:image`), of stored external CSS, and idempotency for already-prefixed `assets/…` paths in a full publish (tested 2026-10-17, see the test note in the path rules: `<link rel=preload href>`, `<script src>`, `<img src>`, single-candidate `<source srcset>`, inline `<style>` `url()` and `<a href>` ARE rewritten; `imagesrcset` is NOT; NOTHING is rewritten when `index.html` is published without the other files); atomicity/CDN propagation of a publish; the exact form endpoint and its spam protection; whether the `<meta generator>` tags are used; whether Free sites show the badge in all templates; which domain (`.hostilo.page` vs `.hostilo.app`) is canonical long-term. Re-check these when Hostilo publishes documentation or after a smoke test.
