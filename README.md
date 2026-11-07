@@ -73,6 +73,12 @@ The same block also works as **ChatGPT Project** instructions.
 
 ---
 
+### Run it straight from Claude (Hostilo connector)
+
+Hostilo is available as the `hostilo.app` connector in Claude's connector directory. Enable it (claude.ai: Settings → Connectors; Claude Code: add the MCP server) and the skill runs the whole cycle in the conversation: brief → build → `dry_run` → publish → verify → rollback (`restore_version`) → traffic (`get_site_stats`, `get_ai_traffic`). Without the connector (e.g. ChatGPT) the skill falls back to the paste-and-publish ritual.
+
+---
+
 ## Usage
 
 **Guided:**

@@ -55,6 +55,8 @@
 - [ ] Limits respected: ≤ 300 files, ≤ 10 MB per file, ≤ 20 MB total, single `html` ≤ 5 MB; only allowed file types; no video files
 - [ ] `dry_run` passed (MCP deploy) and site name confirmed with the user
 - [ ] Live URL opened: no 404 on `assets/…` (fonts, CSS, JS, images, `og:image`)
+- [ ] URL returned by the publish call matches the address used in canonical, `og:*` and JSON-LD
+- [ ] Handover mentions rollback (`list_versions` / `restore_version`) and later checks: `get_site_stats`, `get_ai_traffic` (AI crawler visits by bot and format)
 - [ ] Post-publish smoke test of the live URL on a real phone
 - [ ] No `console.log`, no secrets/API keys in client code
 

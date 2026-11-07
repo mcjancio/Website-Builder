@@ -14,6 +14,8 @@
 6. After collecting everything — summarize, present the auto-selected design direction, ask for confirmation
 7. Only then start coding
 
+**Before the first question (internal):** check whether the `hostilo.app` connector tools are available (e.g. `list_sites`). If yes, say once that you can publish the finished site for them; if no, plan on the paste ritual.
+
 ### WORKFLOW SCRIPT (copy-paste)
 
 ```

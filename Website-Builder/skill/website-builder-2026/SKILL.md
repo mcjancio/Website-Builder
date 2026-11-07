@@ -1,6 +1,6 @@
 ---
 name: website-builder-2026
-description: Build production-ready static websites — landing pages, portfolios, blogs, corporate sites and web-app UIs — that are WCAG 2.2 AA accessible, Core Web Vitals green (LCP under 2.5s, CLS under 0.1, INP under 200ms), optimized for classic SEO and AI Search (GEO/AEO, JSON-LD schema pack, FAQPage), visually unique via industry-mapped aesthetics (zero AI-slop), and instantly deployable on hostilo.app. Use this skill whenever the user wants to create, design, code, redesign, improve or audit any website or web page — even casual requests like "make me a page for X", "zrób mi stronę", anything mentioning hostilo.app, landing pages, HTML/CSS sites, or a website brief.
+description: Build production-ready static websites — landing pages, portfolios, blogs, corporate sites and web-app UIs — that are WCAG 2.2 AA accessible, Core Web Vitals green (LCP under 2.5s, CLS under 0.1, INP under 200ms), optimized for classic SEO and AI Search (GEO/AEO, JSON-LD schema pack, FAQPage), visually unique via industry-mapped aesthetics (zero AI-slop), and instantly deployable on hostilo.app (publishable straight from Claude chat or Claude Code through the hostilo.app connector). Use this skill whenever the user wants to create, design, code, redesign, improve or audit any website or web page — even casual requests like "make me a page for X", "zrób mi stronę", anything mentioning hostilo.app, landing pages, HTML/CSS sites, or a website brief.
 ---
 
 # Website Builder 2026
@@ -46,7 +46,7 @@ Read these references and follow their code foundations exactly, filling placeho
 
 ### Step 4 — Deployment packaging
 
-Read `references/hostilo-deployment.md`: single vs multi-file rules and the `assets/` relocation, platform limits (no video files, 20 MB total), the forms endpoint (unconfirmed; `action="#"` + TODO + `mailto:` fallback when no FORM_ID exists), headers vs `<meta>`, built-in stats, templates, and the deploy paths: publish yourself through the Hostilo MCP tools when they are available (`dry_run` first, confirm the site name before `create_site`), otherwise hand the user the paste-and-publish ritual.
+Read `references/hostilo-deployment.md`: single vs multi-file rules and the `assets/` relocation, platform limits (no video files, 20 MB total), the forms endpoint (unconfirmed; `action="#"` + TODO + `mailto:` fallback when no FORM_ID exists), headers vs `<meta>`, templates, and the deploy paths. **If the `hostilo.app` connector tools are available (Claude chat or Claude Code), run the full cycle yourself:** `dry_run` → publish (confirm the site name before `create_site`, publish only after the user agrees) → verify → hand over the URL, rollback and later `get_site_stats` / `get_ai_traffic`. Without those tools, hand the user the paste-and-publish ritual.
 
 ### Step 5 — QA before delivery
 

@@ -1540,17 +1540,30 @@ Every generated site must be **deployable on hostilo.app in 30 seconds**. Hostil
 
 **9. Templates** — for small local businesses (café, plumber, electrician, hair salon, accountant…) Hostilo has ready-made designs (`list_templates`; `create_site` with `template`, `template_variant`, `template_fields`, `lang` incl. `pl`). Offer a template when speed matters more than a bespoke design; otherwise build from scratch.
 
-**10. Deploy — pick the path**
+**10. Where it runs — the `hostilo.app` connector**
 
-*A. Hostilo MCP tools available (preferred):*
-1. `list_sites` — find an existing site or confirm the name is free.
-2. New site: `create_site` with `name` plus `html` (single-file) or `files` (multi-file; base64 + `encoding: "base64"` for images/fonts). Existing single-file site: `get_site` (note `version`), then `update_site` with `expected_version` to avoid `version_conflict`. Existing multi-file site: `publish_files` with `index.html` AND all other files in the same call (an index-only publish skips link rewriting, see §2).
-3. For multi-file or risky updates run `publish_files` / `import_zip` with `dry_run: true` first.
-4. Never publish a page `get_site` flagged as TRUNCATED.
-5. Report the live URL. Mention `list_versions` / `restore_version` (last 10 versions kept) for rollback and `get_site_stats` for traffic.
-6. Creating a site counts toward the plan's site limit: confirm the name with the user before `create_site`.
+Hostilo is listed in Claude's connector directory as the `hostilo.app` connector (an MCP server). With it enabled, the whole job — brief, build, publish, verify, rollback, traffic — happens inside one conversation:
 
-*B. No MCP (ChatGPT, plain chat) — the 30-second ritual:*
+- **Claude chat** (claude.ai, desktop, mobile): enable the connector in Settings → Connectors, then ask for the site.
+- **Claude Code**: add the same MCP server; tools show up as `mcp__hostilo_app__*`. You can also build the files in the project folder and publish them from there.
+- **ChatGPT / any client without Hostilo tools**: use path B (paste ritual) below.
+
+Tool map: `list_sites`, `list_templates`, `create_site`, `get_site`, `update_site`, `publish_files`, `import_zip`, `list_versions`, `restore_version`, `get_site_stats`, `get_ai_traffic`.
+
+**11. Deploy — pick the path**
+
+*A. Hostilo tools available (preferred) — full cycle from chat:*
+1. Detect the tools first (`list_sites` works = connected). If they are missing, fall to path B and say why.
+2. `list_sites` — find the site to update or confirm the name is free. Small local business? Offer `list_templates` + `create_site` with `template` before building from scratch.
+3. Build the files per this skill. The public address is `https://<name>.hostilo.app` — use it for canonical, `og:*` and JSON-LD.
+4. `dry_run: true` (`publish_files` / `import_zip`) and read the report.
+5. Publish only after the user said to ("Build!", "publish"). New site: confirm the name first (it counts toward the plan's site limit), then `create_site` with `html` (single-file) or `files` (multi-file). Existing single-file site: `get_site` (note `version`), then `update_site` with `expected_version`. Existing multi-file site: `publish_files` with `index.html` AND all other files in one call (an index-only publish skips link rewriting, see §2). Many or large binaries: build a ZIP and use `import_zip` with `zip_url` (e.g. a GitHub archive URL) or `zip_base64` instead of inlining base64 in the conversation. Never publish a page `get_site` flagged as TRUNCATED.
+6. Read the `url` the tool returns. If it differs from the address you used in canonical/`og:*`/JSON-LD (tool descriptions also mention other Hostilo domains), republish the full set with the correct URLs.
+7. Verify: `get_site` shows links rewritten to `assets/`; open the live URL if the environment can reach it.
+8. Hand over: live URL, rollback (`list_versions` / `restore_version`, last 10 versions), and where to look at traffic.
+9. Later, close the loop: `get_site_stats` (views, visitors; sources/devices/top pages on PRO) and `get_ai_traffic` (which AI crawlers read the site — ChatGPT, Claude, Perplexity and others — and in which format: HTML, Markdown, llms.txt, robots.txt; per-bot detail on PRO). Use it to judge the GEO/AEO work and iterate.
+
+*B. No Hostilo tools (ChatGPT, plain chat) — the 30-second ritual:*
 1. Copy the final HTML (or gather the file set / ZIP).
 2. Paste/upload at **hostilo.app**.
 3. Publish — live in ~30 seconds, no build, no config.
@@ -1935,6 +1948,8 @@ const projectBrief = {
 - [ ] Limits respected: ≤ 300 files, ≤ 10 MB per file, ≤ 20 MB total, single `html` ≤ 5 MB; only allowed file types; no video files
 - [ ] `dry_run` passed (MCP deploy) and site name confirmed with the user
 - [ ] Live URL opened: no 404 on `assets/…` (fonts, CSS, JS, images, `og:image`)
+- [ ] URL returned by the publish call matches the address used in canonical, `og:*` and JSON-LD
+- [ ] Handover mentions rollback (`list_versions` / `restore_version`) and later checks: `get_site_stats`, `get_ai_traffic` (AI crawler visits by bot and format)
 - [ ] Post-publish smoke test of the live URL on a real phone
 - [ ] No `console.log`, no secrets/API keys in client code
 
