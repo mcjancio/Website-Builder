@@ -54,11 +54,12 @@
 - [ ] Delivery path chosen deliberately (template vs custom; connector vs hand-over)
 - [ ] Single-file ≤ 5 MB, zero external CSS/JS files, fonts via Strategy B
 - [ ] Multi-file ≤ 300 files / 10 MB per file / 20 MB total; relative paths **without leading slash**; `@font-face`/`url()` only in external CSS using `../`; no inline `<style>` relying on rewriting
-- [ ] `dry_run` done before multi-file publish; existing site published with `expected_version`
+- [ ] `dry_run` done before multi-file publish; existing site published with `expected_version`; multi-file edits re-send `index.html` together with all other files (an index-only publish rewrites nothing)
+- [ ] `imagesrcset` on the hero preload carries an explicit `assets/` prefix (Hostilo does not rewrite it)
 - [ ] `{{SITE_URL}}` placeholders all replaced with the URL returned by Hostilo (canonical, og:url, og:image, twitter:image, JSON-LD) — or listed as open items
 - [ ] No promise of `/robots.txt`, `/sitemap.xml` or sub-page URLs unless smoke-tested
 - [ ] Post-publish: `get_site` shows rewritten asset links; live URL opened on a real phone; Lighthouse run on the live URL
-- [ ] User told about: version history/restore, Free vs PRO limits relevant to the brief (custom domain, badge, form quota), any unverified items
+- [ ] User told about: version history/restore, later checks (`get_site_stats`, `get_ai_traffic`), Free vs PRO limits relevant to the brief (custom domain, badge, form quota), any unverified items
 - [ ] No `console.log`, no secrets/API keys in client code
 
 ---

@@ -89,7 +89,7 @@
 
   <!-- ============ LCP IMAGE PRELOAD (hero only, if hero has an image) ============ -->
   <link rel="preload" as="image" href="img/hero-lg.avif"
-        imagesrcset="img/hero-sm.avif 640w, img/hero-md.avif 1024w, img/hero-lg.avif 1920w"
+        imagesrcset="assets/img/hero-sm.avif 640w, assets/img/hero-md.avif 1024w, assets/img/hero-lg.avif 1920w"
         imagesizes="100vw" fetchpriority="high">
 
   <!-- ============ CRITICAL CSS (inline: @layer declaration + tokens + above-the-fold) ============ -->
