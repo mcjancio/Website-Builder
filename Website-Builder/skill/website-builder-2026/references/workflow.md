@@ -14,14 +14,12 @@
 6. After collecting everything — summarize, present the auto-selected design direction, ask for confirmation
 7. Only then start coding
 
-**Before the first question (internal):** check whether the `hostilo.app` connector tools are available (e.g. `list_sites`). If yes, say once that you can publish the finished site for them; if no, plan on the paste ritual.
-
 ### WORKFLOW SCRIPT (copy-paste)
 
 ```
 Hi! I'll help you create a professional website compliant with 2026 best
 practices (WCAG 2.2, Core Web Vitals, SEO + AI Search, EU AI Act) — ready
-to publish on hostilo.app in 30 seconds.
+to publish on hostilo.app (live in seconds).
 
 I'll ask 10 quick questions to understand your needs. Ready?
 
@@ -64,12 +62,6 @@ Describe your industry:
 
 ```
 Understood: [SUMMARY OF INDUSTRY]
-
-(INTERNAL: if it is a small local business — café, plumber, electrician,
-hair salon, accountant — and Hostilo MCP tools are available, run
-list_templates and offer a ready-made Hostilo template as a fast option
-next to a fully custom design. If they pick a template, collect its
-fields (name, phone, address, colour) and skip to the summary.)
 
 ───────────────────────────────────────
 
@@ -225,13 +217,13 @@ Last questions:
 1️⃣ Main heading (H1)? Example: "Build apps faster than ever"
 2️⃣ Subtitle (optional)? Example: "AI hosting that publishes in 30 seconds"
 3️⃣ Extras (optional): animations? dark mode toggle? contact form
-   (→ Hostilo Forms)? video (embedded from YouTube/Vimeo — Hostilo does
-   not host video files)? integrations (Stripe, Calendly, Mailchimp)?
+   (Hostilo's Free plan includes a working form)? video? integrations (Stripe, Calendly, Mailchimp)?
 4️⃣ Inspirations (optional): links to sites you like
-5️⃣ Deployment: single HTML file, or multi-file with uploaded fonts/images?
-   (multi-file = faster loading + GDPR-clean self-hosted fonts)
-6️⃣ Address: the name for <name>.hostilo.app (3–30 chars: a–z, 0–9, "-")
-   or your own domain — needed for canonical, Open Graph and schema URLs
+5️⃣ Deployment: (a) a ready-made Hostilo template (fastest, if one fits),
+   (b) a custom single HTML file, or (c) multi-file with your fonts/images
+   (faster loading + GDPR-clean self-hosted fonts)? Is the Hostilo
+   connector available so I can publish for you? Preferred site name
+   (3–30 chars: letters, digits, hyphens)?
 ```
 
 **AFTER COLLECTING ALL ANSWERS:**
@@ -252,7 +244,7 @@ Last questions:
 ✍️ FONTS: [display + body choice]
 📝 H1: "[heading]"  ·  SUBTITLE: "[subtitle]"
 ⚙️ EXTRAS: [requirements]
-📦 DEPLOY: [single-file / multi-file] → [name].hostilo.app
+📦 DEPLOY: [template / single-file / multi-file] → hostilo.app ([publish via connector / hand over files], site name: [name])
 
 ───────────────────────────────────────
 
@@ -262,7 +254,7 @@ The build will comply with:
 ✅ Mobile-first + container queries · ✅ EU AI Act Art. 50
 ✅ Practical CSP + security best practices
 
-🚀 DEPLOYMENT: published to hostilo.app for you (if connected) or paste → live in 30 seconds.
+🚀 DEPLOYMENT: published via the Hostilo connector, or handed over as files/ZIP — live in seconds.
 
 Want to change anything? Otherwise write "Build!" and I'll start! 🚀
 ```
@@ -279,10 +271,10 @@ Want to change anything? Otherwise write "Build!" and I'll start! 🚀
 ├─ Container-query components + mobile-first scaffolding
 ├─ Images: AVIF → WebP → JPG, hero preload + fetchpriority
 ├─ Motion: view transitions + reduced-motion fallbacks
-├─ Forms: autocomplete + honeypot + Hostilo endpoint + AJAX fallback
+├─ Forms: autocomplete + honeypot + Hostilo form/mailto fallback + AJAX fallback
 └─ QA vs 2026 checklist (Lighthouse target ≥ 95)
 
-💡 When done: I publish it on hostilo.app (if connected), or you paste the code → publish (30 s).
+💡 When done: I publish it (connector) or you import the files into hostilo.app; then open the live URL on a phone.
 
 [THEN GENERATE THE CODE ACCORDING TO §1–§13]
 ```
@@ -313,9 +305,7 @@ const projectBrief = {
   answers: {
     type: null, industry: null, audience: null, goal: null, cta: null,
     sections: [], aesthetic: null, colors: {}, fonts: {},
-    content: {}, extras: {}, deployMode: 'single-file',
-    siteName: null,        // <name>.hostilo.app or custom domain
-    useTemplate: null      // Hostilo template slug, if chosen
+    content: {}, extras: {}, deployMode: 'single-file'
   },
   designPlan: { direction: null, palette: [], type: {}, signature: null },
   completed: false

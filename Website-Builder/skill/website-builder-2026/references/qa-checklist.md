@@ -18,7 +18,7 @@
 - [ ] **Schema pack validated** in Google Rich Results Test: Organization + WebSite + WebPage, FAQPage if FAQ exists, BreadcrumbList if multi-page
 - [ ] FAQ schema text matches visible FAQ verbatim
 - [ ] Headings phrased as user questions where natural (AEO)
-- [ ] No `sitemap.xml` / `robots.txt` / `llms.txt` files generated (Hostilo would serve them from `assets/`, not the root); canonical, `og:*` and JSON-LD URLs use the real site address
+- [ ] `sitemap.xml` + `robots.txt` (+ optional `llms.txt`) for multi-page sites
 - [ ] **EU AI Act Art. 50 disclosure** in footer · GDPR consent if analytics/cookies
 
 **ACCESSIBILITY (WCAG 2.2 AA):**
@@ -42,22 +42,23 @@
 **FORMS:**
 - [ ] `autocomplete` on every relevant field (+ `inputmode`)
 - [ ] Honeypot present; AJAX submit with native-POST fallback; works without JS
-- [ ] Hostilo Forms `FORM_ID` configured (or TODO + `mailto:` fallback clearly marked)
+- [ ] Form handled per `hostilo-deployment.md` §5: template form, Hostilo `FORM_ID` (confirmed in dashboard), or TODO + `mailto:` fallback clearly marked
+- [ ] No password / card / PIN fields; nothing resembling a login or payment page
 
 **MOBILE & CROSS-BROWSER:**
 - [ ] Real devices: iOS Safari + Android Chrome (not just DevTools)
 - [ ] Desktop: Chrome, Firefox, Safari, Edge
 - [ ] AVIF fallback chain verified (AVIF → WebP → JPG)
 
-**HOSTILO.APP:**
-- [ ] Single-file: zero external CSS/JS files, fonts via Strategy B
-- [ ] Multi-file: all paths relative with no leading `/` (`css/…`, `js/…`, `fonts/…`, `img/…`); external-CSS `url()` relative to the CSS file (`../fonts/…`); `imagesrcset` carries an explicit `assets/` prefix; fonts via Strategy A
-- [ ] Limits respected: ≤ 300 files, ≤ 10 MB per file, ≤ 20 MB total, single `html` ≤ 5 MB; only allowed file types; no video files
-- [ ] `dry_run` passed (MCP deploy) and site name confirmed with the user
-- [ ] Live URL opened: no 404 on `assets/…` (fonts, CSS, JS, images, `og:image`)
-- [ ] URL returned by the publish call matches the address used in canonical, `og:*` and JSON-LD
-- [ ] Handover mentions rollback (`list_versions` / `restore_version`) and later checks: `get_site_stats`, `get_ai_traffic` (AI crawler visits by bot and format)
-- [ ] Post-publish smoke test of the live URL on a real phone
+**HOSTILO:**
+- [ ] Delivery path chosen deliberately (template vs custom; connector vs hand-over)
+- [ ] Single-file ≤ 5 MB, zero external CSS/JS files, fonts via Strategy B
+- [ ] Multi-file ≤ 300 files / 10 MB per file / 20 MB total; relative paths **without leading slash**; `@font-face`/`url()` only in external CSS using `../`; no inline `<style>` relying on rewriting
+- [ ] `dry_run` done before multi-file publish; existing site published with `expected_version`
+- [ ] `{{SITE_URL}}` placeholders all replaced with the URL returned by Hostilo (canonical, og:url, og:image, twitter:image, JSON-LD) — or listed as open items
+- [ ] No promise of `/robots.txt`, `/sitemap.xml` or sub-page URLs unless smoke-tested
+- [ ] Post-publish: `get_site` shows rewritten asset links; live URL opened on a real phone; Lighthouse run on the live URL
+- [ ] User told about: version history/restore, Free vs PRO limits relevant to the brief (custom domain, badge, form quota), any unverified items
 - [ ] No `console.log`, no secrets/API keys in client code
 
 ---

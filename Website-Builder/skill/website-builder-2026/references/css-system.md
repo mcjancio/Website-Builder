@@ -629,7 +629,7 @@
 }
 ```
 
-**Form HTML — with `autocomplete` map (v2.0) + Hostilo static endpoint:**
+**Form HTML — with `autocomplete` map (v2.0). `action` per `hostilo-deployment.md` §5 (template form / Hostilo `FORM_ID` / `action="#"` + TODO + `mailto:` fallback; endpoint pattern not re-verified 2026-10-19):**
 
 ```html
 <form id="contact-form" class="form"
@@ -896,10 +896,9 @@ function updateWithTransition(updateFn) {
 
 **Self-hosted fonts (Strategy A) — `@font-face`:**
 
-Hostilo stores every non-`index.html` file under `assets/` (folders kept), so paths must be **relative, never root-absolute** (`/fonts/…` would miss the file). Put `@font-face` in the external `css/style.css` and reach the fonts with `../fonts/…`; this resolves identically before and after Hostilo's relocation (external CSS is not rewritten).
-
 ```css
-/* css/style.css  →  fonts/display-variable.woff2 */
+/* In the EXTERNAL css/site.css (Hostilo stores it as assets/css/site.css): sibling folders via ../ —
+   correct whether or not the platform rewrites links. Inline <style> must not rely on url() rewriting. */
 @font-face {
   font-family: 'DisplayFont';
   src: url('../fonts/display-variable.woff2') format('woff2-variations');
@@ -914,16 +913,14 @@ Rules: max **2 font families** · variable fonts over static weights · subset t
 **Script & CSS loading:**
 
 ```html
-<!-- Critical CSS: inline in <head>. Non-critical CSS (multi-file mode).
-     RELATIVE paths, no leading "/": Hostilo moves them to assets/ and rewrites them. -->
-<link rel="preload" href="css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="css/style.css"></noscript>
+<!-- Critical CSS: inline in <head>. Non-critical CSS (multi-file mode): -->
+<!-- Relative paths, NO leading slash (Hostilo rewrites relative links in index.html to assets/) -->
+<link rel="preload" href="css/site.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="css/site.css"></noscript>
 
 <!-- JS: always deferred, never parser-blocking -->
 <script defer src="js/app.js"></script>
 ```
-
-`url()` inside an inline `<style>` is rewritten by Hostilo (when the whole file set is published together); `url()` in external CSS is not, so it must be relative to that CSS file (`url(../fonts/…)`).
 
 ---
 

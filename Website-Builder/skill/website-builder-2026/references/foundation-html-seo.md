@@ -19,8 +19,8 @@
        Vimeo, Stripe, Calendly, HubSpot, Tidio. Tighten `https:` to an
        explicit domain allow-list once the project's third parties are known.
        NOTE: X-Frame-Options, frame-ancestors and HSTS work ONLY as HTTP
-       headers (browsers IGNORE them in <meta>) — Hostilo.app sets them at
-       the platform level. Never put them in HTML. -->
+       headers (browsers IGNORE them in <meta>) — Hostilo is documented to set
+       them at the platform level (not re-verified). Never put them in HTML. -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https:; frame-src https:; object-src 'none'; base-uri 'self'; form-action 'self' https:; upgrade-insecure-requests">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -28,9 +28,7 @@
   <!-- ============ SEO CORE ============ -->
   <title>[50–60 chars, primary keyword first]</title>
   <meta name="description" content="[150–160 chars, benefit + CTA]">
-  <!-- [SITE_URL] = the real public address: https://<name>.hostilo.app or the custom domain.
-       Ask for it in the brief; never ship example.com. -->
-  <link rel="canonical" href="https://[SITE_URL]/">
+  <link rel="canonical" href="{{SITE_URL}}/">
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 
   <!-- ============ AI SEARCH / E-E-A-T SIGNALS (GEO/AEO) ============ -->
@@ -46,13 +44,10 @@
   <meta property="og:site_name" content="[Site Name]">
   <meta property="og:locale" content="en_US"> <!-- pl_PL for Polish sites -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://[SITE_URL]/">
+  <meta property="og:url" content="{{SITE_URL}}/">
   <meta property="og:title" content="[Title for social media]">
   <meta property="og:description" content="[Description for social media]">
-  <!-- og:image must be ABSOLUTE. Multi-file: uploaded img/og-image.jpg is served at
-       https://[SITE_URL]/assets/img/og-image.jpg (Hostilo puts extra files under assets/).
-       Single-file: use any public https image URL. -->
-  <meta property="og:image" content="https://[SITE_URL]/assets/img/og-image.jpg">
+  <meta property="og:image" content="{{SITE_URL}}/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="[What the image shows]">
@@ -61,40 +56,40 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="[Title]">
   <meta name="twitter:description" content="[Description]">
-  <meta name="twitter:image" content="https://[SITE_URL]/assets/img/og-image.jpg">
+  <meta name="twitter:image" content="{{SITE_URL}}/og-image.jpg">
 
-  <!-- ============ HOSTILO.APP DEPLOY METADATA (optional) ============
-       Not required by Hostilo's publishing API; harmless provenance tag. -->
+  <!-- ============ HOSTILO DEPLOY METADATA (OPTIONAL) ============
+       {{SITE_URL}} = the live URL returned by Hostilo (currently
+       https://<name>.hostilo.page) or the custom domain. Replace after the
+       first publish and republish. Generator tags are harmless, not required. -->
   <meta name="generator" content="Hostilo.app AI Builder">
+  <meta name="hostilo-version" content="1.0">
 
-  <!-- ============ FAVICON ============
-       Single-file: inline SVG data URI (no extra file needed).
-       Multi-file: relative path (img/favicon.svg), no leading "/". -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23[BRAND_HEX]'/%3E%3C/svg%3E">
-  <!-- Multi-file only: <link rel="apple-touch-icon" href="img/apple-touch-icon.png"> -->
+  <!-- ============ FAVICON ============ -->
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 
   <!-- ============ FONTS — STRATEGY A (PREFERRED): SELF-HOSTED ============
-       Use when deploying multi-file to Hostilo (upload fonts/*.woff2
-       alongside index.html). Fastest FCP, no third-party dependency,
-       GDPR-clean (no Google Fonts IP transfer).
-       Paths are RELATIVE (no leading "/"): Hostilo moves them to assets/
-       and rewrites the links in index.html. -->
+       Use when deploying multi-file to Hostilo (fonts/*.woff2 alongside
+       index.html; Hostilo stores them under assets/ and rewrites RELATIVE
+       links in index.html — never use a leading slash. @font-face lives in
+       the external css/site.css with url(../fonts/…)). Fastest FCP, no third-party dependency,
+       GDPR-clean (no Google Fonts IP transfer). -->
   <link rel="preload" href="fonts/display-variable.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/body-variable.woff2" as="font" type="font/woff2" crossorigin>
   <!-- + matching @font-face rules with font-display: swap in critical CSS (§10) -->
 
   <!-- ============ FONTS — STRATEGY B: GOOGLE FONTS ============
-       Use ONLY in single-file paste-and-go mode (no asset uploads). -->
+       Use ONLY in single-file mode (no asset uploads). -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=[UNIQUE_FONT]:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=[UNIQUE_FONT]:wght@400;600;700&display=swap" media="print" onload="this.media='all'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=[UNIQUE_FONT]:wght@400;600;700&display=swap"></noscript>
 
-  <!-- ============ LCP IMAGE PRELOAD (hero only, if hero has an image) ============
-       Hostilo does NOT rewrite imagesrcset: write the assets/ prefix there yourself (href is rewritten). -->
+  <!-- ============ LCP IMAGE PRELOAD (hero only, if hero has an image) ============ -->
   <link rel="preload" as="image" href="img/hero-lg.avif"
-        imagesrcset="assets/img/hero-sm.avif 640w, assets/img/hero-md.avif 1024w, assets/img/hero-lg.avif 1920w"
+        imagesrcset="img/hero-sm.avif 640w, img/hero-md.avif 1024w, img/hero-lg.avif 1920w"
         imagesizes="100vw" fetchpriority="high">
 
   <!-- ============ CRITICAL CSS (inline: @layer declaration + tokens + above-the-fold) ============ -->
@@ -154,8 +149,7 @@
 - `role="banner"` / `role="main"` / `role="contentinfo"` removed — redundant on top-level `<header>/<main>/<footer>` (implicit landmarks).
 - The old `default-src 'self'`-only CSP was replaced: it instantly broke GA4, GTM, YouTube, Stripe, Calendly and Cloudflare Insights on real deployments.
 - Invalid `<meta http-equiv="X-Frame-Options">` and `Permissions-Policy` metas removed — header-only directives, silently ignored in `<meta>`; the hosting platform sets them.
-- `robots.txt`, `sitemap.xml` and `llms.txt` must live at the domain root. Hostilo puts every uploaded file except `index.html` under `assets/`, so do NOT generate them as files; rely on the `robots` meta and tell the user the platform's own handling of these is unverified.
-- Hostilo-specific path rule: in multi-file mode every internal link in `index.html` is relative with no leading `/` (`css/style.css`, `js/app.js`, `fonts/…`, `img/…`); `href="/"` for the home link is fine.
+- Optional for multi-page sites: publish `/llms.txt` (plain-text site map for AI crawlers) next to `robots.txt` and `sitemap.xml`.
 
 ### §2. JSON-LD SCHEMA PACK (v2.0)
 
@@ -165,7 +159,7 @@
 |---|---|
 | Every page (always) | `Organization` + `WebSite` + `WebPage` (in one `@graph`) |
 | Page contains an FAQ section | + `FAQPage` |
-| Real subpages exist (not just in-page anchors) | + `BreadcrumbList` |
+| Multi-page site / subpage | + `BreadcrumbList` |
 | Blog post / article | + `BlogPosting` (author, datePublished, dateModified, image) |
 | Local business (restaurant, clinic, law firm…) | `Organization` → `LocalBusiness` (+ address, geo, openingHoursSpecification) |
 | E-commerce product page | + `Product` (offers, price, priceCurrency, availability) |
@@ -180,10 +174,10 @@
   "@graph": [
     {
       "@type": "Organization",
-      "@id": "https://[SITE_URL]/#organization",
+      "@id": "{{SITE_URL}}/#organization",
       "name": "[Company Name]",
-      "url": "https://[SITE_URL]/",
-      "logo": { "@type": "ImageObject", "url": "https://[SITE_URL]/assets/img/logo.png" },
+      "url": "{{SITE_URL}}/",
+      "logo": { "@type": "ImageObject", "url": "{{SITE_URL}}/logo.png" },
       "sameAs": [
         "https://www.linkedin.com/company/example",
         "https://x.com/example"
@@ -197,18 +191,18 @@
     },
     {
       "@type": "WebSite",
-      "@id": "https://[SITE_URL]/#website",
-      "url": "https://[SITE_URL]/",
+      "@id": "{{SITE_URL}}/#website",
+      "url": "{{SITE_URL}}/",
       "name": "[Site Name]",
-      "publisher": { "@id": "https://[SITE_URL]/#organization" },
+      "publisher": { "@id": "{{SITE_URL}}/#organization" },
       "inLanguage": "en"
     },
     {
       "@type": "WebPage",
-      "@id": "https://[SITE_URL]/#webpage",
-      "url": "https://[SITE_URL]/",
+      "@id": "{{SITE_URL}}/#webpage",
+      "url": "{{SITE_URL}}/",
       "name": "[Page Title]",
-      "isPartOf": { "@id": "https://[SITE_URL]/#website" },
+      "isPartOf": { "@id": "{{SITE_URL}}/#website" },
       "datePublished": "2026-01-15",
       "dateModified": "2026-02-01"
     }
@@ -250,8 +244,8 @@
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://[SITE_URL]/" },
-    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://[SITE_URL]/blog/" },
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "{{SITE_URL}}/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "{{SITE_URL}}/blog/" },
     { "@type": "ListItem", "position": 3, "name": "[Current page]" }
   ]
 }

@@ -1,14 +1,14 @@
 # Website Builder 2026 — instalacja (Claude + ChatGPT)
 
-Oba warianty korzystają z tej samej treści v2.0. Skill dla Claude dzieli ją na moduły ładowane na żądanie (progressive disclosure — model czyta tylko potrzebną sekcję, oszczędza kontekst); dla ChatGPT kompaktowe instrukcje (7 994 znaków) + pełny plik jako Knowledge.
+Oba warianty korzystają z tej samej treści v2.0. Skill dla Claude dzieli ją na moduły ładowane na żądanie (progressive disclosure — model czyta tylko potrzebną sekcję, oszczędza kontekst); dla ChatGPT kompaktowe instrukcje (7 651 znaków) + pełny plik jako Knowledge.
 
 ## Pliki w paczce
 
 | Plik | Do czego |
 |---|---|
-| `Website-Builder/website-builder-2026.skill` | Skill dla Claude (SKILL.md + 7 plików references) |
-| `Website-Builder/chatgpt/custom-gpt-website-builder.md` | Konfiguracja Custom GPT + gotowy blok Instructions |
-| `Website-Builder/master-website-builder-prompt-2026-v2.md` | Źródło — wgraj jako Knowledge do GPT |
+| `website-builder-2026.skill` | Skill dla Claude (SKILL.md + 7 plików references) |
+| `chatgpt-custom-gpt-website-builder.md` | Konfiguracja Custom GPT + gotowy blok Instructions |
+| `master-website-builder-prompt-2026-v2.md` | Źródło (z poprzedniej wiadomości) — wgraj jako Knowledge do GPT |
 
 ## Claude
 
@@ -17,7 +17,7 @@ Oba warianty korzystają z tej samej treści v2.0. Skill dla Claude dzieli ją n
 **Claude Code:** rozpakuj archiwum (to zwykły ZIP) do `~/.claude/skills/` (globalnie) albo `.claude/skills/` w repo projektu:
 
 ```bash
-unzip Website-Builder/website-builder-2026.skill -d ~/.claude/skills/
+unzip website-builder-2026.skill -d ~/.claude/skills/
 ```
 
 **API / Agent SDK:** skille można też podpiąć programistycznie — aktualna dokumentacja: docs.claude.com.
@@ -26,7 +26,7 @@ Po instalacji skill uruchamia się sam, gdy poprosisz o stronę ("zrób mi landi
 
 ## ChatGPT
 
-Postępuj według `Website-Builder/chatgpt/custom-gpt-website-builder.md`: Custom GPT (Instructions + Knowledge) albo ChatGPT Projects z tym samym blokiem instrukcji.
+Postępuj według `chatgpt-custom-gpt-website-builder.md`: Custom GPT (Instructions + Knowledge) albo ChatGPT Projects z tym samym blokiem instrukcji.
 
 ## Różnice w praktyce
 
@@ -35,4 +35,4 @@ Postępuj według `Website-Builder/chatgpt/custom-gpt-website-builder.md`: Custo
 
 ## Aktualizacje
 
-Źródłem prawdy jest `Website-Builder/master-website-builder-prompt-2026-v2.md` (stare `-PL`/`-EN` to wersje v1, nieaktualne dla nowego Hostilo). Po zmianach: zaktualizuj pliki w folderze skilla i spakuj ponownie (ZIP z folderem `website-builder-2026/` w środku, rozszerzenie `.skill`), a w GPT podmień plik Knowledge.
+Źródłem prawdy jest `master-website-builder-prompt-2026-v2.md`. Po zmianach: zaktualizuj pliki w folderze skilla i spakuj ponownie (ZIP z folderem `website-builder-2026/` w środku, rozszerzenie `.skill`), a w GPT podmień plik Knowledge.
