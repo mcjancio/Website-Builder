@@ -205,7 +205,61 @@
     border-top: 1px solid rgb(230 233 242 / 0.1);
   }
   .site-footer a { color: var(--mist); }
-  .ai-disclosure { opacity: 0.8; }
+  /* ---------- Projects ---------- */
+  .projects {
+    padding: clamp(3.5rem, 8vw, 6.5rem) var(--gutter);
+    background:
+      radial-gradient(60rem 30rem at 0% 0%, rgb(0 15 87 / 0.55), transparent 70%),
+      var(--night);
+  }
+  .projects__head { max-width: 44rem; margin-bottom: clamp(2rem, 4vw, 3rem); }
+  .projects__head h2 { font-size: clamp(2rem, 1.4rem + 2.6vw, 3.25rem); font-weight: 800; margin-bottom: 0.75rem; }
+  .projects__head p { color: var(--mist-dim); }
+
+  .projects__grid {
+    list-style: none; padding: 0;
+    display: grid; gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  }
+  .project { container-type: inline-size; }
+  .project a {
+    position: relative;
+    display: flex; flex-direction: column; gap: 0.5rem;
+    height: 100%;
+    padding: 1.5rem 1.5rem 1.25rem;
+    text-decoration: none;
+    background: rgb(230 233 242 / 0.04);
+    border: 1px solid rgb(230 233 242 / 0.12);
+    border-radius: var(--radius);
+    transition: border-color 0.2s, background-color 0.2s, transform 0.2s var(--ease-out);
+  }
+  .project a::before {
+    /* a short deck segment on every card, echoing the hero line */
+    content: ""; position: absolute; left: 1.5rem; top: -1px;
+    width: 3rem; height: 3px; background: var(--signal);
+    transition: width 0.3s var(--ease-out);
+  }
+  .project a:hover { border-color: rgb(127 176 255 / 0.5); background: rgb(28 64 242 / 0.08); transform: translateY(-2px); }
+  .project a:hover::before { width: calc(100% - 3rem); }
+  .project__tag {
+    font-family: var(--font-display); font-weight: 600; font-size: 0.8125rem;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--sky);
+  }
+  .project__name { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; line-height: 1.15; color: #fff; }
+  .project__desc { color: var(--mist-dim); font-size: 0.975rem; line-height: 1.55; flex: 1; }
+  .project__url { margin-top: 0.5rem; font-weight: 700; color: var(--mist); font-size: 0.9375rem; }
+
+  @media (min-width: 64rem) {
+    .projects__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  .project--lead a {
+    background: linear-gradient(160deg, rgb(28 64 242 / 0.22), rgb(0 15 87 / 0.25));
+    border-color: rgb(127 176 255 / 0.35);
+  }
+  .project--lead a::before { width: 100%; left: 0; border-radius: var(--radius) var(--radius) 0 0; }
+  @container (min-width: 22rem) {
+    .project--lead .project__name { font-size: 1.75rem; }
+  }
 
   /* ---------- Booking page ---------- */
   .page-head {
