@@ -1,0 +1,255 @@
+/* DESIGN DIRECTION: Editorial/Magazine (photo-forward, restrained)
+   Palette: night #05070F / navy #000F57 (brand sygnet) / signal #1C40F2 / sky #3D8BFF / mist #E6E9F2 / paper #F5F6FA
+   Type: Urbanist (display) + Mulish (body) — kept from the original brand, self-hosted variable woff2
+   Signature: a blue "deck line" that draws across the hero like the bridge span in the photo */
+
+@layer reset, tokens, base, components, utilities;
+
+/* ---------- Fonts (self-hosted, variable, latin + latin-ext for Polish) ---------- */
+@font-face {
+  font-family: "Urbanist";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("fonts/urbanist-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Urbanist";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("fonts/urbanist-latin-ext-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Mulish";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 1000;
+  src: url("fonts/mulish-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Mulish";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 1000;
+  src: url("fonts/mulish-latin-ext-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; }
+  * { margin: 0; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  img, picture, svg { display: block; max-width: 100%; }
+  a { color: inherit; }
+}
+
+@layer tokens {
+  :root {
+    --night: #05070f;
+    --navy: #000f57;
+    --signal: #1c40f2;
+    --signal-2: #0a5ad6;
+    --sky: #7fb0ff;
+    --mist: #e6e9f2;
+    --mist-dim: #c4c9d8;
+    --paper: #f5f6fa;
+    --ink: #0b1230;
+
+    --font-display: "Urbanist", "Segoe UI", sans-serif;
+    --font-body: "Mulish", "Segoe UI", sans-serif;
+
+    --step--1: clamp(0.875rem, 0.85rem + 0.1vw, 0.9375rem);
+    --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+    --step-1: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+    --step-4: clamp(2.5rem, 1.6rem + 4.2vw, 5.25rem);
+
+    --gutter: clamp(1rem, 0.5rem + 3vw, 4rem);
+    --radius: 6px;
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@layer base {
+  html { color-scheme: dark; scrollbar-gutter: stable; }
+  body {
+    min-height: 100dvh;
+    font-family: var(--font-body);
+    font-size: var(--step-0);
+    line-height: 1.65;
+    color: var(--mist);
+    background: var(--night);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2 {
+    font-family: var(--font-display);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    color: #fff;
+  }
+  p { text-wrap: pretty; max-width: 62ch; }
+  :focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; border-radius: 2px; }
+  ::selection { background: var(--signal); color: #fff; }
+}
+
+@layer components {
+  /* Skip link */
+  .skip-link {
+    position: absolute; left: 1rem; top: -100px; z-index: 100;
+    padding: 0.75rem 1rem; background: #fff; color: var(--ink);
+    font-weight: 700; border-radius: var(--radius); text-decoration: none;
+  }
+  .skip-link:focus { top: 1rem; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    isolation: isolate;
+    min-height: 100dvh;
+    display: grid;
+    align-items: center;
+    padding: clamp(3rem, 8vh, 6rem) var(--gutter) clamp(5rem, 12vh, 8rem);
+    overflow: hidden;
+  }
+  .hero__media, .hero__media img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: 30% 50%;
+    z-index: -2;
+  }
+  .hero::before {
+    /* Legibility scrim: deep navy from the left, fading into the photo */
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background:
+      linear-gradient(90deg, rgb(5 7 15 / 0.94) 0%, rgb(0 15 87 / 0.72) 42%, rgb(5 7 15 / 0.35) 75%, rgb(5 7 15 / 0.55) 100%),
+      linear-gradient(0deg, rgb(5 7 15 / 0.85) 0%, transparent 35%);
+  }
+  .hero__inner { width: min(100%, 44rem); }
+
+  .hero__eyebrow {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--step--1);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sky);
+    margin-bottom: 1rem;
+  }
+  .hero__title { font-size: var(--step-4); font-weight: 800; }
+
+  /* Signature: the deck line — runs from the text column out to the right edge */
+  .deck {
+    position: relative;
+    height: 3px;
+    margin: clamp(1.25rem, 3vw, 2rem) 0;
+    width: calc(100% + 100vw);
+    background: linear-gradient(90deg, var(--signal) 0%, var(--sky) 18%, rgb(127 176 255 / 0.25) 45%, transparent 70%);
+    transform-origin: left center;
+    animation: deck-draw 1.4s var(--ease-out) 0.2s both;
+  }
+  .deck::before {
+    /* the first "pillar" */
+    content: ""; position: absolute; left: 0; top: -6px;
+    width: 3px; height: 15px; background: var(--signal);
+  }
+  @keyframes deck-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  .bio { display: grid; gap: 1rem; color: var(--mist); }
+  .bio strong { color: #fff; font-weight: 700; }
+
+  .facts {
+    list-style: none; padding: 0;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: clamp(1.75rem, 4vw, 2.5rem);
+    border-top: 1px solid rgb(230 233 242 / 0.18);
+  }
+  .facts li { padding: 1rem 1rem 0 0; }
+  .facts b {
+    display: block;
+    font-family: var(--font-display); font-weight: 800;
+    font-size: var(--step-1); color: #fff; line-height: 1.2;
+  }
+  .facts span { font-size: var(--step--1); color: var(--mist-dim); line-height: 1.4; display: block; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: clamp(2rem, 4vw, 2.75rem); }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    min-height: 48px; padding: 0.75rem 1.4rem;
+    font-family: var(--font-body); font-weight: 800; font-size: 1rem; line-height: 1.1;
+    text-decoration: none; border-radius: var(--radius);
+    border: 2px solid transparent;
+    transition: transform 0.2s var(--ease-out), background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  }
+  .btn svg { width: 1.15em; height: 1.15em; flex: none; fill: currentColor; }
+  .btn--primary {
+    color: #fff;
+    background: linear-gradient(95deg, var(--signal-2) 0%, var(--signal) 100%);
+    box-shadow: 0 10px 30px -10px rgb(28 64 242 / 0.7);
+  }
+  .btn--primary:hover { transform: translateY(-2px); box-shadow: 0 14px 34px -10px rgb(28 64 242 / 0.85); }
+  .btn--ghost { color: #fff; border-color: rgb(230 233 242 / 0.45); background: rgb(5 7 15 / 0.25); }
+  .btn--ghost:hover { border-color: #fff; background: rgb(255 255 255 / 0.08); }
+
+  /* ---------- Footer ---------- */
+  .site-footer {
+    padding: 1.5rem var(--gutter);
+    font-size: var(--step--1);
+    color: var(--mist-dim);
+    display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; justify-content: space-between;
+    border-top: 1px solid rgb(230 233 242 / 0.1);
+  }
+  .site-footer a { color: var(--mist); }
+  .ai-disclosure { opacity: 0.8; }
+
+  /* ---------- Booking page ---------- */
+  .page-head {
+    padding: clamp(1.25rem, 3vw, 2rem) var(--gutter) 0;
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  }
+  .brand {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    font-family: var(--font-display); font-weight: 800; font-size: 1.15rem;
+    color: #fff; text-decoration: none; min-height: 44px;
+  }
+  .brand img { width: 28px; height: 28px; filter: brightness(0) invert(1); }
+  .back { color: var(--mist); font-weight: 700; text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; gap: 0.4rem; }
+  .back:hover { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
+
+  .booking { padding: clamp(2rem, 5vw, 4rem) var(--gutter) clamp(3rem, 6vw, 5rem); }
+  .booking__intro { max-width: 44rem; margin-bottom: clamp(1.5rem, 3vw, 2.5rem); }
+  .booking__intro h1 { font-size: clamp(2rem, 1.4rem + 3vw, 3.5rem); font-weight: 800; }
+  .booking__intro .deck { width: min(100%, 22rem); }
+  .booking__card {
+    background: var(--paper); color: var(--ink);
+    border-radius: 10px;
+    padding: clamp(0.5rem, 2vw, 1.5rem);
+    min-height: 640px;
+    box-shadow: 0 30px 80px -40px rgb(0 15 87 / 0.9);
+  }
+  .booking__card a { color: var(--signal); font-weight: 700; }
+  .booking__fallback { padding: 1.5rem; }
+}
+
+@layer utilities {
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  @media (max-width: 34rem) {
+    .facts { grid-template-columns: 1fr; }
+    .facts li { display: flex; align-items: baseline; gap: 0.75rem; padding-top: 0.75rem; }
+    .facts b { min-width: 5.5rem; }
+    .actions .btn { width: 100%; justify-content: center; }
+    .hero__media img { object-position: 22% 50%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+  }
+}
