@@ -127,7 +127,7 @@
       linear-gradient(90deg, rgb(5 7 15 / 0.94) 0%, rgb(0 15 87 / 0.72) 42%, rgb(5 7 15 / 0.35) 75%, rgb(5 7 15 / 0.55) 100%),
       linear-gradient(0deg, rgb(5 7 15 / 0.85) 0%, transparent 35%);
   }
-  .hero__inner { width: min(100%, 44rem); }
+  .hero__inner { width: min(100%, 48rem); }
 
   .hero__eyebrow {
     font-family: var(--font-display);
@@ -139,6 +139,22 @@
     margin-bottom: 1rem;
   }
   .hero__title { font-size: var(--step-4); font-weight: 800; }
+
+  /* Portrait next to the name */
+  .hero__id { display: flex; align-items: center; gap: clamp(1rem, 2.5vw, 1.75rem); }
+  .hero__id .hero__eyebrow { margin-bottom: 0.5rem; }
+  .hero__id .hero__title { font-size: clamp(2.25rem, 1.2rem + 4vw, 4.5rem); }
+  @media (min-width: 48rem) { .hero__id .hero__title { white-space: nowrap; } }
+  .portrait {
+    flex: none;
+    width: clamp(84px, 6rem + 3vw, 148px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    padding: 4px;
+    background: linear-gradient(135deg, var(--sky), var(--signal) 60%, var(--navy));
+    box-shadow: 0 18px 40px -16px rgb(28 64 242 / 0.8);
+  }
+  .portrait img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #fff; }
 
   /* Signature: the deck line — runs from the text column out to the right edge */
   .deck {
