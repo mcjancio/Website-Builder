@@ -205,6 +205,84 @@
     border-top: 1px solid rgb(230 233 242 / 0.1);
   }
   .site-footer a { color: var(--mist); }
+  /* ---------- Hosting (core business) ---------- */
+  .hosting {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+    padding: clamp(3.5rem, 8vw, 6.5rem) var(--gutter);
+    background:
+      linear-gradient(180deg, var(--night) 0%, #071033 100%);
+    border-top: 1px solid rgb(127 176 255 / 0.15);
+  }
+  @media (min-width: 60rem) {
+    .hosting { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); }
+  }
+  .hosting__eyebrow {
+    font-family: var(--font-display); font-weight: 600; font-size: var(--step--1);
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--sky);
+    margin-bottom: 0.75rem;
+  }
+  .hosting h2 { font-size: clamp(2rem, 1.4rem + 2.6vw, 3.25rem); font-weight: 800; margin-bottom: 1rem; }
+  .hosting__lead { color: var(--mist); }
+  .hosting__points { list-style: none; padding: 0; margin-top: 1.5rem; display: grid; gap: 0.75rem; }
+  .hosting__points li { position: relative; padding-left: 1.75rem; color: var(--mist-dim); max-width: 60ch; }
+  .hosting__points li::before {
+    content: ""; position: absolute; left: 0; top: 0.55em;
+    width: 0.9rem; height: 3px; background: var(--signal);
+  }
+  .hosting__points b { color: #fff; }
+  .hosting .actions { margin-top: 2rem; }
+
+  /* Signature for this section: a server-rack panel, one "unit" per spec */
+  .rack {
+    container-type: inline-size;
+    background: #0a1022;
+    border: 1px solid rgb(230 233 242 / 0.14);
+    border-radius: 10px;
+    padding: 0.75rem;
+    box-shadow: 0 40px 80px -40px rgb(28 64 242 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.05);
+  }
+  .rack__stats { display: grid; gap: 0.5rem; }
+  .rack__unit {
+    position: relative;
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+    padding: 0.9rem 1rem 0.9rem 2.25rem;
+    background: linear-gradient(180deg, #121a33, #0d1429);
+    border: 1px solid rgb(230 233 242 / 0.08);
+    border-radius: 6px;
+  }
+  .rack__unit::before {
+    /* status LED */
+    content: ""; position: absolute; left: 1rem; top: 50%;
+    width: 8px; height: 8px; margin-top: -4px; border-radius: 50%;
+    background: #3ddc84; box-shadow: 0 0 10px #3ddc84;
+    animation: led 2.4s ease-in-out infinite;
+  }
+  .rack__unit:nth-child(2)::before { animation-delay: 0.6s; }
+  .rack__unit:nth-child(3)::before { animation-delay: 1.2s; }
+  .rack__unit:nth-child(4)::before { animation-delay: 1.8s; }
+  @keyframes led { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+  .rack__unit dt { color: var(--mist-dim); font-size: var(--step--1); }
+  .rack__unit dd { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; color: #fff; text-align: right; }
+  .rack__unit dd small { font-family: var(--font-body); font-weight: 600; font-size: 0.8125rem; color: var(--mist-dim); }
+  @container (max-width: 22rem) {
+    .rack__unit { flex-direction: column; align-items: flex-start; gap: 0.15rem; }
+    .rack__unit dd { text-align: left; }
+  }
+  .rack__services {
+    list-style: none; padding: 0.75rem 0.25rem 0.25rem;
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+  }
+  .rack__services li {
+    font-size: 0.875rem; font-weight: 700; color: var(--mist);
+    padding: 0.4rem 0.75rem;
+    border: 1px solid rgb(127 176 255 / 0.3);
+    border-radius: 999px;
+  }
+  .rack__services a { color: var(--sky); text-decoration: none; }
+  .rack__services a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
   /* ---------- Projects ---------- */
   .projects {
     padding: clamp(3.5rem, 8vw, 6.5rem) var(--gutter);
